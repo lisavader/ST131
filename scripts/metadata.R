@@ -4,25 +4,20 @@
 
 #libraries
 library(readxl)
+library(magrittr)
 library(dplyr)
 
 #Set working directory to the directory containing metadata files
 setwd("C:/Users/lies/Documents/Master/Major Research Project/Data/metadata")
 
 #import files
-file1 <- read_excel("./all_rgnosis_strains_metadata_20200223.xlsx")
-file2 <- read_excel("./RGNOSIS_WGS_DATA_20210203.xlsx", sheet = "results")
-file1 <- rename(file1, All_results = all_results)
+rgnosis_metadata <- read_excel("./all_rgnosis_strains_metadata_20200223.xlsx") %>% rename(sample_ID = all_results)
+WGS_metadata <- read_excel("./RGNOSIS_WGS_DATA_20210203.xlsx", sheet = "results") %>% rename(sample_ID = All_results)
+WGS_metadata[105,1] = 43613 #correct faulty sample ID
 
-#remove empty lines (!! This removes all lines without an All_results ID, even if they contain other info!)
-file2 <- file2 %>% filter(All_results!="NA")
+#remove empty lines (!! This removes all lines without a sample ID, even if they contain other info!)
+WGS_metadata <- WGS_metadata %>% filter(sample_ID!="NA")
 
-#merge datasets
-result <- full_join(file1,file2,by="All_results")
-result <- result %>% relocate(All_results)
-
-#What is present in the result file but not in file1?
-setdiff(result$All_results,file1$All_results)
-
-#export file
+#merge datasets and export file
+result <- left_join(WGS_metadata,rgnosis_metadata,by="sample_ID")
 write.csv(result,"./merged_metadata.csv",row.names = FALSE)
