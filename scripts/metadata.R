@@ -22,7 +22,7 @@ result <- full_join(file1,file2,by="All_results")
 result <- result %>% relocate(All_results)
 
 #What is present in the result file but not in file1?
-setdiff(merged$All_results,file1$All_results)
+setdiff(result$All_results,file1$All_results)
 
 #export file
 write.csv(result,"./merged_metadata.csv",row.names = FALSE)
