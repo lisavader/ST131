@@ -8,7 +8,7 @@ library(magrittr)
 library(dplyr)
 
 #Set working directory to the directory containing metadata files
-setwd("C:/Users/lies/Documents/ST131/data/metadata")
+setwd("C:/Users/lies/Documents/Master/Major Research Project/Data/metadata")
 
 #import files
 rgnosis_metadata <- read_excel("./all_rgnosis_strains_metadata_20200223.xlsx") %>% rename(sample_ID = all_results)
