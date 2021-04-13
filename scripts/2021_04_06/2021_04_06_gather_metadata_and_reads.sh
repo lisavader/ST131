@@ -25,6 +25,7 @@ conda activate ncbi_download_mmbioit
 
 #1.1 get the assembly codes to gather the metadata (The assembly codes were obtained from the 2020_08_25_ecoli_list.csv file, which was generated thru the ncbi-genome-download tool, using the -m flag)
 
+#My first approach was to gather all accessions of bacteria with taxid 562 (=E. coli). This however didn't gather all ST131 strains.
 cd genome_download/
 ncbi-genome-download --dry-run bacteria -t 562 -l complete | cut -f 1 | sed '1d' > ecoli_accessions06042021.csv
 
@@ -50,8 +51,12 @@ do
 esearch -db assembly -query ${strain} | elink -target nuccore | efetch -format gb  > accessions/${strain}.txt
 done
 
+#Because I also had non-ST131 files in my accessions directory, I used this code to select those specific to ST131:
+sed -ne 's/$/.txt&/p' ST131_accessions07042021 > ST131_accessionstxt
+rsync -a accessions --files-from=ST131_accessionstxt accessions_ST131
+
 #1.3 Extract the metadata from the files downloaded in 1.2
-cd accessions
+cd accessions_ST131
 
 files=$(ls *txt | sed 's/.txt//g')
 
@@ -61,7 +66,7 @@ do
         source=$(grep '/isolation_source' ${strain}.txt | cut -f 1 -d : | sort -u | sed -z "s/\n//g" | cut -f 2 -d = | sed -z 's/"//g' | sed "s/,/;/g" )
         host=$(grep '/host' ${strain}.txt | cut -f 1 -d : | sort -u | sed -z "s/\n//g" | cut -f 2 -d = | sed -z 's/"//g' | sed "s/,/;/g" )
         seq_tech=$(grep 'Sequencing Technology' ${strain}.txt | sed 's/: /:/g' | cut -f 3 -d : | sort -u | sed "s/,/;/g" )
-        echo ${strain},${seq_tech},${country},${host},${source} >> ../2020_08_25_eutils_metadata.csv
+        echo ${strain},${seq_tech},${country},${host},${source} >> ../2021_04_08_ST131_metadata.csv
 done
 
 
