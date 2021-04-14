@@ -14,7 +14,7 @@ conda activate ncbi_download_mmbioit
 cd ~/data/genome_download
 accessions=$(cat 2021_04_12_hybrid_ecoli_accessions)
 
-for strain in $accessions:
+for strain in $accessions
 do
 esearch -db assembly -query ${strain} | elink -target nuccore | efetch -format fasta  > genomes/${strain}.fna
 done
@@ -24,4 +24,18 @@ mlst genomes/* > mlst_output.tsv
 
 #Some genomes were downloaded in duplicate, creating a double allelic output in the mlst table, eg. adk(53,53) instead of adk(53).
 #Because strains containing multiple alleles are by default not assigned a ST, I used the following code to select all ST131 strains:
-cat mlst_output.tsv | grep adk.53.*fumC.*40.*gyrB.47.*icd.13.*mdh.*36.*purA.28.*recA.*29.* | cut -f 1 > hybrid_ST131_accessions
+cat mlst_output.tsv | grep adk.53.*fumC.*40.*gyrB.47.*icd.13.*mdh.*36.*purA.28.*recA.*29.* | cut -f 1 | cut -c 9-23 > hybrid_ST131_accessions
+
+#To get the biosamples that belong to the assembly accessions:
+accessions=$(cat hybrid_ST131_accessions)
+for accession in $accessions
+do 
+esearch -db assembly -query ${accession} | esummary | grep BioSampleAccn | cut -c 17-28 >> hybrid_ST131_biosamples
+done
+
+#To find which biosamples have short reads uploaded in the sra database, and save their sra accession: 
+biosamples=$(cat hybrid_ST131_biosamples)
+for biosample in $biosamples
+do 
+esearch -db biosample -query "${biosample}" | elink -target sra | efetch -format runinfo  | grep 'Illumina\|ILLUMINA' | cut -f 1 -d , >> hybrid_ST131_sra_accessions
+done
