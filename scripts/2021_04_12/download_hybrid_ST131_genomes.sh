@@ -30,16 +30,42 @@ done
 #Running mlst:
 mlst genomes/* > mlst_output.tsv
 
-#To get the biosamples that belong to the assembly accessions:
-accessions=$(cat hybrid_ST131_accessions)
-for accession in $accessions
+#I selected accessions belonging to ST131 as follows. I manually added one strain which for one of the alleles has a novel full length allele match similar to the 131 allele.
+awk '$3 == 131' mlst_output.tsv | cut -f1 | sed 's/.*\///; s/_A.*//' > longread_ST131_accessions
+echo "GCA_010724935.1" >> longread_ST131_accessions
+
+#Downloading the assembly reports:
+mkdir assembly_reports
+grep -F -f longread_ST131_accessions 2021_04_15_longread_ecoli_ftppaths > longread_ST131_ftppaths
+urls=$(cat longread_ST131_ftppaths)
+for url in $urls
 do 
-esearch -db assembly -query ${accession} | esummary | grep BioSampleAccn | cut -c 17-28 >> hybrid_ST131_biosamples
+wget ${url}/*assembly_report.txt -P assembly_reports/
 done
 
-#To find which biosamples have short reads uploaded in the sra database, and save their sra accession: 
-biosamples=$(cat hybrid_ST131_biosamples)
+#Creating metadata table:
+echo 'Genbank assembly accession,BioSample,BioProject,Sequencing technology' > longread_ST131_metadata.csv
+
+for report in assembly_reports/*assembly_report.txt
+do
+accession=$(grep 'GenBank assembly accession' ${report} | cut -d : -f 2 | xargs | dos2unix)
+biosample=$(grep 'BioSample' ${report} | cut -d : -f 2 | xargs | dos2unix)
+bioproject=$(grep 'BioProject' ${report} | cut -d : -f 2 | xargs | dos2unix)
+seq_tech=$(grep 'Sequencing technology' ${report} | cut -d : -f 2 | xargs | dos2unix)
+echo ${accession},${biosample},${bioproject},${seq_tech} >> longread_ST131_metadata.csv
+done
+
+#To find which biosamples have short reads uploaded in the sra database, and download the short reads: 
+biosamples=$(cat longread_ST131_metadata.csv | sed '1d' | cut -d , -f 2)
 for biosample in $biosamples
 do 
-esearch -db biosample -query "${biosample}" | elink -target sra | efetch -format runinfo  | grep 'Illumina\|ILLUMINA' | cut -f 1 -d , >> hybrid_ST131_sra_accessions
+esearch -db biosample -query "${biosample}" | elink -target sra | efetch -format runinfo  | grep 'Illumina\|ILLUMINA' | cut -f 1 -d , >> longread_ST131_sra_accessions
+done
+
+mkdir sra_files
+sra_accessions=$(cat longread_ST131_sra_accessions)
+
+for accession in $sra_accessions
+do
+fasterq-dump --split-files ${accession} -O sra_files
 done
