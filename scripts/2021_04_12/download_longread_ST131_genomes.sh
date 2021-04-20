@@ -1,3 +1,5 @@
+#This script explains how I downloaded the assembly sequences of E. coli ST131 strains that have been sequenced by long read technology, and additionally the short reads of strains that were sequenced in hybrid.
+
 #I created a conda environment based on the file ncbi_download_mmbioit.yml set up by Julian Paganini. 
 #This environment contains all the tools I used.
 
@@ -10,40 +12,43 @@ conda activate ncbi_download_mmbioit
 #(hybrid[Sequencing Technology] OR gridion[Sequencing Technology] OR pacbio[Sequencing Technology] OR pacific[Sequencing Technology] OR minion[Sequencing Technology] OR nanopore[Sequencing Technology] OR sequel[Sequencing Technology]) AND ("Escherichia coli"[Organism] OR Escherichia coli[All Fields]) AND (latest[filter] AND "complete genome"[filter] AND all[filter] NOT anomalous[filter])
 #And saved the accessions (send to file: ID Table) in a file called 2021_04_15_longread_ecoli_list.
 
-#To get their accessions and ftp paths:
-cat 2021_04_15_longread_ecoli_list.txt | cut -f 1 | sed '1d' | sort > 2021_04_15_longread_ecoli_accessions
-for accession in $accessions
+cat 2021_04_15_longread_ecoli_list.txt | cut -f 1 | sed '1d' | sort > 2021_04_15_longread_ecoli_accessions #cut out the column containing accessions
+
+#I used the entrez utility function esummary to find the ftp path belonging to each accession. 
+#These ftp paths are used to download the assembly sequences and metadata files.
+ecoli_accessions=$(cat 2021_04_15_longread_ecoli_accessions)
+for accession in $ecoli_accessions
 do
 esearch -db assembly -query ${accession} | esummary | xmllint --xpath "string(//FtpPath[@type='GenBank'])" - >> 2021_04_15_longread_ecoli_ftppaths
 done
 
-#Downloading the sequences in fasta format:
-urls=$(cat 2021_04_15_longread_ecoli_ftppaths)
+#To download the assemblies in fasta format by wget:
+ecoli_urls=$(cat 2021_04_15_longread_ecoli_ftppaths)
 cd ~/data/genome_download/genomes
 
-for url in $urls
+for url in $ecoli_urls
 do
 name=$(cut -d / -f 10 <<<${url})
 wget ${url}/${name}_genomic.fna.gz
 done
 
-#Running mlst:
+#Because I specifically wanted to select E. coli strains belonging to ST131, I performed mlst:
 mlst genomes/* > mlst_output.tsv
 
 #I selected accessions belonging to ST131 as follows. I manually added one strain which for one of the alleles has a novel full length allele match similar to the 131 allele.
 awk '$3 == 131' mlst_output.tsv | cut -f1 | sed 's/.*\///; s/_A.*//' > longread_ST131_accessions
 echo "GCA_010724935.1" >> longread_ST131_accessions
 
-#Downloading the assembly reports:
+#Downloading the assembly reports for ST131, again using the ftp paths:
 mkdir assembly_reports
 grep -F -f longread_ST131_accessions 2021_04_15_longread_ecoli_ftppaths > longread_ST131_ftppaths
-urls=$(cat longread_ST131_ftppaths)
-for url in $urls
+ST131_urls=$(cat longread_ST131_ftppaths)
+for url in $ST131_urls
 do 
 wget ${url}/*assembly_report.txt -P assembly_reports/
 done
 
-#Creating metadata table:
+#To summarise the info in the assembly reports I made a short metadata table:
 echo 'Genbank assembly accession,BioSample,BioProject,Sequencing technology' > longread_ST131_metadata.csv
 
 for report in assembly_reports/*assembly_report.txt
