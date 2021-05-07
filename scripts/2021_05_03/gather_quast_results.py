@@ -31,13 +31,13 @@ def create_bin_length_dict(strain):
     bins=glob.glob('plasmid_*fasta') #this will have to change for every software
     for prediction in bins:
         prediction_modified=prediction.replace('.fasta','')
-        #print(prediction_modified)
+        print(prediction_modified)
         with open(prediction) as fasta_prediction:
             prediction_parser = fastaparser.Reader(fasta_prediction, parse_method='quick')
             for seq in prediction_parser:
                 #the contig name might have to be change for every software
                 contig_name=seq.header.replace('>','')
-                contig_name=contig_name.split('_')[0:2]
+                contig_name=contig_name.split('_')[0:1]
                 contig_name='_'.join(contig_name)
                 contig_length=len(seq.sequence)
                 bin_length_dict[contig_name]=contig_length
@@ -87,7 +87,7 @@ def bin_status(strain):
                             alignment_length=abs(int(information[3])-int(information[2]))+1 #LENGTH OF THE ALIGNMENT
                             indels=abs(alignment_length-(abs(int(information[0])-int(information[1]))+1))
                             alignment_length=alignment_length-indels #LENGTH OF THE ALIGNMENT
-                            contig_name=information[5].split('_')[0:2]                                
+                            contig_name=information[5].split('_')[0:1]                                
                             contig_name='_'.join(contig_name)
 
                                 
@@ -145,7 +145,7 @@ def bin_status(strain):
                                 information=line.split('\t')
                                 #contig_coverage=information[1].split('_')[5]
                                 contig_length=line.split('\t')[2]
-                                contig_name=information[1].split('_')[0:2]                                
+                                contig_name=information[1].split('_')[0:1]                                
                                 contig_name='_'.join(contig_name)
                                 with open('../mob_unaligned_contigs.csv', 'a+') as unaligned_file:
                                     unaligned_file.write(strain+','+contig_name+','+contig_length+','+'\n')
@@ -173,7 +173,7 @@ def bin_status(strain):
                                               try:
                                                    #this section of the code will gather the information on the refrence replicon andof the contig name.                                   
                                                   reference_name=alignment_information[4]
-                                                  contig_name=alignment_information[5].split('_')[0:2]
+                                                  contig_name=alignment_information[5].split('_')[0:1]
                                                   contig_name='_'.join(contig_name)
                                                   alignment_length=abs(int(alignment_information[3])-int(alignment_information[2]))+1 #LENGTH OF THE ALIGNMENT
                                                   indels=abs(alignment_length-(abs(int(alignment_information[0])-int(alignment_information[1]))+1))
@@ -248,7 +248,7 @@ def bin_status(strain):
                                 alignment_length=abs(int(information[3])-int(information[2]))+1 #LENGTH OF THE ALIGNMENT
                                 indels=abs(alignment_length-(abs(int(information[0])-int(information[1]))+1))
                                 alignment_length=alignment_length-indels #LENGTH OF THE ALIGNMENT
-                                contig_name=information[5].split('_')[0:2]
+                                contig_name=information[5].split('_')[0:1]
                                 contig_name='_'.join(contig_name) #NAME OF THE CONTIG
                                 
                                 
@@ -301,7 +301,7 @@ def bin_status(strain):
                                 ambiguous_alignment_length=abs(int(ambiguous_information[3])-int(ambiguous_information[2]))+1 #LENGTH OF THE ALIGNMENT
                                 indels=abs(ambiguous_alignment_length-(abs(int(ambiguous_information[0])-int(ambiguous_information[1]))+1))
                                 ambiguous_alignment_length=ambiguous_alignment_length-indels
-                                contig_name=ambiguous_information[5].split('_')[0:2]
+                                contig_name=ambiguous_information[5].split('_')[0:1]
                                 contig_name='_'.join(contig_name)
                                 
                                  
@@ -372,7 +372,7 @@ def bin_status(strain):
                                         try:
                                             #this section of the code will gather the information on the refrence replicon andof the contig name.
                                             reference_name=alignment_information[4]
-                                            contig_name=alignment_information[5].split('_')[0:2]
+                                            contig_name=alignment_information[5].split('_')[0:1]
                                             contig_name='_'.join(contig_name)
                                             alignment_length=abs(int(alignment_information[3])-int(alignment_information[2]))+1 #LENGTH OF THE ALIGNMENT
                                             indels=abs(alignment_length-(abs(int(alignment_information[0])-int(alignment_information[1]))+1))
@@ -441,7 +441,7 @@ def bin_status(strain):
                                         try:  
                                             #this section of the code will gather the information on the refrence replicon andof the contig name.                                                                                  
                                             reference_name=alignment_information[4]
-                                            contig_name=alignment_information[5].split('_')[0:2]
+                                            contig_name=alignment_information[5].split('_')[0:1]
                                             contig_name='_'.join(contig_name)
                                             alignment_length=abs(int(alignment_information[3])-int(alignment_information[2]))+1 #LENGTH OF THE ALIGNMENT
                                             indels=abs(alignment_length-(abs(int(alignment_information[0])-int(alignment_information[1]))+1))
@@ -634,17 +634,20 @@ def bin_status(strain):
                 
 #directories paths
 wd=os.path.dirname(os.path.realpath(__file__))
-predictions_directory='~/data/mobsuite_test/mob_predictions/'
-alignment_directory='~/data/mobsuite_test/quast_output/'
+predictions_directory='mob_predictions/'
+alignment_directory='quast_output/'
 
 os.chdir(predictions_directory) #this will have to change for every software
-genomes=glob.glob('GCA*') #this will have to change for every software
+genomes=glob.glob('?RR*') #this will have to change for every software
 os.chdir(wd)
 
-
 for files in genomes:
-    #try:
-    create_bin_length_dict(files)
-    bin_status(files)
-    #except:
-        #print('error, see above')
+	print(files)
+	try:
+		create_bin_length_dict(files)
+	except:
+		print("Error in create_bin_length_dict")
+	try:
+		bin_status(files)
+	except:
+		print('Error in bin_status')
