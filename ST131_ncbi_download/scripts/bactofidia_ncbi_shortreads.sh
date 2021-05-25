@@ -1,3 +1,4 @@
+cd ~/data/genome_download/sra_files
 
 #Rename sra files so that they are _R1.fasta instead of _1.fasta
 files=$(ls *.fastq)
@@ -14,7 +15,7 @@ done
 #but takes a long time, so would rather have a different solution
 gzip *.fastq
 
-#Run bactofidia with group installation
-screen -S bactofidia
-srun --gres=tmpspace:4G --mem=32G --time=32:00:00 -c 8 --pty bash
-bactofidia-stable ALL
+#Run bactofidia as normal
+cd ~/data/bactofidia
+ln -s ../genome_download/sra_files/* .
+sbatch --time 32:00:00 --mem 32G -c 8 bactofidia.sh ALL
