@@ -31,5 +31,5 @@ cd plasmidspades_slurm_scripts
 jobs=$(ls)
 for slurm in $jobs
 do
-sbatch --time=2:30:00 --mem=20G ${slurm}
+sbatch --time=4:30:00 --mem=20G ${slurm}
 done
