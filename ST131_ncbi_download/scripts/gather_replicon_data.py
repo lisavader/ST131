@@ -39,13 +39,12 @@ def get_replicon_info(assembly_accession):
 				classification='chromosome'
 			length=len(replicon.sequence)
 		
-			#print(assembly_accession+','+reference_id+','+str(length)+','+classification+'\n')
 			#Write to file
 			with open('../replicon_data.csv', 'a+') as output:
 				output.write(assembly_accession+','+reference_id+','+str(length)+','+classification+'\n')
 
 #define directory paths
-wd='/home/dla_mm/lvader/data/genome_download'
+wd='home/dla_mm/lvader/data/ST131_repo/ST131_ncbi_download/results')
 genomes_directory='genomes'
 
 os.chdir(wd)
