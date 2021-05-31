@@ -1,6 +1,7 @@
-cd ~/data/genome_download/sra_files
+cd ../sra_files
 
 #Rename sra files so that they are _R1.fasta instead of _1.fasta
+#I don't know whether this is actually necessary
 files=$(ls *.fastq)
 
 for file in $files
@@ -17,5 +18,5 @@ gzip *.fastq
 
 #Run bactofidia as normal
 cd ~/data/bactofidia
-ln -s ../genome_download/sra_files/* .
+ln -s ~/data/ST131_repo/ST131_ncbi_download/sra_files/*.fastq.gz .
 sbatch --time 32:00:00 --mem 32G -c 8 bactofidia.sh ALL
