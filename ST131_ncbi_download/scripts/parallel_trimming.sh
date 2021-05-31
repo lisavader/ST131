@@ -6,7 +6,7 @@
 source /home/dla_mm/lvader/data/miniconda3/etc/profile.d/conda.sh
 conda activate spades
 
-cd ~/data/genome_download/
+cd ../results
 
 #get a list of the files
 files=$(cat longread_ST131_sra_accessions)
