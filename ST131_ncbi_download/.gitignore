@@ -1,0 +1,5 @@
+#ignore these directories
+
+assembly_reports
+genomes
+sra_files
