@@ -1,10 +1,11 @@
 #This script explains how I downloaded the assembly sequences of E. coli ST131 strains that have been sequenced by long read technology, and additionally the short reads of strains that were sequenced in hybrid.
 
+cd ~/data/ST131_repo/ST131_ncbi_download
+
 #I created a conda environment based on the file ncbi_download_mmbioit.yml set up by Julian Paganini. 
 #This environment contains all the tools I used.
 
-cd ~/data/scripts/06_04_2021/
-conda env create -f ncbi_download_mmbioit.yml
+conda env create -f scripts/ncbi_download_mmbioit.yml
 conda activate ncbi_download_mmbioit
 
 #I searched for all E. coli long read assemblies in the https://www.ncbi.nlm.nih.gov/ Assembly database.
@@ -12,6 +13,7 @@ conda activate ncbi_download_mmbioit
 #(hybrid[Sequencing Technology] OR gridion[Sequencing Technology] OR pacbio[Sequencing Technology] OR pacific[Sequencing Technology] OR minion[Sequencing Technology] OR nanopore[Sequencing Technology] OR sequel[Sequencing Technology]) AND ("Escherichia coli"[Organism] OR Escherichia coli[All Fields]) AND (latest[filter] AND "complete genome"[filter] AND all[filter] NOT anomalous[filter])
 #And saved the accessions (send to file: ID Table) in a file called 2021_04_15_longread_ecoli_list.
 
+cd results
 cat 2021_04_15_longread_ecoli_list.txt | cut -f 1 | sed '1d' | sort > 2021_04_15_longread_ecoli_accessions #cut out the column containing accessions
 
 #I used the entrez utility function esummary to find the ftp path belonging to each accession. 
@@ -24,7 +26,9 @@ done
 
 #To download the assemblies in fasta format by wget:
 ecoli_urls=$(cat 2021_04_15_longread_ecoli_ftppaths)
-cd ~/data/genome_download/genomes
+
+mkdir genomes
+cd genomes
 
 for url in $ecoli_urls
 do
@@ -33,9 +37,10 @@ wget ${url}/${name}_genomic.fna.gz
 done
 
 #Because I specifically wanted to select E. coli strains belonging to ST131, I performed mlst:
-mlst genomes/* > mlst_output.tsv
+mlst *.fna.gz > ../mlst_output.tsv
 
 #I selected accessions belonging to ST131 as follows. I manually added one strain which for one of the alleles has a novel full length allele match similar to the 131 allele.
+cd ..			#move to results directory
 awk '$3 == 131' mlst_output.tsv | cut -f1 | sed 's/.*\///; s/_A.*//' > longread_ST131_accessions
 echo "GCA_010724935.1" >> longread_ST131_accessions
 
@@ -45,7 +50,7 @@ grep -F -f longread_ST131_accessions 2021_04_15_longread_ecoli_ftppaths > longre
 ST131_urls=$(cat longread_ST131_ftppaths)
 for url in $ST131_urls
 do 
-wget ${url}/*assembly_report.txt -P assembly_reports/
+wget ${url}/*assembly_report.txt -P assembly_reports
 done
 
 #To summarise the info in the assembly reports I made a short metadata table:
