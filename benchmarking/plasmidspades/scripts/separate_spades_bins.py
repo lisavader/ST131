@@ -11,7 +11,7 @@ import fastaparser
 
 wd=os.path.dirname(os.path.realpath(__file__))
 os.chdir(wd)
-os.chdir('spades_predictions')
+os.chdir('../results/spades_predictions')
 genomes=glob.glob('?RR*')
 
 
@@ -32,6 +32,8 @@ def organize_genome(input_folder):
         #loop thru the set to create a new fasta file for each component
         for bins in components:
             search=bins
+            with open(input_folder+'/'+strain+'_'+search+'.fasta', 'w') as bin_file:	#create empty file
+                pass	
             with open(input_folder+'/'+strain+'_'+search+'.fasta', 'a+') as bin_file:
                 for seq in parser:
                     if search in seq.header:
