@@ -6,13 +6,13 @@
 source /home/dla_mm/lvader/data/miniconda3/etc/profile.d/conda.sh
 conda activate spades
 
-cd ~/data/benchmarking/plasmidspades
+cd ../results
 
 #make directory for holding the results
 mkdir spades_predictions
 
 #get a list of the files
-files=$(cat ../../genome_download/longread_ST131_sra_accessions)
+files=$(cat ../../../ST131_ncbi_download/longread_ST131_sra_accessions)
 
 #create folder for temporary slurm scripts
 mkdir plasmidspades_slurm_scripts
@@ -22,8 +22,8 @@ mkdir plasmidspades_slurm_scripts
 for strain in $files
 do
 echo "#!/bin/bash
-cd ~/data/genome_download
-plasmidspades.py --only-assembler -1 trimmed_sra_files/${strain}_R1*.fq -2 trimmed_sra_files/${strain}_R2*.fq -o ../benchmarking/plasmidspades/spades_predictions/${strain}" > plasmidspades_slurm_scripts/${strain}
+cd ~/data/ST131_repo/ST131_ncbi_download
+plasmidspades.py --only-assembler -1 trimmed_sra_files/${strain}_R1*.fq -2 trimmed_sra_files/${strain}_R2*.fq -o ../benchmarking/plasmidspades/results/spades_predictions/${strain}" > plasmidspades_slurm_scripts/${strain}
 done
 
 #Run the scripts
