@@ -1,0 +1,18 @@
+#ignore these directories
+
+#plasmidspades
+plasmidspades_slurm_scripts
+spades_predictions
+plasmidspades/results/quast_output/*
+!plasmidspades/results/quast_output/*.csv
+
+#mobsuite
+mob_sbatch_scripts
+mob_predictions
+mobsuite/results/quast_output/*
+!mobsuite/results/quast_output/*.csv
+
+#mobsuite_bac
+mobsuite_bac/results/quast_output/*
+!mobsuite_bac/results/quast_output/*.csv
+
