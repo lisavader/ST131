@@ -10,5 +10,5 @@ echo $assembly_accession,$line >> outfile.csv		#new file has a first column with
 done
 
 #replace original file with new file
-cat outfile.csv > mob_bac_alignments_statistics.csv
+cat outfile.csv > mob_alignments_statistics.csv
 rm outfile.csv
