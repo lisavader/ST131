@@ -3,6 +3,7 @@
 #plasmidspades
 plasmidspades_slurm_scripts
 spades_predictions
+quast_slurm_scripts
 plasmidspades/results/quast_output/*
 !plasmidspades/results/quast_output/*.csv
 
