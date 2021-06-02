@@ -1,0 +1,199 @@
+---
+title: "st_131_plasmid_quast"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_knit$set(echo = TRUE)
+```
+
+```{r}
+require(readr)
+require(tidyr)
+require(dplyr)
+require(magrittr)
+require(ggplot2)
+
+```
+
+
+## Script for processing QUAST output
+
+#1. Calculating Recall
+
+1. Get a dataframe similar to strains_all_replicons (this you will have to do by yourself)
+This dataframe contains the following information: strain_name, referece_id,length, classification. (For the refrence replicons)
+@strain_name: GCA_012321....
+@reference_id: CP124312.1
+@length: 25000
+@classification: 'plasmid' or 'chromosome'
+2. Import and wrangle the output from the gather_quast_results
+3. Fuse the information from alignemtns with the plasmid_lengths (will be used to calculate recall).
+4. Calculate recall
+5. Deal with recall=0 values.
+  
+  
+
+```{r}
+
+#1.------ Get a list of all replicons, with their references_id and the lengths ----- #You should do get this info. Maybe using a little python script?
+strains_all_replicons <- read.csv("genome_download/replicon_data.csv", header = FALSE)
+names(strains_all_replicons)<-c('assembly_accession','reference_id','replicon_length','classification')
+#------------------------------------------------------------------------------------__#
+
+#2. ------ Import and process the results from QUAST
+#MOB
+quast_output_mob<-read.csv('mobsuite_test/quast_30042021/quast_output/mob_alignments_statistics.csv', sep=',', header=FALSE)
+names(quast_output_mob)<-c('assembly_accession','sra_accession','bin_name_temp','reference_id','alignment_length','bin_length')
+quast_output_mob %<>% mutate(software = "MOB-suite (unicycler assembly)")
+#For MOB-suite we will fuse the name of the bin with the name of the strain, to be able to do statistics properly
+quast_output_mob<-unite(quast_output_mob,'bin_name',c('sra_accession','bin_name_temp'),remove=FALSE) 
+#remove old bin name
+quast_output_mob<-quast_output_mob[,c(2,1,3,5:8)]
+
+#MOB_BAC
+quast_output_mob_bac<-read.csv('mobsuite_bac/mob_bac_alignments_statistics.csv', sep=',', header=FALSE)
+names(quast_output_mob_bac)<-c('assembly_accession','sra_accession','bin_name_temp','reference_id','alignment_length','bin_length')
+quast_output_mob_bac %<>% mutate(software = "MOB-suite (bactofidia assembly)")
+#For MOB-suite we will fuse the name of the bin with the name of the strain, to be able to do statistics properly
+quast_output_mob_bac<-unite(quast_output_mob_bac,'bin_name',c('sra_accession','bin_name_temp'),remove=FALSE) 
+#remove old bin name
+quast_output_mob_bac<-quast_output_mob_bac[,c(2,1,3,5:8)]
+
+#SPADES
+quast_output_spades<-read.csv('plasmidspades_test/spades_alignments_statistics.csv', sep = ',', header = FALSE)
+names(quast_output_spades)<-c('assembly_accession','sra_accession','bin_name','reference_id','alignment_length','bin_length')
+quast_output_spades %<>% mutate(software = "plasmidspades")
+
+#combine all quast output
+quast_output_all<-full_join(quast_output_mob,quast_output_mob_bac)
+
+#3. ------- Cross the info with the replicons metadata (length and classification is most important) --------
+quast_output_plasmids_chromosomes<-full_join(strains_all_replicons,quast_output_all,by=c('assembly_accession','reference_id'))
+#3.1 filter replicons classified as plasmids
+quast_output_plasmids<-filter(quast_output_plasmids_chromosomes,classification=='plasmid')
+#3.2 Add the sofotware classificaiton (not needed for Lisa)
+#quast_output_plasmids$software<-'MOB-suite'
+#3.3 For cases in which the bin_name was not present, this mean that the tool did not detected this plasmid. Assign that category.
+quast_output_plasmids$bin_name<-ifelse(is.na(quast_output_plasmids$bin_name),"not_detected",as.character(quast_output_plasmids$bin_name))
+#For this cases also assign an alignment length =0
+quast_output_plasmids$alignment_length[is.na(quast_output_plasmids$alignment_length)]<-0
+#assign not applicable to all the rest of NA
+quast_output_plasmids[is.na(quast_output_plasmids)]<-'not_applicable'
+
+#4 Calculate recall for every bin
+quast_output_plasmids$recall_bp<-as.numeric(quast_output_plasmids$alignment_length)/as.numeric(quast_output_plasmids$replicon_length)
+
+#5. Now assign a 'not detected' category for recall=0 (to exclude this values from calculations)
+quast_output_plasmids$recall_bp<-ifelse(quast_output_plasmids$recall_bp==0,'not_detected',as.numeric(quast_output_plasmids$recall_bp))
+
+```
+
+
+#2. Calculating Precision
+For calculating precision correctly, we will have to substract the exceeding multiple alignments lengths. (otherwise, total alignment could be larger than the bin-length, therefore precision could be larger than 1, and that is not possible) 
+
+To achieve this, we will first obtain how many times each contig aligns to the replicon (n), then we would substract one from that number (n-1) and finally we will substract (n-1)*contig_length from the alignment length for those specific cases.
+
+n, and contig_length can be obtained from the files 'mob_ambiguous_references', which was an output from the 'gather_quast_results.py script'
+
+1. Import and wrangle the data from the mulitple alignments
+2. Fuse the information with the recall infomration
+3. Calculate Precision
+4. Calculate the F1-Score
+
+```{r, warning=FALSE, fig.width=14, fig.height=18}
+
+#1.----- Import Ambiguous alignment information and wrange the data
+
+#mob
+ambiguous_alignments_mob<-read.csv('mobsuite_test/quast_30042021/quast_output/mob_ambiguous_references.csv', sep=',', header=FALSE)
+names(ambiguous_alignments_mob)<-c('sra_accession','bin_name_temp','reference_id','contig_name','contig_length','start','end')
+ambiguous_alignments_mob<-unite(ambiguous_alignments_mob,'bin_name',c('sra_accession','bin_name_temp'),remove=FALSE) 
+#remove old bin name
+ambiguous_alignments_mob<-ambiguous_alignments_mob[,c(1,2,4:8)]
+ambiguous_alignments_mob$software<-'MOB-suite (unicycler assembly)'
+
+#mob_bact
+ambiguous_alignments_mob_bac<-read.csv('mobsuite_bac/mob_bac_ambiguous_references.csv', sep=',', header=FALSE)
+names(ambiguous_alignments_mob_bac)<-c('sra_accession','bin_name_temp','reference_id','contig_name','contig_length','start','end')
+ambiguous_alignments_mob_bac<-unite(ambiguous_alignments_mob_bac,'bin_name',c('sra_accession','bin_name_temp'),remove=FALSE) 
+#remove old bin name
+ambiguous_alignments_mob_bac<-ambiguous_alignments_mob_bac[,c(1,2,4:8)]
+ambiguous_alignments_mob_bac$software<-'MOB-suite (bactofidia assembly)'
+
+#merge files of different softwares
+ambiguous_alignments_mob %<>% mutate(contig_name = as.character(contig_name))
+ambiguous_alignments_total<-full_join(ambiguous_alignments_mob,ambiguous_alignments_mob_bac)
+
+#remove duplications of the same ambiguous contig being included twice
+ambiguous_alignments_total<-unique(ambiguous_alignments_total)
+
+#count how many times each contig ambiguously aligns to the same replicon (n)
+count_ambiguous_alignments_to_same_replicon<- ambiguous_alignments_total %>% group_by(sra_accession,bin_name,reference_id,contig_name) %>% summarise(total_ambiguous_alignments=n())
+
+#join this information with the ambiguous_alignments_mob
+all_ambiguous_alignments<-inner_join(ambiguous_alignments_total,count_ambiguous_alignments_to_same_replicon,by=c('sra_accession','bin_name','reference_id','contig_name'))
+
+#filter out the start and end column
+all_ambiguous_alignments<-all_ambiguous_alignments[,-c(6,7)]
+
+#filter the multiple_alignments 
+multiple_ambiguous_alignments<-unique(filter(all_ambiguous_alignments,total_ambiguous_alignments>=2))
+#the problem here is that we have several entries that have a slightly different contig lenght. We will retain the largest
+multiple_ambiguous_alignments<-multiple_ambiguous_alignments %>% group_by(sra_accession,bin_name,reference_id,contig_name) %>% mutate(max_length=max(contig_length)) %>% ungroup() %>% filter(contig_length==max_length)
+
+#get the total substraciton contigs (n-1)
+multiple_ambiguous_alignments$substraction_times<-multiple_ambiguous_alignments$total_ambiguous_alignments-1
+
+#now get the length that we will have to substract
+multiple_ambiguous_alignments$ambiguous_substraction_length<-multiple_ambiguous_alignments$contig_length*multiple_ambiguous_alignments$substraction_times
+
+#now we will sum all ambiguous substraction lengths that belong to the same bin_name/refrence_id (because there might be multiple contigs within the same bin that align to the same replicon)
+multiple_ambiguous_alignments_final_substracion_data<-multiple_ambiguous_alignments %>% group_by(sra_accession,bin_name,reference_id,software) %>% summarise(total_substraction_length=sum(ambiguous_substraction_length))
+ 
+
+#2.---- Cross information with the 'quast_output_plasmids' from previous section (this will allow us to calculate precision) ------
+quast_output_plasmids<-left_join(quast_output_plasmids,multiple_ambiguous_alignments_final_substracion_data,by=c('sra_accession','bin_name','reference_id','software'))
+#replace NA values with 0 in the total_substraction_length (for cases in which there are no multiple alignments)
+quast_output_plasmids$total_substraction_length[is.na(quast_output_plasmids$total_substraction_length)]<-0
+
+#2.1 Substract 'full alignment length' with 'multiple alignment length' to get the 'alignment length' that will be used for precision calculation
+quast_output_plasmids$alignment_length_precision<-(quast_output_plasmids$alignment_length-quast_output_plasmids$total_substraction_length)
+
+
+#3. ------- Calculate precision
+quast_output_plasmids$precision_bp<-quast_output_plasmids$alignment_length_precision/as.numeric(quast_output_plasmids$bin_length)
+
+#format the data and round the results
+quast_output_plasmids$precision_bp<-as.numeric(quast_output_plasmids$precision_bp)
+quast_output_plasmids$recall_bp<-as.numeric(quast_output_plasmids$recall_bp)
+quast_output_plasmids$recall_bp<-round(quast_output_plasmids$recall_bp,3)
+quast_output_plasmids$precision_bp<-round(quast_output_plasmids$precision_bp,3)
+
+
+#4 --- Calculate f1-score
+quast_output_plasmids$f1_score<-round(2*((quast_output_plasmids$precision_bp*quast_output_plasmids$recall_bp)/(quast_output_plasmids$precision_bp+quast_output_plasmids$recall_bp)),3)
+
+#convert NA to 0 for scores
+quast_output_plasmids[is.na(quast_output_plasmids)]<-0
+
+```
+
+Some plotting
+
+```{r}
+quast_output_plasmids %<>% mutate(multiple_runs = ifelse(assembly_accession=="GCA_002056635.1","A","no"))
+quast_output_plasmids %<>% mutate(multiple_runs = ifelse(assembly_accession=="GCA_002180195.1","B",multiple_runs))
+quast_output_plasmids %<>% mutate(multiple_runs = ifelse(assembly_accession=="GCA_002202175.1","C",multiple_runs))
+
+```
+
+```{r}
+ggplot(quast_output_plasmids,aes(x=software,y=f1_score)) +geom_boxplot() +geom_jitter(shape=16, position=position_jitter(0.2))
+```
+
+```{r}
+ggplot(quast_output_plasmids,aes(f1_score)) +geom_histogram(binwidth=0.02)
+```
+
