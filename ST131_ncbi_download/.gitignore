@@ -4,7 +4,9 @@ assembly_reports
 genomes
 sra_files
 trim_slurm_jobs
+unitrim_slurm_jobs
 trimmed_sra_files
 shortread_assemblies_bactofidia
 shortread_assemblies_unicycler
+shortread_assemblies_unicycler_trimmed
 busco_output_unicycler
