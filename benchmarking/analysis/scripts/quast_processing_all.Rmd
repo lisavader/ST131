@@ -37,13 +37,13 @@ This dataframe contains the following information: strain_name, referece_id,leng
 ```{r}
 
 #1.------ Get a list of all replicons, with their references_id and the lengths ----- #You should do get this info. Maybe using a little python script?
-strains_all_replicons <- read.csv("genome_download/replicon_data.csv", header = FALSE)
+strains_all_replicons <- read.csv("../../../ST131_ncbi_download/results/replicon_data.csv", header = FALSE)
 names(strains_all_replicons)<-c('assembly_accession','reference_id','replicon_length','classification')
 #------------------------------------------------------------------------------------__#
 
 #2. ------ Import and process the results from QUAST
 #MOB
-quast_output_mob<-read.csv('mobsuite_test/quast_30042021/quast_output/mob_alignments_statistics.csv', sep=',', header=FALSE)
+quast_output_mob<-read.csv('../../mobsuite/results/quast_output/mob_alignments_statistics.csv', sep=',', header=FALSE)
 names(quast_output_mob)<-c('assembly_accession','sra_accession','bin_name_temp','reference_id','alignment_length','bin_length')
 quast_output_mob %<>% mutate(software = "MOB-suite (unicycler assembly)")
 #For MOB-suite we will fuse the name of the bin with the name of the strain, to be able to do statistics properly
@@ -52,7 +52,7 @@ quast_output_mob<-unite(quast_output_mob,'bin_name',c('sra_accession','bin_name_
 quast_output_mob<-quast_output_mob[,c(2,1,3,5:8)]
 
 #MOB_BAC
-quast_output_mob_bac<-read.csv('mobsuite_bac/mob_bac_alignments_statistics.csv', sep=',', header=FALSE)
+quast_output_mob_bac<-read.csv('../../mobsuite_bac/results/quast_output/mob_alignments_statistics.csv', sep=',', header=FALSE)
 names(quast_output_mob_bac)<-c('assembly_accession','sra_accession','bin_name_temp','reference_id','alignment_length','bin_length')
 quast_output_mob_bac %<>% mutate(software = "MOB-suite (bactofidia assembly)")
 #For MOB-suite we will fuse the name of the bin with the name of the strain, to be able to do statistics properly
@@ -61,12 +61,12 @@ quast_output_mob_bac<-unite(quast_output_mob_bac,'bin_name',c('sra_accession','b
 quast_output_mob_bac<-quast_output_mob_bac[,c(2,1,3,5:8)]
 
 #SPADES
-quast_output_spades<-read.csv('plasmidspades_test/spades_alignments_statistics.csv', sep = ',', header = FALSE)
+quast_output_spades<-read.csv('../../plasmidspades/results/quast_output/spades_alignments_statistics.csv', sep = ',', header = FALSE)
 names(quast_output_spades)<-c('assembly_accession','sra_accession','bin_name','reference_id','alignment_length','bin_length')
 quast_output_spades %<>% mutate(software = "plasmidspades")
 
 #combine all quast output
-quast_output_all<-full_join(quast_output_mob,quast_output_mob_bac)
+quast_output_all<-rbind(quast_output_mob,quast_output_mob_bac,quast_output_spades)
 
 #3. ------- Cross the info with the replicons metadata (length and classification is most important) --------
 quast_output_plasmids_chromosomes<-full_join(strains_all_replicons,quast_output_all,by=c('assembly_accession','reference_id'))
@@ -107,7 +107,7 @@ n, and contig_length can be obtained from the files 'mob_ambiguous_references', 
 #1.----- Import Ambiguous alignment information and wrange the data
 
 #mob
-ambiguous_alignments_mob<-read.csv('mobsuite_test/quast_30042021/quast_output/mob_ambiguous_references.csv', sep=',', header=FALSE)
+ambiguous_alignments_mob<-read.csv('../../mobsuite/results/quast_output/mob_ambiguous_references.csv', sep=',', header=FALSE)
 names(ambiguous_alignments_mob)<-c('sra_accession','bin_name_temp','reference_id','contig_name','contig_length','start','end')
 ambiguous_alignments_mob<-unite(ambiguous_alignments_mob,'bin_name',c('sra_accession','bin_name_temp'),remove=FALSE) 
 #remove old bin name
@@ -115,16 +115,20 @@ ambiguous_alignments_mob<-ambiguous_alignments_mob[,c(1,2,4:8)]
 ambiguous_alignments_mob$software<-'MOB-suite (unicycler assembly)'
 
 #mob_bact
-ambiguous_alignments_mob_bac<-read.csv('mobsuite_bac/mob_bac_ambiguous_references.csv', sep=',', header=FALSE)
+ambiguous_alignments_mob_bac<-read.csv('../../mobsuite_bac/results/quast_output/mob_ambiguous_references.csv', sep=',', header=FALSE)
 names(ambiguous_alignments_mob_bac)<-c('sra_accession','bin_name_temp','reference_id','contig_name','contig_length','start','end')
 ambiguous_alignments_mob_bac<-unite(ambiguous_alignments_mob_bac,'bin_name',c('sra_accession','bin_name_temp'),remove=FALSE) 
 #remove old bin name
 ambiguous_alignments_mob_bac<-ambiguous_alignments_mob_bac[,c(1,2,4:8)]
 ambiguous_alignments_mob_bac$software<-'MOB-suite (bactofidia assembly)'
 
+#spades
+ambiguous_alignments_spades<-read.csv('../../plasmidspades/results/quast_output/spades_ambiguous_references.csv', sep=',', header=FALSE)
+names(ambiguous_alignments_spades)<-c('sra_accession','bin_name','reference_id','contig_name','contig_length','start','end')
+ambiguous_alignments_spades$software<-'PlasmidSPAdes'
+
 #merge files of different softwares
-ambiguous_alignments_mob %<>% mutate(contig_name = as.character(contig_name))
-ambiguous_alignments_total<-full_join(ambiguous_alignments_mob,ambiguous_alignments_mob_bac)
+ambiguous_alignments_total<-rbind(ambiguous_alignments_mob,ambiguous_alignments_mob_bac,ambiguous_alignments_spades)
 
 #remove duplications of the same ambiguous contig being included twice
 ambiguous_alignments_total<-unique(ambiguous_alignments_total)
@@ -132,7 +136,7 @@ ambiguous_alignments_total<-unique(ambiguous_alignments_total)
 #count how many times each contig ambiguously aligns to the same replicon (n)
 count_ambiguous_alignments_to_same_replicon<- ambiguous_alignments_total %>% group_by(sra_accession,bin_name,reference_id,contig_name) %>% summarise(total_ambiguous_alignments=n())
 
-#join this information with the ambiguous_alignments_mob
+#join this information with the ambiguous_alignments
 all_ambiguous_alignments<-inner_join(ambiguous_alignments_total,count_ambiguous_alignments_to_same_replicon,by=c('sra_accession','bin_name','reference_id','contig_name'))
 
 #filter out the start and end column
@@ -183,17 +187,22 @@ quast_output_plasmids[is.na(quast_output_plasmids)]<-0
 Some plotting
 
 ```{r}
-quast_output_plasmids %<>% mutate(multiple_runs = ifelse(assembly_accession=="GCA_002056635.1","A","no"))
-quast_output_plasmids %<>% mutate(multiple_runs = ifelse(assembly_accession=="GCA_002180195.1","B",multiple_runs))
-quast_output_plasmids %<>% mutate(multiple_runs = ifelse(assembly_accession=="GCA_002202175.1","C",multiple_runs))
-
+plotting_data <- filter(quast_output_plasmids,software!="not_applicable")
+ggplot(plotting_data,aes(x=software,y=f1_score)) +geom_boxplot() +geom_jitter(shape=16, position=position_jitter(0.2))
+```
+```{r}
+group_A <- quast_output_plasmids %>% filter(assembly_accession=="GCA_002056635.1") %>% mutate(group="A")
+group_B <- quast_output_plasmids %>% filter(assembly_accession=="GCA_002180195.1") %>% mutate(group="B")
+group_C <- quast_output_plasmids %>% filter(assembly_accession=="GCA_002202175.1") %>% mutate(group="C")
+multiple_runs <- rbind(group_A,group_B,group_C)
 ```
 
 ```{r}
-ggplot(quast_output_plasmids,aes(x=software,y=f1_score)) +geom_boxplot() +geom_jitter(shape=16, position=position_jitter(0.2))
+ggplot(multiple_runs,aes(x=recall_bp,y=precision_bp,colour=sra_accession)) +geom_point() +facet_wrap(~group)
 ```
 
+
 ```{r}
-ggplot(quast_output_plasmids,aes(f1_score)) +geom_histogram(binwidth=0.02)
+ggplot(plotting_data,aes(x=recall_bp,y=precision_bp,colour=software)) +geom_point()
 ```
 
