@@ -202,13 +202,32 @@ quast_output_plasmids$f1_score<-round(2*((quast_output_plasmids$precision_bp*qua
 quast_output_plasmids[is.na(quast_output_plasmids)]<-0
 
 ```
+Find out whether a reference plasmid was predicted by the four methods, and whether it was split over bins.
+```{r}
+bin_number_plotting<-quast_output_plasmids %>% group_by(reference_id) %>% count(software)
+not_detected<-quast_output_plasmids %>% filter(software=='not_applicable') %>% select(reference_id) %>% uncount(4) %>% mutate(software = rep(c("MOB-suite (bactofidia)","MOB-suite (unicycler, trimmed)","MOB-suite (unicycler, untrimmed)","PlasmidSPAdes"),times=nrow(not_detected)/4)) %>% mutate(n = 0)
+bin_number_plotting<-rbind(bin_number_plotting,not_detected)
+bin_number_plotting %<>% spread(software,n) %>% select(!not_applicable)
+bin_number_plotting[is.na(bin_number_plotting)]<-0
+bin_number_plotting %<>% gather('software','n',2:5)
+```
+
+```{r}
+theme_set(theme_bw())
+ggplot(bin_number_plotting,aes(x=reference_id,y=n,group=1))+
+  geom_point()+
+  facet_wrap(~software)
+```
 
 Some plotting
+```{r}
+length_data <- strains_all_replicons %>% filter(classification=="plasmid")
+ggplot(length_data,aes(x=log(replicon_length,10)))+geom_histogram(binwidth = 0.05)
+```
 
 ```{r}
 plotting_data <- filter(quast_output_plasmids,software!="not_applicable")
 plotting_data$software = str_wrap(plotting_data$software, width=20)
-theme_set(theme_bw())
 ggplot(plotting_data,aes(x=software,y=f1_score)) +geom_boxplot() +geom_jitter(shape=16, position=position_jitter(0.2))
 ```
 ```{r}
