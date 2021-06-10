@@ -23,3 +23,7 @@ mobsuite_trimmed/results/quast_output/*
 
 #mlplasmids
 mlplasmids_predictions
+
+#platon
+db
+platon_predictions
