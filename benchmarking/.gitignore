@@ -21,3 +21,5 @@ mobsuite_bac/results/quast_output/*
 mobsuite_trimmed/results/quast_output/*
 !mobsuite_trimmed/results/quast_output/*.csv
 
+#mlplasmids
+mlplasmids_predictions
