@@ -1,0 +1,88 @@
+---
+title: "Compare binary classifiers"
+author: "Lisa"
+date: "10/06/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+require(readr)
+require(magrittr)
+require(dplyr)
+require(ggplot2)
+require(stringr)
+```
+
+Import replicon data
+```{r}
+replicon_data <- read.csv("../../../ST131_ncbi_download/results/replicon_data.csv", header = FALSE)
+names(replicon_data)<-c('assembly_accession','reference_id','replicon_length','classification')
+```
+
+Import mapped contigs and add classification
+```{r}
+mapped_contigs <- read_tsv("../../../ST131_ncbi_download/results/bactofidia_contigs_mapped.tsv", col_names=c('reference_id','contig_name'))
+full_contig_info <- full_join(mapped_contigs,replicon_data,by="reference_id")
+#remove translocations (maybe do something else with them in the future?)
+translocations <- mapped_contigs$contig_name[duplicated(mapped_contigs$contig_name)]
+full_contig_info %<>% filter(!contig_name %in% translocations)
+```
+
+Mlplasmids output
+```{r}
+mlplasmids_out <- read_tsv("../../mlplasmids/results/mlplasmids_all_results.tsv")
+names(mlplasmids_out)<-c('assembly_accession','sra_accession','prob_chromosome','prob_plasmid','prediction','contig_name','contig_length')
+mlplasmids_out$prediction %<>% tolower()
+mlplasmids_out %<>% mutate(software="mlplasmids")
+```
+
+Platon
+```{r}
+platon_out <- read.csv("../../platon/results/platon_all_results.tsv", header = FALSE)
+names(platon_out) <- c("contig_name","prediction")
+platon_out %<>% mutate(contig_name=str_replace(contig_name,'>',''))
+platon_out %<>% mutate(software="platon")
+```
+
+Merge
+```{r}
+all_output <- rbind(select(mlplasmids_out,c(contig_name,prediction,software)),platon_out)
+```
+
+Determine correctness
+```{r}
+mlplasmids_analysis<- full_join(mlplasmids_out,select(full_contig_info, !assembly_accession),by="contig_name")
+mlplasmids_analysis$reference_id[is.na(mlplasmids_analysis$reference_id)]<-"unaligned"
+mlplasmids_analysis$replicon_length[is.na(mlplasmids_analysis$replicon_length)]<-"unaligned"
+mlplasmids_analysis$classification[is.na(mlplasmids_analysis$classification)]<-"unknown"
+mlplasmids_analysis$prediction[is.na(mlplasmids_analysis$prediction)]<-"no prediction"
+
+true_positives <- mlplasmids_analysis %>% filter(prediction=="plasmid" & classification=="plasmid") %>% mutate(result="TP")
+true_negatives <- mlplasmids_analysis %>% filter(prediction=="chromosome" & classification=="chromosome") %>% mutate(result="TN")
+false_positives <- mlplasmids_analysis %>% filter(prediction=="plasmid" & classification=="chromosome") %>% mutate(result="FP")
+false_negatives <- mlplasmids_analysis %>% filter(prediction=="chromosome" & classification=="plasmid") %>% mutate(result="FN")
+final_result <- rbind(true_positives,true_negatives,false_positives,false_negatives)
+```
+
+```{r}
+all_analysis<- full_join(all_output,full_contig_info,by="contig_name")
+true_positives <- all_analysis %>% filter(prediction=="plasmid" & classification=="plasmid") %>% mutate(result="TP")
+true_negatives <- all_analysis %>% filter(prediction=="chromosome" & classification=="chromosome") %>% mutate(result="TN")
+false_positives <- all_analysis %>% filter(prediction=="plasmid" & classification=="chromosome") %>% mutate(result="FP")
+false_negatives <- all_analysis %>% filter(prediction=="chromosome" & classification=="plasmid") %>% mutate(result="FN")
+final_result <- rbind(true_positives,true_negatives,false_positives,false_negatives)
+```
+
+Plots
+```{r}
+theme_set(theme_bw())
+ggplot(final_result,aes(y=result,fill=result))+
+  geom_bar()+
+  #labs(title = "Mlplasmids (threshold = 0.5)")+
+  facet_wrap(~software)
+```
+
