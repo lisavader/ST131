@@ -25,5 +25,8 @@ mobsuite_trimmed/results/quast_output/*
 mlplasmids_predictions
 
 #platon
-db
+data
 platon_predictions
+
+#plascope
+plascope_predictions
