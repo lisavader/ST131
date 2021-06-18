@@ -32,57 +32,81 @@ translocations <- mapped_contigs$contig_name[duplicated(mapped_contigs$contig_na
 full_contig_info %<>% filter(!contig_name %in% translocations)
 ```
 
-Mlplasmids output
+Import all contig names
+```{r}
+all_contigs <- read.csv("../../../ST131_ncbi_download/results/shortread_assemblies_bactofidia/all_contig_names.txt", header = FALSE)
+names(all_contigs)="contig_name"
+all_contigs %<>% mutate(contig_name=str_replace(contig_name,'>',''))
+```
+
+
+Mlplasmids
 ```{r}
 mlplasmids_out <- read_tsv("../../mlplasmids/results/mlplasmids_all_results.tsv")
 names(mlplasmids_out)<-c('assembly_accession','sra_accession','prob_chromosome','prob_plasmid','prediction','contig_name','contig_length')
 mlplasmids_out$prediction %<>% tolower()
 mlplasmids_out %<>% mutate(software="mlplasmids")
+no_prediction_mlplasmids <- all_contigs %>% filter(!contig_name %in% mlplasmids_out$contig_name) %>% mutate(prediction="no prediction",software="mlplasmids")
 ```
 
 Platon
 ```{r}
-platon_out <- read.csv("../../platon/results/platon_all_results.tsv", header = FALSE)
+platon_out <- read.csv("../../platon/results/platon_all_results.csv", header = FALSE)
 names(platon_out) <- c("contig_name","prediction")
 platon_out %<>% mutate(contig_name=str_replace(contig_name,'>',''))
 platon_out %<>% mutate(software="platon")
+no_prediction_platon <- all_contigs %>% filter(!contig_name %in% platon_out$contig_name) %>% mutate(prediction="no prediction",software="platon")
 ```
 
-Merge
+Plascope
 ```{r}
-all_output <- rbind(select(mlplasmids_out,c(contig_name,prediction,software)),platon_out)
+plascope_out <- read.csv("../../plascope/results/plascope_all_results.csv", header = FALSE)
+names(plascope_out) <- c("contig_name","prediction")
+plascope_out %<>% mutate(contig_name=str_replace(contig_name,'>',''))
+plascope_out %<>% mutate(software="plascope")
+no_prediction_plascope <- all_contigs %>% filter(!contig_name %in% plascope_out$contig_name) %>% mutate(prediction="no prediction",software="plascope")
+```
+
+RFPlasmid
+```{r}
+rfplasmid_out <- read.csv("../../rfplasmid/results/rfplasmid_predictions/prediction.csv")
+names(rfplasmid_out) <- c("short_name","prediction","votes_chromosome","votes_plasmid","contig_name")
+rfplasmid_out$prediction[rfplasmid_out$prediction=="c"]<- "chromosome"
+rfplasmid_out$prediction[rfplasmid_out$prediction=="p"]<- "plasmid"
+rfplasmid_out %<>% mutate(software="rfplasmid")
+no_prediction_rfplasmid <- all_contigs %>% filter(!contig_name %in% rfplasmid_out$contig_name) %>% mutate(prediction="no prediction",software="rfplasmid")
+```
+
+Merge, take only the three common columns + add no_prediction columns
+```{r}
+all_output <- rbind(select(mlplasmids_out,c(contig_name,prediction,software)),platon_out,plascope_out,select(rfplasmid_out,c(contig_name,prediction,software)),no_prediction_mlplasmids,no_prediction_platon,no_prediction_plascope,no_prediction_rfplasmid)
 ```
 
 Determine correctness
-```{r}
-mlplasmids_analysis<- full_join(mlplasmids_out,select(full_contig_info, !assembly_accession),by="contig_name")
-mlplasmids_analysis$reference_id[is.na(mlplasmids_analysis$reference_id)]<-"unaligned"
-mlplasmids_analysis$replicon_length[is.na(mlplasmids_analysis$replicon_length)]<-"unaligned"
-mlplasmids_analysis$classification[is.na(mlplasmids_analysis$classification)]<-"unknown"
-mlplasmids_analysis$prediction[is.na(mlplasmids_analysis$prediction)]<-"no prediction"
-
-true_positives <- mlplasmids_analysis %>% filter(prediction=="plasmid" & classification=="plasmid") %>% mutate(result="TP")
-true_negatives <- mlplasmids_analysis %>% filter(prediction=="chromosome" & classification=="chromosome") %>% mutate(result="TN")
-false_positives <- mlplasmids_analysis %>% filter(prediction=="plasmid" & classification=="chromosome") %>% mutate(result="FP")
-false_negatives <- mlplasmids_analysis %>% filter(prediction=="chromosome" & classification=="plasmid") %>% mutate(result="FN")
-final_result <- rbind(true_positives,true_negatives,false_positives,false_negatives)
-```
-
 ```{r}
 all_analysis<- full_join(all_output,full_contig_info,by="contig_name")
 true_positives <- all_analysis %>% filter(prediction=="plasmid" & classification=="plasmid") %>% mutate(result="TP")
 true_negatives <- all_analysis %>% filter(prediction=="chromosome" & classification=="chromosome") %>% mutate(result="TN")
 false_positives <- all_analysis %>% filter(prediction=="plasmid" & classification=="chromosome") %>% mutate(result="FP")
 false_negatives <- all_analysis %>% filter(prediction=="chromosome" & classification=="plasmid") %>% mutate(result="FN")
-final_result <- rbind(true_positives,true_negatives,false_positives,false_negatives)
+unclassified <- all_analysis %>% filter(prediction=="unclassified" & !is.na(classification)) %>% mutate(result="unclassified")
+
+final_result <- rbind(true_positives,true_negatives,false_positives,false_negatives,unclassified)
+no_prediction <- all_analysis %>% filter(prediction=="no prediction" & !is.na(classification)) %>% mutate(result="no prediction")
+no_category <- all_analysis %>% filter(is.na(classification)) %>% mutate(result="no category")
+final_result %<>% rbind(no_category,no_prediction)
 ```
 
 Plots
 ```{r}
+level_order <- c("TP","TN","FP","FN","unclassified","no category","no prediction")
+
 theme_set(theme_bw())
-ggplot(final_result,aes(y=result,fill=result))+
+ggplot(final_result,aes(y= factor(result, level= rev(level_order)),fill=factor(result, level= level_order)))+
   geom_bar()+
-  #labs(title = "Mlplasmids (threshold = 0.5)")+
-  facet_wrap(~software)
+  facet_wrap(~software)+
+  labs(x = "Number of contigs", y = "Outcome")+
+  guides(fill= FALSE)+
+  scale_fill_manual(values=c("#47954D","#75C24B","#B94B33","#FA6C4D","#FACE1B","#868686","#595959"))
 ```
 
