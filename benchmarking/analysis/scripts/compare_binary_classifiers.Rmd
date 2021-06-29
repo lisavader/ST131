@@ -256,7 +256,7 @@ ggplot(final_result %>% group_by(software) %>% count(result),aes(x=n, y= factor(
   facet_wrap(~software,labeller = labeller(software=c("mlplasmids"="Mlplasmids","platon"="Platon","plascope"="PlaScope","rfplasmid"="RFPlasmid")))+
   labs(title="Contig predictions for each tool",x = "Number of contigs", y = "Outcome")+
   guides(fill= FALSE)+
-  scale_fill_manual(values=c("#47954D","#75C24B","#B94B33","#FA6C4D","#FACE1B","#868686","#595959"))+
+  scale_fill_manual(values=c("#47954D","#75C24B","#B94B33","#FA6C4D","#FACE1B","#5c5d5f"))+
   scale_y_discrete(labels=rev(c("TP","TN","FP","FN","Unclassified","No category")))
 ```
 
