@@ -17,32 +17,20 @@ require(stringr)
 
 ```
 
+```{r, include=FALSE}
+theme_set(theme_bw())
+```
 
 ## Script for processing QUAST output
 
-#1. Calculating Recall
-
-1. Get a dataframe similar to strains_all_replicons (this you will have to do by yourself)
-This dataframe contains the following information: strain_name, referece_id,length, classification. (For the refrence replicons)
-@strain_name: GCA_012321....
-@reference_id: CP124312.1
-@length: 25000
-@classification: 'plasmid' or 'chromosome'
-2. Import and wrangle the output from the gather_quast_results
-3. Fuse the information from alignemtns with the plasmid_lengths (will be used to calculate recall).
-4. Calculate recall
-5. Deal with recall=0 values.
-  
-  
-
+Get a list of all replicons, with their references_id and the lengths
 ```{r}
+replicon_data <- read.csv("../../../ST131_ncbi_download/results/replicon_data.csv", header = FALSE)
+names(replicon_data)<-c('assembly_accession','reference_id','replicon_length','classification')
+```
 
-#1.------ Get a list of all replicons, with their references_id and the lengths ----- #You should do get this info. Maybe using a little python script?
-strains_all_replicons <- read.csv("../../../ST131_ncbi_download/results/replicon_data.csv", header = FALSE)
-names(strains_all_replicons)<-c('assembly_accession','reference_id','replicon_length','classification')
-#------------------------------------------------------------------------------------__#
-
-#2. ------ Import and process the results from QUAST
+Import and process the results from QUAST
+```{r}
 #MOB
 quast_output_mob<-read.csv('../../mobsuite/results/quast_output/mob_alignments_statistics.csv', sep=',', header=FALSE)
 names(quast_output_mob)<-c('assembly_accession','sra_accession','bin_name_temp','reference_id','alignment_length','bin_length')
@@ -74,48 +62,69 @@ quast_output_mob_trimmed<-quast_output_mob_trimmed[,c(2,1,3,5:8)]
 quast_output_spades<-read.csv('../../plasmidspades/results/quast_output/spades_alignments_statistics.csv', sep = ',', header = FALSE)
 names(quast_output_spades)<-c('assembly_accession','sra_accession','bin_name','reference_id','alignment_length','bin_length')
 quast_output_spades %<>% mutate(software = "PlasmidSPAdes")
+```
 
-#combine all quast output
+Combine all quast output and cross with replicon data
+```{r}
 quast_output_all<-rbind(quast_output_mob,quast_output_mob_bac,quast_output_mob_trimmed,quast_output_spades)
+quast_output_plasmids_chromosomes<-full_join(replicon_data,quast_output_all,by=c('assembly_accession','reference_id'))
+```
 
-#3. ------- Cross the info with the replicons metadata (length and classification is most important) --------
-quast_output_plasmids_chromosomes<-full_join(strains_all_replicons,quast_output_all,by=c('assembly_accession','reference_id'))
-#3.1 filter replicons classified as plasmids
+Analyse how many bins are aligned to either plasmid, chromosome, plasmid and chromosome or not aligned at all.
+```{r}
+bin_analysis <- quast_output_plasmids_chromosomes %>% filter(!is.na(bin_name)) %>% group_by(software) %>% mutate(multiple_replicons=duplicated(bin_name) | duplicated(bin_name, fromLast = TRUE))
+bin_analysis %<>% mutate(bin_type=ifelse(multiple_replicons==FALSE & classification=="chromosome","chromosome",NA))
+bin_analysis %<>% mutate(bin_type=ifelse(multiple_replicons==FALSE & classification=="plasmid","one_plasmid",bin_type))
+bin_analysis %<>% group_by(software,bin_name) %>% mutate(bin_type=ifelse(multiple_replicons==TRUE & n_distinct(classification)==1,"multiple_plasmids",bin_type))
+bin_analysis %<>% group_by(software,bin_name) %>% mutate(bin_type=ifelse(multiple_replicons==TRUE & n_distinct(classification)!=1,"plasmid_and_chromosome",bin_type))
+bin_analysis %<>% mutate(bin_type=ifelse(reference_id=="no_correct_alignments","no_correct_alignments",bin_type))
+
+count_bin_types <- bin_analysis %>% select(bin_name,software,bin_type) %>% unique()
+```
+
+```{r}
+level_order_types <- c("one_plasmid","multiple_plasmids","plasmid_and_chromosome","chromosome","no_correct_alignments")
+ggplot(count_bin_types,aes(y=factor(bin_type,level = rev(level_order_types)),fill=factor(bin_type,level = rev(level_order_types))))+
+  geom_bar()+
+  facet_wrap(~software)+
+  labs(x = "Number of bins", y = "Bin content")+
+  scale_fill_manual(values=rev(c("#75C24B","#47954D","#fc8e13","#eb5a48","#5c5d5f")))+
+  scale_y_discrete(labels=rev(c("One plasmid","Multiple plasmids","Plasmid and chromosome","Chromosome","No correct alignments")))+
+  guides(fill= FALSE)
+```
+
+For all bins that align to a plasmid, we calculate the recall (percentage of plasmid bps included in the bin) and precision (percentage of bps in the bin that are plasmid derived).
+
+```{r}
+#Filter replicons classified as plasmids
 quast_output_plasmids<-filter(quast_output_plasmids_chromosomes,classification=='plasmid')
-#3.2 Add the sofotware classificaiton (not needed for Lisa)
-#quast_output_plasmids$software<-'MOB-suite'
-#3.3 For cases in which the bin_name was not present, this mean that the tool did not detected this plasmid. Assign that category.
+#For cases in which the bin_name was not present, this means that the tool did not detected this plasmid. Assign that category.
 quast_output_plasmids$bin_name<-ifelse(is.na(quast_output_plasmids$bin_name),"not_detected",as.character(quast_output_plasmids$bin_name))
 #For this cases also assign an alignment length =0
 quast_output_plasmids$alignment_length[is.na(quast_output_plasmids$alignment_length)]<-0
 #assign not applicable to all the rest of NA
 quast_output_plasmids[is.na(quast_output_plasmids)]<-'not_applicable'
-
-#4 Calculate recall for every bin
-quast_output_plasmids$recall_bp<-as.numeric(quast_output_plasmids$alignment_length)/as.numeric(quast_output_plasmids$replicon_length)
-
-#5. Now assign a 'not detected' category for recall=0 (to exclude this values from calculations)
-quast_output_plasmids$recall_bp<-ifelse(quast_output_plasmids$recall_bp==0,'not_detected',as.numeric(quast_output_plasmids$recall_bp))
-
 ```
 
+### Calculating Recall
+```{r}
+quast_output_plasmids$recall_bp<-as.numeric(quast_output_plasmids$alignment_length)/as.numeric(quast_output_plasmids$replicon_length)
+```
 
-#2. Calculating Precision
+Now assign a 'not detected' category for recall=0 (to exclude this values from calculations
+```{r}
+quast_output_plasmids$recall_bp<-ifelse(quast_output_plasmids$recall_bp==0,'not_detected',as.numeric(quast_output_plasmids$recall_bp))
+```
+
+### Calculating Precision
 For calculating precision correctly, we will have to substract the exceeding multiple alignments lengths. (otherwise, total alignment could be larger than the bin-length, therefore precision could be larger than 1, and that is not possible) 
 
 To achieve this, we will first obtain how many times each contig aligns to the replicon (n), then we would substract one from that number (n-1) and finally we will substract (n-1)*contig_length from the alignment length for those specific cases.
 
 n, and contig_length can be obtained from the files 'mob_ambiguous_references', which was an output from the 'gather_quast_results.py script'
 
-1. Import and wrangle the data from the mulitple alignments
-2. Fuse the information with the recall infomration
-3. Calculate Precision
-4. Calculate the F1-Score
-
-```{r, warning=FALSE, fig.width=14, fig.height=18}
-
-#1.----- Import Ambiguous alignment information and wrange the data
-
+Import Ambiguous alignment information and wrangle the data
+```{r}
 #mob
 ambiguous_alignments_mob<-read.csv('../../mobsuite/results/quast_output/mob_ambiguous_references.csv', sep=',', header=FALSE)
 names(ambiguous_alignments_mob)<-c('sra_accession','bin_name_temp','reference_id','contig_name','contig_length','start','end')
@@ -145,6 +154,11 @@ ambiguous_alignments_mob_trimmed$software<-'MOB-suite (unicycler, trimmed)'
 ambiguous_alignments_spades<-read.csv('../../plasmidspades/results/quast_output/spades_ambiguous_references.csv', sep=',', header=FALSE)
 names(ambiguous_alignments_spades)<-c('sra_accession','bin_name','reference_id','contig_name','contig_length','start','end')
 ambiguous_alignments_spades$software<-'PlasmidSPAdes'
+```
+
+
+```{r, warning=FALSE, fig.width=14, fig.height=18}
+
 
 #merge files of different softwares
 ambiguous_alignments_total<-rbind(ambiguous_alignments_mob,ambiguous_alignments_mob_bac,ambiguous_alignments_mob_trimmed,ambiguous_alignments_spades)
@@ -205,7 +219,8 @@ quast_output_plasmids[is.na(quast_output_plasmids)]<-0
 Find out whether a reference plasmid was predicted by the four methods, and whether it was split over bins.
 ```{r}
 bin_number_plotting<-quast_output_plasmids %>% group_by(reference_id) %>% count(software)
-not_detected<-quast_output_plasmids %>% filter(software=='not_applicable') %>% select(reference_id) %>% uncount(4) %>% mutate(software = rep(c("MOB-suite (bactofidia)","MOB-suite (unicycler, trimmed)","MOB-suite (unicycler, untrimmed)","PlasmidSPAdes"),times=nrow(not_detected)/4)) %>% mutate(n = 0)
+not_detected<-quast_output_plasmids %>% filter(software=='not_applicable') %>% select(reference_id) %>% uncount(4)
+not_detected %<>% mutate(software = rep(c("MOB-suite (bactofidia)","MOB-suite (unicycler, trimmed)","MOB-suite (unicycler, untrimmed)","PlasmidSPAdes"),times=nrow(not_detected)/4)) %>% mutate(n = 0)
 bin_number_plotting<-rbind(bin_number_plotting,not_detected)
 bin_number_plotting %<>% spread(software,n) %>% select(!not_applicable)
 bin_number_plotting[is.na(bin_number_plotting)]<-0
@@ -221,7 +236,7 @@ ggplot(bin_number_plotting,aes(x=reference_id,y=n,group=1))+
 
 Some plotting
 ```{r}
-length_data <- strains_all_replicons %>% filter(classification=="plasmid")
+length_data <- replicon_data %>% filter(classification=="plasmid")
 ggplot(length_data,aes(x=log(replicon_length,10)))+geom_histogram(binwidth = 0.05)
 ```
 
@@ -230,19 +245,16 @@ plotting_data <- filter(quast_output_plasmids,software!="not_applicable")
 plotting_data$software = str_wrap(plotting_data$software, width=20)
 ggplot(plotting_data,aes(x=software,y=f1_score)) +geom_boxplot() +geom_jitter(shape=16, position=position_jitter(0.2))
 ```
-```{r}
-ggplot(plotting_data,aes(x=software,y=recall_bp)) +geom_boxplot() +geom_jitter(shape=16, position=position_jitter(0.2))
-```
 
-```{r}
-ggplot(plotting_data,aes(x=software,y=precision_bp)) +geom_boxplot() +geom_jitter(shape=16, position=position_jitter(0.2))
-```
 ```{r}
 ggplot(plotting_data,aes(x=recall_bp,y=precision_bp)) +
   geom_count() +
   scale_size_continuous(range = c(1.5,5)) +
   facet_wrap(~software)
 ```
+
+Chromosomal contamination
+
 
 ```{r}
 group_A <- quast_output_plasmids %>% filter(assembly_accession=="GCA_002056635.1") %>% mutate(group="A")
