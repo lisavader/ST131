@@ -70,28 +70,7 @@ quast_output_all<-rbind(quast_output_mob,quast_output_mob_bac,quast_output_mob_t
 quast_output_plasmids_chromosomes<-full_join(replicon_data,quast_output_all,by=c('assembly_accession','reference_id'))
 ```
 
-Analyse how many bins are aligned to either plasmid, chromosome, plasmid and chromosome or not aligned at all.
-```{r}
-bin_analysis <- quast_output_plasmids_chromosomes %>% filter(!is.na(bin_name)) %>% group_by(software) %>% mutate(multiple_replicons=duplicated(bin_name) | duplicated(bin_name, fromLast = TRUE))
-bin_analysis %<>% mutate(bin_type=ifelse(multiple_replicons==FALSE & classification=="chromosome","chromosome",NA))
-bin_analysis %<>% mutate(bin_type=ifelse(multiple_replicons==FALSE & classification=="plasmid","one_plasmid",bin_type))
-bin_analysis %<>% group_by(software,bin_name) %>% mutate(bin_type=ifelse(multiple_replicons==TRUE & n_distinct(classification)==1,"multiple_plasmids",bin_type))
-bin_analysis %<>% group_by(software,bin_name) %>% mutate(bin_type=ifelse(multiple_replicons==TRUE & n_distinct(classification)!=1,"plasmid_and_chromosome",bin_type))
-bin_analysis %<>% mutate(bin_type=ifelse(reference_id=="no_correct_alignments","no_correct_alignments",bin_type))
 
-count_bin_types <- bin_analysis %>% select(bin_name,software,bin_type) %>% unique()
-```
-
-```{r}
-level_order_types <- c("one_plasmid","multiple_plasmids","plasmid_and_chromosome","chromosome","no_correct_alignments")
-ggplot(count_bin_types,aes(y=factor(bin_type,level = rev(level_order_types)),fill=factor(bin_type,level = rev(level_order_types))))+
-  geom_bar()+
-  facet_wrap(~software)+
-  labs(x = "Number of bins", y = "Bin content")+
-  scale_fill_manual(values=rev(c("#75C24B","#47954D","#fc8e13","#eb5a48","#5c5d5f")))+
-  scale_y_discrete(labels=rev(c("One plasmid","Multiple plasmids","Plasmid and chromosome","Chromosome","No correct alignments")))+
-  guides(fill= FALSE)
-```
 
 For all bins that align to a plasmid, we calculate the recall (percentage of plasmid bps included in the bin) and precision (percentage of bps in the bin that are plasmid derived).
 
@@ -216,6 +195,66 @@ quast_output_plasmids$f1_score<-round(2*((quast_output_plasmids$precision_bp*qua
 quast_output_plasmids[is.na(quast_output_plasmids)]<-0
 
 ```
+Analyse how many bins are aligned to either plasmid, chromosome, plasmid and chromosome or not aligned at all.
+```{r}
+bin_analysis <- quast_output_plasmids_chromosomes %>% filter(!is.na(bin_name)) %>% group_by(software) %>% mutate(multiple_replicons=duplicated(bin_name) | duplicated(bin_name, fromLast = TRUE))
+bin_analysis %<>% mutate(bin_type=ifelse(multiple_replicons==FALSE & classification=="chromosome","chromosome",NA))
+bin_analysis %<>% mutate(bin_type=ifelse(multiple_replicons==FALSE & classification=="plasmid","one_plasmid",bin_type))
+bin_analysis %<>% group_by(software,bin_name) %>% mutate(bin_type=ifelse(multiple_replicons==TRUE & n_distinct(classification)==1,"multiple_plasmids",bin_type))
+bin_analysis %<>% group_by(software,bin_name) %>% mutate(bin_type=ifelse(multiple_replicons==TRUE & n_distinct(classification)!=1,"plasmid_and_chromosome",bin_type))
+bin_analysis %<>% mutate(bin_type=ifelse(reference_id=="no_correct_alignments","no_correct_alignments",bin_type))
+
+count_bin_types <- bin_analysis %>% select(bin_name,software,bin_type) %>% unique()
+```
+
+```{r}
+level_order_types <- c("one_plasmid","multiple_plasmids","plasmid_and_chromosome","chromosome","no_correct_alignments")
+ggplot(count_bin_types,aes(y=factor(bin_type,level = rev(level_order_types)),fill=factor(bin_type,level = rev(level_order_types))))+
+  geom_bar()+
+  facet_wrap(~software)+
+  labs(x = "Number of bins", y = "Bin content")+
+  scale_fill_manual(values=rev(c("#75C24B","#47954D","#fc8e13","#eb5a48","#5c5d5f")))+
+  scale_y_discrete(labels=rev(c("One plasmid","Multiple plasmids","Plasmid and chromosome","Chromosome","No correct alignments")))+
+  guides(fill= FALSE)
+```
+
+Composition of mixed bins
+```{r}
+mixed_bin_analysis <- bin_analysis %>% filter(classification=="chromosome") #& multiple_replicons==TRUE)
+mixed_bin_analysis %<>% left_join(multiple_ambiguous_alignments_final_substracion_data,by=c('sra_accession','bin_name','reference_id','software'))
+#replace NA values with 0 in the total_substraction_length (for cases in which there are no multiple alignments)
+mixed_bin_analysis$total_substraction_length[is.na(mixed_bin_analysis$total_substraction_length)]<-0
+
+#update alignment length
+mixed_bin_analysis %<>% mutate(actual_alignment_length=alignment_length-total_substraction_length)
+mixed_bin_analysis %<>% mutate(chromosomal_content=actual_alignment_length/bin_length*100)
+```
+
+```{r}
+ggplot(mixed_bin_analysis,aes(x=chromosomal_content,fill=bin_type))+
+  geom_histogram(binwidth = 5,breaks= seq(0,100,by=5))+
+  scale_x_continuous(breaks= seq(0,100,by=20))+
+  facet_wrap(~software)
+```
+Composition of bins containing multiple plasmids
+```{r}
+multiple_plasmid_bin_analysis <- bin_analysis %>% filter(bin_type=="multiple_plasmids")
+multiple_plasmid_bin_analysis %<>% left_join(multiple_ambiguous_alignments_final_substracion_data,by=c('sra_accession','bin_name','reference_id','software'))
+#replace NA values with 0 in the total_substraction_length (for cases in which there are no multiple alignments)
+multiple_plasmid_bin_analysis$total_substraction_length[is.na(multiple_plasmid_bin_analysis$total_substraction_length)]<-0
+
+#update alignment length
+multiple_plasmid_bin_analysis %<>% mutate(actual_alignment_length=alignment_length-total_substraction_length)
+multiple_plasmid_bin_analysis %<>% mutate(relative_content=actual_alignment_length/bin_length*100)
+```
+
+```{r}
+ggplot(multiple_plasmid_bin_analysis,aes(x=relative_content,fill=bin_name))+
+  geom_histogram(binwidth = 5,breaks= seq(0,100,by=5))+
+  scale_x_continuous(breaks= seq(0,100,by=20))+
+  facet_wrap(~software)+
+  guides(fill= FALSE)
+```
 Find out whether a reference plasmid was predicted by the four methods, and whether it was split over bins.
 ```{r}
 bin_number_plotting<-quast_output_plasmids %>% group_by(reference_id) %>% count(software)
@@ -253,7 +292,7 @@ ggplot(plotting_data,aes(x=recall_bp,y=precision_bp)) +
   facet_wrap(~software)
 ```
 
-Chromosomal contamination
+
 
 
 ```{r}
