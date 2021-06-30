@@ -1,0 +1,45 @@
+---
+title: "Ensemble classifier"
+author: "Lisa"
+date: "29/06/2021"
+output: html_document
+---
+```{r}
+require(stringr)
+```
+
+
+Import output of individual classifiers
+
+Platon
+```{r}
+platon_out <- read.csv("../../platon/results/platon_all_results.csv", header = FALSE)
+names(platon_out) <- c("contig_name","prediction")
+platon_out %<>% mutate(contig_name=str_replace(contig_name,'>',''))
+platon_out %<>% rename(platon=prediction)
+```
+
+PlaScope
+For PlaScope, 'unclassified' predictions are changed to 'chromosome'.
+```{r}
+plascope_out <- read.csv("../../plascope/results/plascope_all_results.csv", header = FALSE)
+names(plascope_out) <- c("contig_name","prediction")
+plascope_out %<>% mutate(contig_name=str_replace(contig_name,'>',''))
+plascope_out %<>% mutate(prediction=ifelse(prediction=="unclassified","chromosome",prediction))
+plascope_out %<>% rename(plascope=prediction)
+```
+
+RFPlasmid
+```{r}
+rfplasmid_out <- read.csv("../../rfplasmid/results/rfplasmid_predictions/prediction.csv")
+names(rfplasmid_out) <- c("short_name","prediction","votes_chromosome","votes_plasmid","contig_name")
+rfplasmid_out$prediction[rfplasmid_out$prediction=="c"]<- "chromosome"
+rfplasmid_out$prediction[rfplasmid_out$prediction=="p"]<- "plasmid"
+rfplasmid_out %<>% rename(rfplasmid=prediction) %>% select(contig_name,rfplasmid)
+```
+
+Merge the outputs
+```{r}
+all_output <- full_join(full_join(platon_out,plascope_out),rfplasmid_out)
+all_output %<>% mutate(final_result=ifelse(str_count(paste(platon,plascope,rfplasmid),"plasmid")>1,"plasmid","chromosome"))
+```
