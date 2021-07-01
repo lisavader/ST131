@@ -6,6 +6,17 @@ output: html_document
 ---
 ```{r}
 require(stringr)
+require(dplyr)
+require(magrittr)
+```
+
+Specify paths
+```{r}
+platon_path <- "../../platon/results/platon_all_results.csv"
+plascope_path <- "../../plascope/results/plascope_all_results.csv"
+rfplasmid_path <- "../../rfplasmid/results/rfplasmid_predictions/prediction.csv"
+
+output_path <- "../results/EC_result_all_contigs.csv"
 ```
 
 
@@ -13,7 +24,7 @@ Import output of individual classifiers
 
 Platon
 ```{r}
-platon_out <- read.csv("../../platon/results/platon_all_results.csv", header = FALSE)
+platon_out <- read.csv(platon_path, header = FALSE)
 names(platon_out) <- c("contig_name","prediction")
 platon_out %<>% mutate(contig_name=str_replace(contig_name,'>',''))
 platon_out %<>% rename(platon=prediction)
@@ -22,7 +33,7 @@ platon_out %<>% rename(platon=prediction)
 PlaScope
 For PlaScope, 'unclassified' predictions are changed to 'chromosome'.
 ```{r}
-plascope_out <- read.csv("../../plascope/results/plascope_all_results.csv", header = FALSE)
+plascope_out <- read.csv(plascope_path, header = FALSE)
 names(plascope_out) <- c("contig_name","prediction")
 plascope_out %<>% mutate(contig_name=str_replace(contig_name,'>',''))
 plascope_out %<>% mutate(prediction=ifelse(prediction=="unclassified","chromosome",prediction))
@@ -31,7 +42,7 @@ plascope_out %<>% rename(plascope=prediction)
 
 RFPlasmid
 ```{r}
-rfplasmid_out <- read.csv("../../rfplasmid/results/rfplasmid_predictions/prediction.csv")
+rfplasmid_out <- read.csv(rfplasmid_path)
 names(rfplasmid_out) <- c("short_name","prediction","votes_chromosome","votes_plasmid","contig_name")
 rfplasmid_out$prediction[rfplasmid_out$prediction=="c"]<- "chromosome"
 rfplasmid_out$prediction[rfplasmid_out$prediction=="p"]<- "plasmid"
@@ -39,7 +50,14 @@ rfplasmid_out %<>% rename(rfplasmid=prediction) %>% select(contig_name,rfplasmid
 ```
 
 Merge the outputs
-```{r}
+```{r,message=FALSE}
 all_output <- full_join(full_join(platon_out,plascope_out),rfplasmid_out)
 all_output %<>% mutate(final_result=ifelse(str_count(paste(platon,plascope,rfplasmid),"plasmid")>1,"plasmid","chromosome"))
+EC_result <- all_output %>% select(contig_name,final_result)
 ```
+
+Write to file
+```{r}
+write.csv(EC_result,output_path,row.names = FALSE)
+```
+
