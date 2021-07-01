@@ -14,12 +14,19 @@ mobsuite/results/quast_output/*
 !mobsuite/results/quast_output/*.csv
 
 #mobsuite_bac
+mob_predictions_clean
 mobsuite_bac/results/quast_output/*
 !mobsuite_bac/results/quast_output/*.csv
+mobsuite_bac/results/quast_output_clean/*
+!mobsuite_bac/results/quast_output_clean/*.csv
 
 #mobsuite_trimmed
 mobsuite_trimmed/results/quast_output/*
 !mobsuite_trimmed/results/quast_output/*.csv
+
+#mobsuite_EC
+mobsuite_EC/results/quast_output/*
+!mobsuite_EC/results/quast_output/*.csv
 
 #mlplasmids
 mlplasmids_predictions
