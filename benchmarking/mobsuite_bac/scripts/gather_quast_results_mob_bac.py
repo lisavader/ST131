@@ -634,8 +634,8 @@ def bin_status(strain):
                 
 #directories paths
 wd=os.path.dirname(os.path.realpath(__file__))
-predictions_directory='../results/mob_predictions/'
-alignment_directory='../results/quast_output/'
+predictions_directory='../results/mob_predictions_clean/'
+alignment_directory='../results/quast_output_clean/'
 
 os.chdir(predictions_directory) #this will have to change for every software
 genomes=glob.glob('?RR*') #this will have to change for every software
