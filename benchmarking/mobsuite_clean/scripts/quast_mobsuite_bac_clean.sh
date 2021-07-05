@@ -25,7 +25,7 @@ for bin in $all_bins
 do
 echo "#!/bin/bash
 #move to results
-cd ../..
+cd ..
 #run quast
 quast -o quast_output_clean/${sra_accession}/${bin} -r ../../../ST131_ncbi_download/results/genomes/${assembly_accession}*genomic.fna -m 1000 -t 8 -i 500 --no-snps --ambiguity-usage all mob_predictions_clean/${sra_accession}/${bin}.fasta" > quast_slurm_scripts/${sra_accession}_${bin}
 done
