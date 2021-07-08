@@ -80,3 +80,10 @@ rm outfile
 #total assemblies occurring in one of the databases
 cd ../results
 cat assemblies_in* | sort -u > assemblies_to_remove
+
+#convert to replicons
+assemblies=$(cat assemblies_to_remove)
+for assembly in $assemblies
+do
+grep $assembly ../../../ST131_ncbi_download/results/replicon_data.csv | cut -d, -f2 >> replicons_to_remove
+done
