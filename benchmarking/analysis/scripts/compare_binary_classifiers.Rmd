@@ -143,14 +143,20 @@ unmapped_contigs <- filter(all_contigs,!contig_name %in% mapped_contigs$contig_n
 contig_type_overview <- rbind(mapped_contigs,unmapped_contigs)
 ```
 
+Remove replicons that occur in one of the tools' training sets or databases.
+```{r}
+replicons_to_remove <- read.csv("../results/replicons_to_remove", header = FALSE)
+contig_type_overview %<>% filter(!replicon_name %in% replicons_to_remove$V1)
+```
+
 The relative frequency and length distribution of contig types. Selected contigs are coloured, discarded contigs in greyscale. Misassemblies also include fake misassemblies.  
 
 ```{r, echo=FALSE}
-level_order_contigs <- c("correctly_aligned","ambiguously_aligned_one_replicon","ambiguously_aligned_only_plasmid","other_issue_one_replicon","other_issue_only_plasmid","unmapped","failed_threshold","ambiguously_aligned_both","other_issue_both")
+level_order_contigs <- c("correctly_aligned","ambiguously_aligned_one_replicon","ambiguously_aligned_only_plasmid","other_issue_one_replicon","other_issue_only_plasmid","unmapped","failed_threshold","ambiguously_aligned_both")
 ggplot(contig_type_overview %>% count(contig_type),aes(x="",y=n,fill=factor(contig_type,level = rev(level_order_contigs))))+
   geom_bar(width = 1,stat = "identity")+
   coord_polar("y",start=0)+
-  scale_fill_manual(labels=rev(c("Correctly aligned","Ambiguously aligned to one replicon","Ambiguously aligned to multiple plasmids","Misassembled and aligned to one replicon","Misassembled and aligned to multiple plasmids","Unaligned","Alignment less than 90% of contig size","Ambiguously aligned to both plasmid and chromosome","Misassembled and aligned to both plasmid and chromosome")),values=rev(c("#ffa600","#ff6361","#bc5090","#58508d","#003f5c","#bcbcbc","#8b8b8c","#5c5d5f","#323335")))+
+  scale_fill_manual(labels=rev(c("Correctly aligned","Ambiguously aligned to one replicon","Ambiguously aligned to multiple plasmids","Misassembled and aligned to one replicon","Misassembled and aligned to multiple plasmids","Unaligned","Alignment less than 90% of contig size","Ambiguously aligned to both plasmid and chromosome")),values=rev(c("#ffa600","#ff6361","#bc5090","#58508d","#003f5c","#bcbcbc","#8b8b8c","#5c5d5f")))+
   #geom_label_repel(aes(label = n), size=3, position = position_stack(vjust = 0.5))+
   labs(title = "Relative frequency of contig types",x = "",y = "Count",fill="Contig type")+
   guides(fill=guide_legend(reverse = TRUE))
@@ -161,14 +167,14 @@ ggplot(contig_type_overview %>% count(contig_type),aes(x="",y=n,fill=factor(cont
 contig_type_overview %<>% mutate(contig_length=as.numeric(sub(".*?length_(.*?)_.*", "\\1",contig_name)))
 ggplot(contig_type_overview,aes(x=log(contig_length,10),fill=factor(contig_type,level = level_order_contigs)))+
   geom_histogram()+
-  scale_fill_manual(labels=c("Correctly aligned","Ambiguously aligned to one replicon","Ambiguously aligned to multiple plasmids","Misassembled and aligned to one replicon","Misassembled and aligned to multiple plasmids","Unaligned","Alignment less than 90% of contig size","Ambiguously aligned to both plasmid and chromosome","Misassembled and aligned to both plasmid and chromosome"),values=c("#ffa600","#ff6361","#bc5090","#58508d","#003f5c","#bcbcbc","#8b8b8c","#5c5d5f","#323335"))+
+  scale_fill_manual(labels=c("Correctly aligned","Ambiguously aligned to one replicon","Ambiguously aligned to multiple plasmids","Misassembled and aligned to one replicon","Misassembled and aligned to multiple plasmids","Unaligned","Alignment less than 90% of contig size","Ambiguously aligned to both plasmid and chromosome"),values=c("#ffa600","#ff6361","#bc5090","#58508d","#003f5c","#bcbcbc","#8b8b8c","#5c5d5f"))+
   labs(title = "Length distribution of contig types",x="Contig length (log10 bp)",y = "Count",fill="Contig type")
 ```
   
-57% of all contigs could be correctly mapped to a replicon.  
-27% could not be aligned at all, most of them being smaller than 1000 bp.  
-6% of contigs were ambiguously aligned, mostly to only one replicon.   
-9% of contigs had some kind of (supposed) misassembly event going on, almost all of them within the same replicon.  
+45% of all contigs could be correctly mapped to a replicon.  
+43% could not be aligned at all, most of them being smaller than 1000 bp.  
+4% of contigs were ambiguously aligned, mostly to only one replicon.   
+6% of contigs had some kind of (supposed) misassembly event going on, almost all of them within the same replicon.  
 1% of contigs were discarded because the contig had an alignment of less than 90%.  
 Ambiguously aligned contigs appear to be short, while 'misassembled' contigs are longer.  
 
@@ -221,9 +227,16 @@ all_output <- rbind(select(mlplasmids_out,c(contig_name,prediction,software)),pl
 ```
 
 ### Calculate results
-Determine true positives, false positives, true negatives and false negatives.
+Cross the output with the selected contigs.
+Remove strains that occur in one of the tools' training sets or databases.
 ```{r}
 all_analysis<- full_join(all_output,selected_contig_info,by="contig_name")
+assemblies_to_remove <- read.csv("../results/assemblies_to_remove", header = FALSE)
+all_analysis %<>% filter(!assembly_accession %in% assemblies_to_remove$V1)
+```
+
+Determine true positives, false positives, true negatives and false negatives.
+```{r}
 true_positives <- all_analysis %>% filter(prediction=="plasmid" & classification=="plasmid") %>% mutate(result="TP")
 true_negatives <- all_analysis %>% filter(prediction=="chromosome" & classification=="chromosome") %>% mutate(result="TN")
 false_positives <- all_analysis %>% filter(prediction=="plasmid" & classification=="chromosome") %>% mutate(result="FP")
@@ -288,7 +301,7 @@ ggplot(final_result,aes(x=log(contig_length,10),fill=factor(result, level= level
 ```
   
 ### Conclusions  
-Out of the four softwares, PlaScope calls the least false chromosomes and false plasmids, which results in a very high F1-score of 97.2% (98,9% when counting per basepair). Although this tool scores very favourably for the contigs it assigns to a conclusive category (either plasmid or chromosome), it also assigns 4,4% of contigs to the 'unclassified' category. Because the other tools categorise contigs in a strictly binary matter, comparison to PlaScope based on recall, precision and F1-score is not fair. To compensate for this effect, we can consider all unclassified contigs as incorrect, i.e. we artificially assign the category 'chromosome' to the plasmidal contigs, and 'plasmid' to the chromosomal contigs.
+Out of the four softwares, PlaScope calls the least false chromosomes and false plasmids, which results in a high F1-score of 94.9% (97,0% when counting per basepair). Although this tool scores very favourably for the contigs it assigns to a conclusive category (either plasmid or chromosome), it also assigns a part of the contigs to the 'unclassified' category. Because the other tools categorise contigs in a strictly binary matter, comparison to PlaScope based on recall, precision and F1-score is not fair. To compensate for this effect, we can consider all unclassified contigs as incorrect, i.e. we artificially assign the category 'chromosome' to the plasmidal contigs, and 'plasmid' to the chromosomal contigs.
 ```{r}
 final_result_adj <- final_result %>% mutate(result=ifelse(prediction=="unclassified" & classification=="plasmid","FP",result)) %>% mutate(result=ifelse(prediction=="unclassified" & classification=="chromosome","FN",result)) %>% mutate(result=ifelse(is.na(result),"no category",result))
 ```
@@ -306,7 +319,7 @@ count_lengths_adj <- spread(length_result_adj,result,total_bp) %>% mutate(precis
 kable(count_lengths_adj %>% select(TP,TN,FP,FN,precision,recall,f1_score),caption = "Performance of binary classifiers (calculated per basepair, adjusted for unclassified contigs)")
 ```
 
-Mlplasmids has the lowest F1-score, when calculated per contig (83.8%) as well as per basepair (92.1%), mainly due to a low recall (= many false negatives). Platon accomplishes the highest precision of all the tools (contig: 92.3%, bp: 97.0%), while RFplasmid scores the highest recall (contig: 90.4%, bp: 98.0%). Platon also has the highest F1-score for contigs (89.3%). When considering the scores per basepair, PlaScope performs well both in terms of recall and precision, resulting in a top F1-score of 96.8%. However, the lack of conclusive results for some contigs poses a major drawback in using PlaScope as a binary classifier. Based on these results, both Platon or RFPlasmid would be suitable to use as a classifier, depending on whether the focus should be on recall or on precision.
+RFPlasmid has the lowest F1-score, when calculated per contig (80.8%) as well as per basepair (86.7%), mainly due to a low precision (= many false positives). However, RFPlasmid does score an exceptionally high recall for large contigs (95.0%), which is the highest recall of all tools when considered per basepair. Platon accomplishes the highest recall when calculated per contig (85.9%). PlaScope performs best in terms of precision (contig: 89.5%, bp: 94.0%), resulting in a top F1-score (contig: 85.5%, bp: 94.4%). However, the lack of conclusive results for some contigs poses a major drawback in using PlaScope as a binary classifier. Based on these results, Platon would be most suitable to use as a classifier.
 
 
 ### Combining multiple softwares
@@ -369,7 +382,7 @@ venn_counts_TN2 <- as_tibble(as.list(lengths(attributes(venn(venn_TN2))$intersec
 venn_counts_FN2 <- as_tibble(as.list(lengths(attributes(venn(venn_FN2))$intersections)))
 venn_counts2 <- merge(merge(merge(venn_counts_TP,venn_counts_TN2,all=TRUE),venn_counts_FN2,all=TRUE),venn_counts_FP2,all=TRUE)
 venn_counts2 %<>% replace(is.na(.), 0)
-rownames(venn_counts2) <- c("FP","TP","TN","FN")
+rownames(venn_counts2) <- c("FN","FP","TP","TN")
 venn_counts2 <- venn_counts2[c("TP","TN","FP","FN"),]
 ```
 
@@ -403,7 +416,7 @@ venn_scores2 %<>% mutate(precision=TP/(TP+FP),recall=TP/(TP+FN),f1_score=2*(prec
 ```{r,echo=FALSE}
 kable(venn_scores2)
 ```
-With regard to contigs, the ensemble classifiers outperform all the individual classifiers (top F1-score 89.3%). The combination Platon/PlaScope/RFPlasmid performs best with a recall of 97.7%, precision of 93.1% and F1-score of 95.3%. The highest precision is reached by Mlplasmids/Platon/PlaScope (94.2%).
+With regard to contigs, the ensemble classifiers outperform all the individual classifiers (top F1-score 85.5%). The combination Mlplasmids/Platon/PlaScope performs best with a recall of 96.8%, precision of 87.9% and F1-score of 92.1%. This combination scores the highest precision as well as the highest recall.
 
 Furthermore, we can take a look at the length of the false positive and false negative contigs that are called by the ensemble classifiers. We want to avoid large contigs being misclassified.
 
@@ -450,4 +463,4 @@ ggplot(incorrect_contigs_ensembles,aes(x=log(contig_length,10),fill=result))+
   facet_wrap(~combination)+
   scale_fill_manual(values=c("#B94B33","#FA6C4D"))
 ```
-Most miscategorised contigs are in the 1000 to 5000 (≈ 10e3.7) bp range. Platon/PlaScope/RFPlasmid misidentifies very few large contigs (>5000 bp), they are all false positives. 
+Most miscategorised contigs are in the 1000 to 5000 (≈ 10e3.7) bp range. Mlplasmids/Platon/PlaScope misidentifies very few large contigs (>5000 bp), mostly are all false positives. 
