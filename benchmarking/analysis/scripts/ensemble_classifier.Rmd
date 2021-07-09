@@ -12,6 +12,7 @@ require(magrittr)
 
 Specify paths
 ```{r}
+mlplasmids_path <- "../../mlplasmids/results/mlplasmids_all_results.tsv"
 platon_path <- "../../platon/results/platon_all_results.csv"
 plascope_path <- "../../plascope/results/plascope_all_results.csv"
 rfplasmid_path <- "../../rfplasmid/results/rfplasmid_predictions/prediction.csv"
@@ -21,6 +22,14 @@ output_path <- "../results/EC_result_all_contigs.csv"
 
 
 Import output of individual classifiers
+
+Mlplasmids
+```{r,message=FALSE}
+mlplasmids_out <- read_tsv(mlplasmids_path)
+names(mlplasmids_out)<-c('assembly_accession','sra_accession','prob_chromosome','prob_plasmid','prediction','contig_name','contig_length')
+mlplasmids_out$prediction %<>% tolower()
+mlplasmids_out %<>% mutate(mlplasmids=prediction) %>% select(contig_name,mlplasmids)
+```
 
 Platon
 ```{r}
@@ -49,7 +58,7 @@ rfplasmid_out$prediction[rfplasmid_out$prediction=="p"]<- "plasmid"
 rfplasmid_out %<>% rename(rfplasmid=prediction) %>% select(contig_name,rfplasmid)
 ```
 
-Merge the outputs
+Merge the outputs (choose ensemble here)
 ```{r,message=FALSE}
 all_output <- full_join(full_join(platon_out,plascope_out),rfplasmid_out)
 all_output %<>% mutate(final_result=ifelse(str_count(paste(platon,plascope,rfplasmid),"plasmid")>1,"plasmid","chromosome"))
