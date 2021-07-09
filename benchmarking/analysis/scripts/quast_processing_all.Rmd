@@ -89,13 +89,21 @@ quast_output_all<-rbind(quast_output_mob,quast_output_mob_bac,quast_output_mob_t
 quast_output_plasmids_chromosomes<-full_join(replicon_data,quast_output_all,by=c('assembly_accession','reference_id'))
 ```
 
+```{r}
+
+```
+
+Filter out duplicated strains.
+```{r}
+quast_output_filtered<-quast_output_plasmids_chromosomes %>% filter(!sra_accession %in% c("SRR4025862","SRR5168233","SRR4025855","SRR5168210","SRR4025854","SRR5167858"))
+```
 
 
 For all bins that align to a plasmid, we calculate the recall (percentage of plasmid bps included in the bin) and precision (percentage of bps in the bin that are plasmid derived).
 
 ```{r}
 #Filter replicons classified as plasmids
-quast_output_plasmids<-filter(quast_output_plasmids_chromosomes,classification=='plasmid')
+quast_output_plasmids<-filter(quast_output_filtered,classification=='plasmid')
 #For cases in which the bin_name was not present, this means that the tool did not detected this plasmid. Assign that category.
 quast_output_plasmids$bin_name<-ifelse(is.na(quast_output_plasmids$bin_name),"not_detected",as.character(quast_output_plasmids$bin_name))
 #For this cases also assign an alignment length =0
@@ -229,13 +237,14 @@ quast_output_plasmids[is.na(quast_output_plasmids)]<-0
 ```
 Analyse how many bins are aligned to either plasmid, chromosome, plasmid and chromosome or not aligned at all.
 ```{r}
-bin_analysis <- quast_output_plasmids_chromosomes %>% filter(!is.na(bin_name)) %>% group_by(software) %>% mutate(multiple_replicons=duplicated(bin_name) | duplicated(bin_name, fromLast = TRUE))
+bin_analysis <- quast_output_filtered %>% filter(!is.na(bin_name)) %>% group_by(software) %>% mutate(multiple_replicons=duplicated(bin_name) | duplicated(bin_name, fromLast = TRUE))
 bin_analysis %<>% mutate(bin_type=ifelse(multiple_replicons==FALSE & classification=="chromosome","chromosome",NA))
 bin_analysis %<>% mutate(bin_type=ifelse(multiple_replicons==FALSE & classification=="plasmid","one_plasmid",bin_type))
 bin_analysis %<>% group_by(software,bin_name) %>% mutate(bin_type=ifelse(multiple_replicons==TRUE & n_distinct(classification)==1,"multiple_plasmids",bin_type))
 bin_analysis %<>% group_by(software,bin_name) %>% mutate(bin_type=ifelse(multiple_replicons==TRUE & n_distinct(classification)!=1,"plasmid_and_chromosome",bin_type))
 bin_analysis %<>% mutate(bin_type=ifelse(reference_id=="no_correct_alignments","no_correct_alignments",bin_type))
 
+bin_analysis %<>% ungroup()
 count_bin_types <- bin_analysis %>% select(bin_name,software,bin_type) %>% unique()
 ```
 
@@ -253,10 +262,8 @@ ggplot(count_bin_types,aes(y=factor(bin_type,level = rev(level_order_types)),fil
 What's up with the increase in plasmid/chromosome mixed bins when using the ensemble classifier?
 ```{r}
 multiple_plasmids <- count_bin_types %>% filter(software=="MOB-suite (bactofidia, cleaned)" | software=="MOB-suite (bactofidia, plasmid contigs)") %>% filter(bin_type=="multiple_plasmids" )
-
+write.csv(multiple_plasmids,"../results/multiple_plasmids.csv",row.names = FALSE)
 ```
-
-
 
 Composition of mixed bins
 ```{r}
@@ -276,26 +283,8 @@ ggplot(mixed_bin_analysis,aes(x=chromosomal_content,fill=bin_type))+
   scale_x_continuous(breaks= seq(0,100,by=20))+
   facet_wrap(~software)
 ```
-Composition of bins containing multiple plasmids
-```{r}
-multiple_plasmid_bin_analysis <- bin_analysis %>% filter(bin_type=="multiple_plasmids")
-multiple_plasmid_bin_analysis %<>% left_join(multiple_ambiguous_alignments_final_substracion_data,by=c('sra_accession','bin_name','reference_id','software'))
-#replace NA values with 0 in the total_substraction_length (for cases in which there are no multiple alignments)
-multiple_plasmid_bin_analysis$total_substraction_length[is.na(multiple_plasmid_bin_analysis$total_substraction_length)]<-0
-
-#update alignment length
-multiple_plasmid_bin_analysis %<>% mutate(actual_alignment_length=alignment_length-total_substraction_length)
-multiple_plasmid_bin_analysis %<>% mutate(relative_content=actual_alignment_length/bin_length*100)
-```
-
-```{r}
-ggplot(multiple_plasmid_bin_analysis,aes(x=relative_content,fill=bin_name))+
-  geom_histogram(binwidth = 5,breaks= seq(0,100,by=5))+
-  scale_x_continuous(breaks= seq(0,100,by=20))+
-  facet_wrap(~software)+
-  guides(fill= FALSE)
-```
 Find out whether a reference plasmid was predicted by the four methods, and whether it was split over bins.
+
 ```{r}
 bin_number_plotting<-quast_output_plasmids %>% group_by(reference_id) %>% count(software)
 not_detected<-quast_output_plasmids %>% filter(software=='not_applicable') %>% select(reference_id) %>% uncount(6)
@@ -308,7 +297,6 @@ bin_number_plotting %<>% mutate(correct=n==1)
 ```
 
 ```{r}
-theme_set(theme_bw())
 ggplot(bin_number_plotting,aes(x=reference_id,y=n,group=1,colour=correct))+
   geom_point()+
   facet_wrap(~software)+
@@ -345,23 +333,4 @@ ggplot(plotting_data,aes(x=recall_bp,y=precision_bp)) +
   geom_count() +
   scale_size_continuous(range = c(1.5,5)) +
   facet_wrap(~software)
-```
-
-
-
-
-```{r}
-group_A <- quast_output_plasmids %>% filter(assembly_accession=="GCA_002056635.1") %>% mutate(group="A")
-group_B <- quast_output_plasmids %>% filter(assembly_accession=="GCA_002180195.1") %>% mutate(group="B")
-group_C <- quast_output_plasmids %>% filter(assembly_accession=="GCA_002202175.1") %>% mutate(group="C")
-multiple_runs <- rbind(group_A,group_B,group_C)
-```
-
-```{r}
-ggplot(group_A,aes(x=recall_bp,y=precision_bp,colour=sra_accession)) +geom_count(alpha = 0.5,size =3 ) +
-  scale_color_brewer(palette = 'Set1')
-ggplot(group_B,aes(x=recall_bp,y=precision_bp,colour=sra_accession)) +geom_count(alpha = 0.5,size =3 ) +
-  scale_color_brewer(palette = 'Set1')
-ggplot(group_C,aes(x=recall_bp,y=precision_bp,colour=sra_accession)) +geom_count(alpha = 0.5,size =3 ) +
-  scale_color_brewer(palette = 'Set1')
 ```
