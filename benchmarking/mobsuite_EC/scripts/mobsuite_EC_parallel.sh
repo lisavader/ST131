@@ -7,10 +7,10 @@ source /home/dla_mm/lvader/data/miniconda3/etc/profile.d/conda.sh
 conda activate mobsuite
 
 #1. create directory to store slurm jobs
-mkdir mob_sbatch_scripts
+mkdir mob_sbatch_scripts2
 
 #2. Create directory to store mob-results
-mkdir mob_predictions
+mkdir mob_predictions2
 
 #3. Get a list of strain names
 accessions=$(cat ../../../ST131_ncbi_download/results/longread_ST131_sra_accessions)
@@ -21,13 +21,13 @@ for strain in $accessions
 do
 echo "#!/bin/bash
 #1. Move to the directory that will contain the mob predictions
-cd ../mob_predictions
+cd ../mob_predictions2
 #2. Run MOB-suite
-mob_recon --infile ../../../../ST131_ncbi_download/results/shortread_assemblies_bactofidia/plasmid_scaffolds/${strain}.fna --outdir ${strain}" > mob_sbatch_scripts/${strain}.sh
+mob_recon --infile ../../../../ST131_ncbi_download/results/shortread_assemblies_bactofidia/plasmid_scaffolds2/${strain}.fna --outdir ${strain}" > mob_sbatch_scripts2/${strain}.sh
 done
 
 #5- Run the sbatch scripts
-cd mob_sbatch_scripts
+cd mob_sbatch_scripts2
 jobs=$(ls)
 for slurm in $jobs
 do

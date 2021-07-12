@@ -11,7 +11,7 @@ def select_plasmid_contigs(assembly_file):
 		assembly = fastaparser.Reader(fasta)
 		for contig in assembly:
 			if contig.id in plasmids:
-				with open("../plasmid_scaffolds/"+assembly_file,'a') as output:
+				with open("../plasmid_scaffolds2/"+assembly_file,'a') as output:
 					writer = fastaparser.Writer(output)
 					writer.writefasta(contig)
 
@@ -23,7 +23,7 @@ os.chdir(wd)
 plasmids = []
 
 #save contig headers of predicted plasmids in list
-with open('../../../../benchmarking/analysis/results/EC_result_all_contigs.csv','r') as EC_result:
+with open('../../../../benchmarking/analysis/results/EC_result_all_contigs2.csv','r') as EC_result:
 	for line in EC_result.readlines():
 		if 'plasmid' in line:
 			contig_name=line.split(',')[0].strip('"')
@@ -32,7 +32,7 @@ with open('../../../../benchmarking/analysis/results/EC_result_all_contigs.csv',
 #extract and save plasmid contigs for each assembly file
 assembly_files=glob.glob('?RR*')
 for file in assembly_files:
-	with open("../plasmid_scaffolds/"+file,'w') as output:
+	with open("../plasmid_scaffolds2/"+file,'w') as output:
 		pass
 	select_plasmid_contigs(file)
 	

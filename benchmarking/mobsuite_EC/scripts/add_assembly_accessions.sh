@@ -1,5 +1,5 @@
 
-cd ../results/quast_output
+cd ../results/quast_output2
 
 #for each line in the statistics file
 cat mob_alignments_statistics.csv | while read line

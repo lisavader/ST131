@@ -9,11 +9,11 @@ def remove_chromosomal_contigs(strain):
 	bins=glob.glob('plasmid*')
 	for bin in bins:
 		with open(bin,'r') as fasta:
-			os.makedirs("../../../../mobsuite_clean/mob_predictions_clean/"+strain,exist_ok=True)
+			os.makedirs("../../../../mobsuite_clean/results/mob_predictions_clean2/"+strain,exist_ok=True)
 			assembly = fastaparser.Reader(fasta)
 			for contig in assembly:
 				if contig.id in plasmids:
-					with open("../../../../mobsuite_clean/mob_predictions_clean/"+strain+"/"+bin,'a') as output:
+					with open("../../../../mobsuite_clean/results/mob_predictions_clean2/"+strain+"/"+bin,'a') as output:
 						writer = fastaparser.Writer(output)
 						writer.writefasta(contig)
 	os.chdir(wd)
@@ -27,7 +27,7 @@ os.chdir(wd)
 plasmids = []
 
 #save contig headers of predicted plasmids in list
-with open('../../../analysis/results/EC_result_all_contigs.csv','r') as EC_result:
+with open('../../../analysis/results/EC_result_all_contigs2.csv','r') as EC_result:
 	for line in EC_result.readlines():
 		if 'plasmid' in line:
 			contig_name=line.split(',')[0].strip('"')

@@ -7,17 +7,17 @@ conda activate mobsuite
 cd ../results
 
 #make directory for storing quast results
-mkdir quast_output_clean
+mkdir quast_output_clean2
 
 #make directory for storing slurm scripts
-mkdir quast_slurm_scripts
+mkdir quast_slurm_scripts2
 
 #put sra accessions in a variable
-sra_accessions=$(ls mob_predictions_clean)
+sra_accessions=$(ls mob_predictions_clean2)
 for sra_accession in $sra_accessions
 do
 assembly_accession=$(grep ${sra_accession} ../../../ST131_ncbi_download/results/accessions_table.csv | cut -d , -f 1)      #find assembly accession
-cd mob_predictions_clean/${sra_accession}
+cd mob_predictions_clean2/${sra_accession}
 all_bins=$(ls plasmid* | sed 's/.fasta//g')                                           #get names of all predicted plasmids for this strain
 cd ../..
 #for each plasmid, perform quast with the corresponding complete assembly as reference
@@ -27,12 +27,12 @@ echo "#!/bin/bash
 #move to results
 cd ..
 #run quast
-quast -o quast_output_clean/${sra_accession}/${bin} -r ../../../ST131_ncbi_download/results/genomes/${assembly_accession}*genomic.fna -m 1000 -t 8 -i 500 --no-snps --ambiguity-usage all mob_predictions_clean/${sra_accession}/${bin}.fasta" > quast_slurm_scripts/${sra_accession}_${bin}
+quast -o quast_output_clean2/${sra_accession}/${bin} -r ../../../ST131_ncbi_download/results/genomes/${assembly_accession}*genomic.fna -m 1000 -t 8 -i 500 --no-snps --ambiguity-usage all mob_predictions_clean2/${sra_accession}/${bin}.fasta" > quast_slurm_scripts2/${sra_accession}_${bin}
 done
 done
 
 #Execute slurm scripts
-cd quast_slurm_scripts
+cd quast_slurm_scripts2
 jobs=$(ls)
 for slurm in $jobs
 do
