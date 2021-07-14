@@ -60,7 +60,7 @@ rm outfile
 ##MLPLASMIDS
 echo 'Processing mlplasmids database...'
 #download replicons in training set
-#Mlplasmids only has this info available as a .xls file with multiple tabs, which is a pain to convert to some readable format.
+#Mlplasmids only has this info available as an .xls file with multiple tabs, which is a pain to convert to some readable format.
 #You can get the .xls file here: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6321875/bin/mgen-4-224-s002.xls and save the replicon IDs in the mlplasmids data folder.
 #find replicons
 for replicon in $all_replicons
@@ -75,6 +75,27 @@ grep $replicon ../../../ST131_ncbi_download/results/replicon_data.csv | cut -d, 
 done
 #remove duplicates and save
 cat outfile | sort -u > ../results/assemblies_in_mlplasmids
+rm outfile
+
+##MOBSUITE
+echo 'Processing mobsuite database...'
+#download replicons in training set
+#Mobsuite only has this info available as an .xls file.
+#You can get the .xls file here: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6159552/bin/mgen-5-206-s003.xlsx and save the replicon IDs in the mobsuite data folder.
+#find replicons
+for replicon in $all_replicons
+do
+query=$(echo $replicon | cut -d. -f1)
+grep $query ../../mobsuite/data/replicons_in_database.csv | sed 's/NZ_//' >> ../results/replicons_in_mobsuite
+done
+#map replicons to assembly accessions
+mlplasmids_replicons=$(cat ../results/replicons_in_mobsuite)
+for replicon in $mlplasmids_replicons
+do
+grep $replicon ../../../ST131_ncbi_download/results/replicon_data.csv | cut -d, -f1 >> outfile
+done
+#remove duplicates and save
+cat outfile | sort -u > ../results/assemblies_in_mobsuite
 rm outfile
 
 #total assemblies occurring in one of the databases
