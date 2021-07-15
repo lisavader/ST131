@@ -5,6 +5,7 @@ date: "29/06/2021"
 output: html_document
 ---
 ```{r}
+require(readr)
 require(stringr)
 require(dplyr)
 require(magrittr)
@@ -12,12 +13,12 @@ require(magrittr)
 
 Specify paths
 ```{r}
-mlplasmids_path <- "../../mlplasmids/results/mlplasmids_all_results.tsv"
-platon_path <- "../../platon/results/platon_all_results.csv"
-plascope_path <- "../../plascope/results/plascope_all_results.csv"
-rfplasmid_path <- "../../rfplasmid/results/rfplasmid_predictions/prediction.csv"
+mlplasmids_path <- "../../mlplasmids_bac/results/mlplasmids_all_results.tsv"
+platon_path <- "../../platon_bac/results/platon_all_results.csv"
+plascope_path <- "../../plascope_bac/results/plascope_all_results.csv"
+rfplasmid_path <- "../../rfplasmid_bac/results/rfplasmid_predictions/prediction.csv"
 
-output_path <- "../results/EC_result_all_contigs.csv"
+output_path <- "../results/EC_result_all_contigs2.csv"
 ```
 
 
@@ -60,8 +61,8 @@ rfplasmid_out %<>% rename(rfplasmid=prediction) %>% select(contig_name,rfplasmid
 
 Merge the outputs (choose ensemble here)
 ```{r,message=FALSE}
-all_output <- full_join(full_join(platon_out,plascope_out),rfplasmid_out)
-all_output %<>% mutate(final_result=ifelse(str_count(paste(platon,plascope,rfplasmid),"plasmid")>1,"plasmid","chromosome"))
+all_output <- full_join(full_join(platon_out,plascope_out),mlplasmids_out)
+all_output %<>% mutate(final_result=ifelse(str_count(paste(platon,plascope,mlplasmids),"plasmid")>1,"plasmid","chromosome"))
 EC_result <- all_output %>% select(contig_name,final_result)
 ```
 
