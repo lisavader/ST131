@@ -1,5 +1,3 @@
-#!/bin/bash
-
 #install plascope via conda
 source /home/dla_mm/lvader/data/miniconda3/etc/profile.d/conda.sh
 #conda create --name plascope -c bioconda plascope
@@ -16,8 +14,8 @@ rm chromosome_plasmid_db.tar.gz
 mkdir ../results/plascope_predictions
 cd ../results/plascope_predictions
 
-for strain in  ../../../../ST131_ncbi_download/results/shortread_assemblies_unicycler/*
+for file in  ../../../../ST131_ncbi_download/results/shortread_assemblies_bactofidia/scaffolds/*.fna
 do
-name=$(basename $strain)
-plaScope.sh --fasta $strain/assembly.fasta -o . --db_dir ../../data --db_name chromosome_plasmid_db --sample $name
+name=$(basename $file .fna)
+plaScope.sh --fasta $file -o . --db_dir ../../data --db_name chromosome_plasmid_db --sample $name
 done

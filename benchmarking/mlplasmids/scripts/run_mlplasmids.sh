@@ -9,8 +9,9 @@ cd ~/data #provide home directory
 cd mlplasmids
 
 ##run mlplasmids
-for file in ../ST131_repo/ST131_ncbi_download/results/shortread_assemblies_bactofidia/scaffolds/*.fna
+for strain in ../ST131_repo/ST131_ncbi_download/results/shortread_assemblies_unicycler/*
 do
-name=$(basename $file .fna)
-Rscript scripts/run_mlplasmids.R $file ../ST131_repo/benchmarking/mlplasmids/results/mlplasmids_predictions/${name}.tsv 1e-5 'Escherichia coli'
+name=$(basename $strain)
+echo $name
+Rscript scripts/run_mlplasmids.R $strain/assembly.fasta ../ST131_repo/benchmarking/mlplasmids/results/mlplasmids_predictions/${name}.tsv 1e-5 'Escherichia coli'
 done

@@ -2,7 +2,7 @@
 
 #create conda environment for platon
 source /home/dla_mm/lvader/data/miniconda3/etc/profile.d/conda.sh
-conda create --name platon -c bioconda platon
+#conda create --name platon -c bioconda platon
 conda activate platon
 
 #download database
@@ -16,9 +16,8 @@ rm db.tar.gz
 mkdir ../results/platon_predictions
 cd ../results/platon_predictions
 
-for strain in  ../../../../ST131_ncbi_download/results/shortread_assemblies_unicycler/*
+for file in  ../../../../ST131_ncbi_download/results/shortread_assemblies_bactofidia/scaffolds/*.fna
 do
-name=$(basename $strain)
-echo $name
-platon --db ../../data/db --output $name --threads 8 --verbose $strain/assembly.fasta
+name=$(basename $file .fna)
+platon --db ../../data/db --output $name --threads 8 --verbose $file
 done
