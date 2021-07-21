@@ -163,6 +163,10 @@ ggplot(contig_type_overview %>% count(contig_type),aes(x="",y=n,fill=factor(cont
 
 ```
   
+```{r}
+ggsave('contigtypes.png')
+```
+
 ```{r, echo=FALSE,warning=FALSE,message=FALSE}
 contig_type_overview %<>% mutate(contig_length=as.numeric(sub(".*?length_(.*?)_.*", "\\1",contig_name)))
 ggplot(contig_type_overview,aes(x=log(contig_length,10),fill=factor(contig_type,level = level_order_contigs)))+
@@ -170,7 +174,9 @@ ggplot(contig_type_overview,aes(x=log(contig_length,10),fill=factor(contig_type,
   scale_fill_manual(labels=c("Correctly aligned","Ambiguously aligned to one replicon","Ambiguously aligned to multiple plasmids","Misassembled and aligned to one replicon","Misassembled and aligned to multiple plasmids","Unaligned","Alignment less than 90% of contig size","Ambiguously aligned to both plasmid and chromosome"),values=c("#ffa600","#ff6361","#bc5090","#58508d","#003f5c","#bcbcbc","#8b8b8c","#5c5d5f"))+
   labs(title = "Length distribution of contig types",x="Contig length (log10 bp)",y = "Count",fill="Contig type")
 ```
-  
+```{r}
+ggsave('contiglengths.png',width = 10,height = 6)
+```  
 45% of all contigs could be correctly mapped to a replicon.  
 43% could not be aligned at all, most of them being smaller than 1000 bp.  
 4% of contigs were ambiguously aligned, mostly to only one replicon.   
@@ -186,7 +192,7 @@ selected_contig_info <- full_join(selected_contigs,replicon_data,by="replicon_na
 ### Import binary classifier output
 Mlplasmids
 ```{r,message=FALSE}
-mlplasmids_out <- read_tsv("../../mlplasmids/results/mlplasmids_all_results.tsv")
+mlplasmids_out <- read_tsv("../../mlplasmids_bac/results/mlplasmids_all_results.tsv")
 names(mlplasmids_out)<-c('assembly_accession','sra_accession','prob_chromosome','prob_plasmid','prediction','contig_name','contig_length')
 mlplasmids_out$prediction %<>% tolower()
 mlplasmids_out %<>% mutate(software="mlplasmids")
@@ -195,7 +201,7 @@ mlplasmids_out %<>% mutate(software="mlplasmids")
 
 Platon
 ```{r}
-platon_out <- read.csv("../../platon/results/platon_all_results.csv", header = FALSE)
+platon_out <- read.csv("../../platon_bac/results/platon_all_results.csv", header = FALSE)
 names(platon_out) <- c("contig_name","prediction")
 platon_out %<>% mutate(contig_name=str_replace(contig_name,'>',''))
 platon_out %<>% mutate(software="platon")
@@ -204,7 +210,7 @@ platon_out %<>% mutate(software="platon")
 
 Plascope
 ```{r}
-plascope_out <- read.csv("../../plascope/results/plascope_all_results.csv", header = FALSE)
+plascope_out <- read.csv("../../plascope_bac/results/plascope_all_results.csv", header = FALSE)
 names(plascope_out) <- c("contig_name","prediction")
 plascope_out %<>% mutate(contig_name=str_replace(contig_name,'>',''))
 plascope_out %<>% mutate(software="plascope")
@@ -213,7 +219,7 @@ plascope_out %<>% mutate(software="plascope")
 
 RFPlasmid
 ```{r}
-rfplasmid_out <- read.csv("../../rfplasmid/results/rfplasmid_predictions/prediction.csv")
+rfplasmid_out <- read.csv("../../rfplasmid_bac/results/rfplasmid_predictions/prediction.csv")
 names(rfplasmid_out) <- c("short_name","prediction","votes_chromosome","votes_plasmid","contig_name")
 rfplasmid_out$prediction[rfplasmid_out$prediction=="c"]<- "chromosome"
 rfplasmid_out$prediction[rfplasmid_out$prediction=="p"]<- "plasmid"
@@ -272,6 +278,9 @@ ggplot(final_result %>% group_by(software) %>% count(result),aes(x=n, y= factor(
   scale_fill_manual(values=c("#47954D","#75C24B","#B94B33","#FA6C4D","#FACE1B","#5c5d5f"))+
   scale_y_discrete(labels=rev(c("TP","TN","FP","FN","Unclassified","No category")))
 ```
+```{r}
+ggsave("binary_comparison.png",height = 5, width = 8)
+```
 
 Instead of calculating the metrics for each contig, we can also assess the total number of basepairs that a software identifies as correct/incorrect.
 Because longer contigs are easier to categorise, this leads to more favourable results.
@@ -327,8 +336,8 @@ We are also interested in whether combining the outputs of multiple binary class
 We can explore which contigs are differentially predicted by different softwares using Venn diagrams.  
 For PlaScope, we will again categorise all unidentified contigs as 'incorrect'.
 ```{r}
-false_negatives_venn <- rbind(false_negatives,unclassified %>% filter(classification=="chromosome"))
-false_positives_venn <- rbind(false_positives,unclassified %>% filter(classification=="plasmid"))
+false_negatives_venn <- rbind(false_negatives,unclassified %>% filter(classification=="plasmid"))
+false_positives_venn <- rbind(false_positives,unclassified %>% filter(classification=="chromosome"))
 ```
 
 Build Venn diagrams
@@ -364,26 +373,24 @@ We now explore what happens when we combine three of the softwares, and assume t
 In order to include the 'unclassified' contigs from PlaScope, we always categorise them as 'chromosome'.
 ```{r}
 true_negatives_venn2 <- rbind(true_negatives,unclassified %>% filter(classification=="chromosome"))
-false_negatives_venn2 <- rbind(false_negatives,unclassified %>% filter(classification=="plasmid"))
 ```
 
 Because we changed the classification of unidentified contigs, we have to make new lists for true negatives, false negatives and false positives.
 ```{r}
 venn_TN2 <- list(Mlplasmids = true_negatives_venn2 %>% filter(software=='mlplasmids') %>% pull(contig_name),Platon =true_negatives_venn2 %>% filter(software=='platon') %>% pull(contig_name),PlaScope=true_negatives_venn2 %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=true_negatives_venn2 %>% filter(software=='rfplasmid') %>% pull(contig_name))
-venn_FN2 <- list(Mlplasmids = false_negatives_venn2 %>% filter(software=='mlplasmids') %>% pull(contig_name),Platon =false_negatives_venn2 %>% filter(software=='platon') %>% pull(contig_name),PlaScope=false_negatives_venn2 %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=false_negatives_venn2 %>% filter(software=='rfplasmid') %>% pull(contig_name))
 venn_FP2 <- list(Mlplasmids = false_positives %>% filter(software=='mlplasmids') %>% pull(contig_name),Platon =false_positives %>% filter(software=='platon') %>% pull(contig_name),PlaScope=false_positives %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=false_positives %>% filter(software=='rfplasmid') %>% pull(contig_name))
 ```
 
 Count the number of contigs at the intersections of the resulting venn diagrams (not drawn). For example, for all true positive contigs we count which tool or combination of tools categorised them as true positive. We do this for all results, and merge the files.
 ```{r,fig.show='hide'}
 venn_counts_TP <- as_tibble(as.list(lengths(attributes(venn(venn_TP))$intersections)))
-venn_counts_FP2 <- as_tibble(as.list(lengths(attributes(venn(venn_FP2))$intersections)))
-venn_counts_TN2 <- as_tibble(as.list(lengths(attributes(venn(venn_TN2))$intersections)))
-venn_counts_FN2 <- as_tibble(as.list(lengths(attributes(venn(venn_FN2))$intersections)))
-venn_counts2 <- merge(merge(merge(venn_counts_TP,venn_counts_TN2,all=TRUE),venn_counts_FN2,all=TRUE),venn_counts_FP2,all=TRUE)
-venn_counts2 %<>% replace(is.na(.), 0)
-rownames(venn_counts2) <- c("FN","FP","TP","TN")
-venn_counts2 <- venn_counts2[c("TP","TN","FP","FN"),]
+venn_counts_FP <- as_tibble(as.list(lengths(attributes(venn(venn_FP))$intersections)))
+venn_counts_TN <- as_tibble(as.list(lengths(attributes(venn(venn_TN))$intersections)))
+venn_counts_FN <- as_tibble(as.list(lengths(attributes(venn(venn_FN))$intersections)))
+venn_counts <- merge(merge(merge(venn_counts_TP,venn_counts_TN,all=TRUE),venn_counts_FN,all=TRUE),venn_counts_FP,all=TRUE)
+venn_counts %<>% replace(is.na(.), 0)
+rownames(venn_counts) <- c("FN","FP","TP","TN")
+venn_counts <- venn_counts[c("TP","TN","FP","FN"),]
 ```
 
 We calculate the number of true positive, true negative, false positive and false negative contigs for each of the four combinations of softwares. Contigs are included if they are classified by at least two out of three softwares. This means that contigs predicted by three of four softwares are always included.
@@ -400,21 +407,21 @@ for (combination in c("Mlplasmids/Platon/PlaScope","Mlplasmids/Platon/RFPlasmid"
   #This is the case if it contains three or four softwares in total, or two of the input softwares (soft1 + soft2, soft1 + soft3 or soft2 + soft3)
   pattern<-paste(":.*:|",soft1,":",soft2,"|",soft1,":",soft3,"|",soft2,":",soft3,sep = "")
   #The row sum of these columns is added as a new column named after the software combination
-  venn_counts2$new_column <- rowSums(venn_counts2[grepl(pattern,colnames(venn_counts2))])
-  names(venn_counts2)[names(venn_counts2) == "new_column"] <- combination
+  venn_counts$new_column <- rowSums(venn_counts[grepl(pattern,colnames(venn_counts))])
+  names(venn_counts)[names(venn_counts) == "new_column"] <- combination
 }
 ```
 
 Calculate precision, recall and F1-score for the ensemble combinations.
 ```{r}
-venn_scores2 <- venn_counts2 %>% select(`Mlplasmids/PlaScope/RFPlasmid`,`Mlplasmids/Platon/PlaScope`,`Mlplasmids/Platon/RFPlasmid`,`Platon/PlaScope/RFPlasmid`)
-venn_scores2 <- as.data.frame(t(venn_scores2))
-rownames(venn_scores2) <- str_replace(row.names(venn_scores2),"Total_","")
-venn_scores2 %<>% mutate(precision=TP/(TP+FP),recall=TP/(TP+FN),f1_score=2*(precision*recall)/(precision+recall))
+venn_scores <- venn_counts %>% select(`Mlplasmids/PlaScope/RFPlasmid`,`Mlplasmids/Platon/PlaScope`,`Mlplasmids/Platon/RFPlasmid`,`Platon/PlaScope/RFPlasmid`)
+venn_scores <- as.data.frame(t(venn_scores))
+rownames(venn_scores) <- str_replace(row.names(venn_scores),"Total_","")
+venn_scores %<>% mutate(precision=TP/(TP+FP),recall=TP/(TP+FN),f1_score=2*(precision*recall)/(precision+recall))
 ```
 
 ```{r,echo=FALSE}
-kable(venn_scores2)
+kable(venn_scores,caption = "Performance of ensemble classifiers (calculated per contig)")
 ```
 With regard to contigs, the ensemble classifiers outperform all the individual classifiers (top F1-score 85.5%). The combination Mlplasmids/Platon/PlaScope performs best with a recall of 96.8%, precision of 87.9% and F1-score of 92.1%. This combination scores the highest precision as well as the highest recall.
 
@@ -423,9 +430,12 @@ Furthermore, we can take a look at the length of the false positive and false ne
 Get the contig names of the false positives and false negatives for each ensemble classifier
 ```{r,fig.show='hide'}
 #Get the contig names of false negatives and false postives grouped by software combination
-venn_contigs_FN2 <- attributes(venn(venn_FN2))$intersections
-venn_contigs_FP2 <- attributes(venn(venn_FP2))$intersections
-incorrect_contigs_ensembles <- as_tibble(data.frame())
+venn_contigs_FN <- attributes(venn(venn_FN))$intersections
+venn_contigs_FP <- attributes(venn(venn_FP))$intersections
+venn_contigs_TN <- attributes(venn(venn_TN))$intersections
+venn_contigs_TP <- attributes(venn(venn_TP))$intersections
+
+lengths_contigs_ensembles <- as_tibble(data.frame())
 for (combination in c("Mlplasmids/Platon/PlaScope","Mlplasmids/Platon/RFPlasmid","Mlplasmids/PlaScope/RFPlasmid","Platon/PlaScope/RFPlasmid")){
   #Split the input names into variables soft1/soft2/soft3
   softwares <- unlist(str_split(combination,'/'))
@@ -436,31 +446,43 @@ for (combination in c("Mlplasmids/Platon/PlaScope","Mlplasmids/Platon/RFPlasmid"
   }
   #Apply same pattern as before for column selection
   pattern<-paste(":.*:|",soft1,":",soft2,"|",soft1,":",soft3,"|",soft2,":",soft3,sep = "")
-  columns <- colnames(venn_counts2[grepl(pattern,colnames(venn_counts2))])
+  columns <- colnames(venn_counts[grepl(pattern,colnames(venn_counts))])
   file_FP <- as_tibble(data.frame())
   file_FN <- as_tibble(data.frame())
+  file_TP <- as_tibble(data.frame())
+  file_TN <- as_tibble(data.frame())
   #Rbind all contigs in those columns to intermediate files file_FP and file_FN
   for (column in columns){
-    file_FP <- rbind(file_FP,as_tibble(venn_contigs_FP2[[column]]))
-    file_FN <- rbind(file_FN,as_tibble(venn_contigs_FN2[[column]]))
+    file_FP <- rbind(file_FP,as_tibble(venn_contigs_FP[[column]]))
+    file_FN <- rbind(file_FN,as_tibble(venn_contigs_FN[[column]]))
+    file_TP <- rbind(file_TP,as_tibble(venn_contigs_TP[[column]]))
+    file_TN <- rbind(file_TN,as_tibble(venn_contigs_TN[[column]]))
   }
   #Add result and combination names
   file_FN %<>% mutate(result="FN",combination=combination)
   file_FP %<>% mutate(result="FP",combination=combination)
+  file_TP %<>% mutate(result="TP",combination=combination)
+  file_TN %<>% mutate(result="TN",combination=combination)
   #Append output file
-  incorrect_contigs_ensembles <- rbind(incorrect_contigs_ensembles,file_FN,file_FP)
+  lengths_contigs_ensembles <- rbind(lengths_contigs_ensembles,file_FN,file_FP,file_TN,file_TP)
 }
 ```
 
 Calculate contig length
 ```{r}
-incorrect_contigs_ensembles %<>% rename(contig_name=value) %>% mutate(contig_length=as.numeric(sub(".*?length_(.*?)_.*", "\\1",contig_name)))
+lengths_contigs_ensembles %<>% rename(contig_name=value) %>% mutate(contig_length=as.numeric(sub(".*?length_(.*?)_.*", "\\1",contig_name)))
 ```
 
+Metrics per bp
+```{r}
+count_ensemble_lengths <- lengths_contigs_ensembles %>% group_by(combination,result) %>% summarise(total_bp = sum(contig_length)) %>% spread(result,total_bp) %>% mutate(precision=TP/(TP+FP),recall=TP/(TP+FN),f1_score=2*(precision*recall)/(precision+recall))
+kable(count_ensemble_lengths,caption = "Performance of ensemble classifiers (calculated per basepair)")
+```
+
+
 ```{r,message=FALSE}
-ggplot(incorrect_contigs_ensembles,aes(x=log(contig_length,10),fill=result))+
+ggplot(lengths_contigs_ensembles %>% filter(result %in% c('FN','FP')),aes(x=log(contig_length,10),fill=result))+
   geom_histogram()+
-  facet_wrap(~combination)+
-  scale_fill_manual(values=c("#B94B33","#FA6C4D"))
+  facet_wrap(~combination)
 ```
 Most miscategorised contigs are in the 1000 to 5000 (≈ 10e3.7) bp range. Mlplasmids/Platon/PlaScope misidentifies very few large contigs (>5000 bp), mostly are all false positives. 
