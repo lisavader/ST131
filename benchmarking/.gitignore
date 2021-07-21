@@ -3,13 +3,14 @@
 #plasmidspades
 plasmidspades_slurm_scripts
 spades_predictions
-quast_slurm_scripts
+quast_slurm_scripts*
 plasmidspades/results/quast_output/*
 !plasmidspades/results/quast_output/*.csv
 
 #mobsuite
-mob_sbatch_scripts
-mob_predictions
+mob_sbatch_scripts*
+mob_predictions*
+mob_predictions_clean*
 mobsuite/results/quast_output/*
 !mobsuite/results/quast_output/*.csv
 
@@ -18,14 +19,14 @@ mobsuite_bac/results/quast_output/*
 !mobsuite_bac/results/quast_output/*.csv
 
 #mobsuite_clean
-mob_predictions_clean
 mobsuite_clean/results/quast_output_clean/*
 !mobsuite_clean/results/quast_output_clean/*.csv
 
-mob_sbatch_scripts2
-mob_predictions_clean2
 mobsuite_clean/results/quast_output_clean2/*
 !mobsuite_clean/results/quast_output_clean2/*.csv
+
+mobsuite_clean/results/quast_output_clean3/*
+!mobsuite_clean/results/quast_output_clean3/*.csv
 
 #mobsuite_trimmed
 mobsuite_trimmed/results/quast_output/*
@@ -35,12 +36,11 @@ mobsuite_trimmed/results/quast_output/*
 mobsuite_EC/results/quast_output/*
 !mobsuite_EC/results/quast_output/*.csv
 
-mob_sbatch_scripts2
-mob_predictions2
-quast_slurm_scripts2
 mobsuite_EC/results/quast_output2/*
 !mobsuite_EC/results/quast_output2/*.csv
 
+mobsuite_EC/results/quast_output3/*
+!mobsuite_EC/results/quast_output3/*.csv
 
 #mlplasmids
 mlplasmids_predictions
@@ -51,6 +51,3 @@ platon_predictions
 
 #plascope
 plascope_predictions
-
-#rfplasmid
-rfplasmid_predictions
