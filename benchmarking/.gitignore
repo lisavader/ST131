@@ -54,3 +54,6 @@ plascope_predictions
 
 #rfplasmid
 rfplasmid_predictions
+
+#analysis
+analysis/scripts/*.png
