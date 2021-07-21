@@ -51,3 +51,9 @@ platon_predictions
 
 #plascope
 plascope_predictions
+
+#rfplasmid
+rfplasmid_predictions
+
+#analysis
+analysis/scripts/*.png
