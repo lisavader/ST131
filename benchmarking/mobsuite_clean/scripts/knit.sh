@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -J mobsuite_clean
-#SBATCH --time=20:00:00
+#SBATCH --time=10:00:00
 #SBATCH --mem=32G
 #SBATCH -c 8
 
@@ -10,12 +10,12 @@ conda activate mobsuite
 
 ##run all scripts
 echo 'Removing contamination...'
-python remove_contamination.py
+python remove_contamination_uni.py
 echo 'Running quast...'
-bash quast_mobsuite_bac_clean.sh
+bash quast_mobsuite_clean.sh
 #wait for slurm scripts to finish
-sleep 1h
+sleep 30m
 echo 'Gathering quast results...'
-python gather_quast_results_mob_bac.py
+python gather_quast_results_mob_uni.py
 echo 'Adding assembly accessions...'
 bash add_assembly_accessions.sh
