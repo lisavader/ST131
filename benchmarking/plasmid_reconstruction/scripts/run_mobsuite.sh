@@ -14,12 +14,12 @@ while getopts :m: flag; do
 done
 
 #1. create directory to store slurm jobs
-rm -rf mob_scripts_$mode
-mkdir mob_scripts_$mode
+rm -rf scripts_$mode
+mkdir scripts_$mode
 
 #2. Create directory to store mob-results
-rm -rf mob_predictions_$mode
-mkdir mob_predictions_$mode
+rm -rf predictions_$mode
+mkdir predictions_$mode
 
 #3. Get a list of strain names
 accessions=$(cat ../../../ST131_ncbi_download/results/longread_ST131_sra_accessions)
@@ -29,27 +29,27 @@ accessions=$(cat ../../../ST131_ncbi_download/results/longread_ST131_sra_accessi
 for strain in $accessions
 do
 
-if [[ $mode = "bactofidia" ]];  then
+if [[ $mode = "mob_bac" ]];  then
         path=$(echo "shortread_assemblies_bactofidia/scaffolds/${strain}.fna")
 fi
 
-if [[ $mode = "unicycler" ]];  then
+if [[ $mode = "mob_uni" ]];  then
         path=$(echo "shortread_assemblies_unicycler/${strain}/assembly.fasta")
 fi
 
-if [[ $mode = "unicycler_trimmed" ]];  then
+if [[ $mode = "mob_unitrim" ]];  then
         path=$(echo "shortread_assemblies_unicycler_trimmed/${strain}/assembly.fasta")
 fi
 
 echo "#!/bin/bash
 #1. Move to the directory that will contain the mob predictions
-cd ../mob_predictions_${mode}
+cd ../predictions_${mode}
 #2. Run MOB-suite
-mob_recon --infile ../../../../ST131_ncbi_download/results/${path} --outdir ${strain}" > mob_scripts_${mode}/${strain}.sh
+mob_recon --infile ../../../../ST131_ncbi_download/results/${path} --outdir ${strain}" > scripts_${mode}/${strain}.sh
 done
 
 #5- Run the sbatch scripts
-cd mob_scripts_${mode}
+cd scripts_${mode}
 jobs=$(ls)
 for slurm in $jobs
 do
