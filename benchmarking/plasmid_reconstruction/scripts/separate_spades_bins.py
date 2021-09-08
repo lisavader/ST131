@@ -11,7 +11,7 @@ import fastaparser
 
 wd=os.path.dirname(os.path.realpath(__file__))
 os.chdir(wd)
-os.chdir('../results/spades_predictions')
+os.chdir('../results/predictions_spades')
 genomes=glob.glob('?RR*')
 
 
