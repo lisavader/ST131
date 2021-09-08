@@ -41,10 +41,7 @@ cd ../..
 for bin in $all_bins
 do
 echo "#!/bin/bash
-#move to root directory
-cd ../../../..
-#perform quast
-quast -o quast_output/${sra_accession}/${bin} -r ../../../ST131_ncbi_download/results/genomes/${assembly_accession}*genomic.fna -m 1000 -t 8 -i 500 --no-snps --ambiguity-usage all predictions_${mode}/${sra_accession}/${bin}.fasta" > quast_scripts_${mode}/${sra_accession}_${bin}
+quast -o quast_${mode}/${sra_accession}/${bin} -r ../../../ST131_ncbi_download/results/genomes/${assembly_accession}*genomic.fna -m 1000 -t 8 -i 500 --no-snps --ambiguity-usage all predictions_${mode}/${sra_accession}/${bin}.fasta" > quast_scripts_${mode}/${sra_accession}_${bin}
 done
 done
 
