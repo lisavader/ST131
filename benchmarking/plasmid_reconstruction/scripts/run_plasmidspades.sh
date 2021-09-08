@@ -25,11 +25,11 @@ for strain in $files
 do
 echo "#!/bin/bash
 cd ~/data/ST131_repo/ST131_ncbi_download/results
-plasmidspades.py --only-assembler -1 trimmed_sra_files/${strain}_R1*.fq -2 trimmed_sra_files/${strain}_R2*.fq -o ../../benchmarking/plasmid_reconstruction/results/spades_predictions/${strain}" > spades_scripts/${strain}
+plasmidspades.py --only-assembler -1 trimmed_sra_files/${strain}_R1*.fq -2 trimmed_sra_files/${strain}_R2*.fq -o ../../benchmarking/plasmid_reconstruction/results/spades_predictions/${strain}" > scripts_spades/${strain}
 done
 
 #Run the scripts
-cd spades_scripts
+cd scripts_spades
 jobs=$(ls)
 for slurm in $jobs
 do
