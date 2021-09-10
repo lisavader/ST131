@@ -5,9 +5,15 @@ import glob
 import os
 import sys
 
-#set mode
+#set mode and define mode-specific variables
 mode=str(sys.argv[1])
 base=mode.rsplit('_',1)[0]
+
+if "uni" in mode:
+        EC_prediction='EC_result_all_contigs3.csv'
+elif "bac" in mode:
+        EC_prediction='EC_result_all_contigs2.csv'
+
 
 def remove_chromosomal_contigs(strain):
 	os.chdir(strain)
@@ -39,7 +45,7 @@ os.chdir(bins_dir)
 plasmids = []
 
 #save contig headers of predicted plasmids in list
-with open('../../../analysis/results/EC_result_all_contigs3.csv','r') as EC_result:
+with open('../../../analysis/results/'+EC_prediction,'r') as EC_result:
 	for line in EC_result.readlines():
 		if 'plasmid' in line:
 			contig_name=line.split(',')[0].strip('"')
