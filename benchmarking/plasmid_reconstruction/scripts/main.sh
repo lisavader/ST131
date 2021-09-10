@@ -3,7 +3,9 @@
 #SBATCH --mem=32G
 #SBATCH -c 8
 
-#Set mode
+##Set flags
+#Provide the mode with m
+#Add an s flag if reconstruction results are already present and you want to skip this step
 while getopts :sm: flag; do
         case $flag in
                 m) mode=$OPTARG;;
@@ -17,6 +19,12 @@ conda activate mobsuite
 
 ##Run all scripts
 #For parallelized scripts, I added a latency so that we only move on when the slurm scripts are finished
+
+#In case of the EC 'filtered' approach, assembly files are filtered beforehand so that only the plasmid contigs remain
+if [[ $mode = mob.*filtered ]]; then
+	echo "Filtering assembly files..."
+	python select_plasmid_contigs.py $mode
+fi
 
 #Run plasmid reconstruction tools
 #If mode is 'cleaned', I dont run this step because there is no difference in the mob reconstruction.
@@ -58,4 +66,4 @@ bash add_assembly_accessions.sh -m $mode
 
 #Remove slurm scripts folders
 cd ../results
-rm -r .*scripts.*
+rm -r *scripts*
