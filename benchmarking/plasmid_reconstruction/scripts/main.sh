@@ -1,5 +1,5 @@
-#SBATCH -J reconstruct_plasmids
-#SBATCH --time=20:00:00
+#!/bin/bash
+#SBATCH --time=6:00:00
 #SBATCH --mem=32G
 #SBATCH -c 8
 
@@ -27,9 +27,12 @@ elif [[ $mode = spades ]]; then
 	sleep 4h 30m
 	#for plasmidspades, also separate the bins
 	python separate_spades_bins.py	
+fi
 
 #In case of the EC 'cleaned' approach, remove predicted chromosomal contigs from bins
 if [[ $mode = mob.*cleaned ]]; then
+	python remove_contamination.py $mode
+fi
 
 #Run quast
 bash run_quast.sh -m $mode
@@ -40,3 +43,7 @@ python gather_quast_results.py $mode
 
 #Add assembly accessions to alignment statistics file
 bash add_assembly_accessions.sh -m $mode
+
+#Remove slurm scripts folders
+cd ../results
+rm -r .*scripts.*
