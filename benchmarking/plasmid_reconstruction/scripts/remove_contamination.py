@@ -7,13 +7,14 @@ import sys
 
 #set mode
 mode=str(sys.argv[1])
+base=mode.rsplit('_',1)[0]
 
 def remove_chromosomal_contigs(strain):
 	os.chdir(strain)
 	bins=glob.glob('plasmid*')
 	for bin in bins:
 		with open(bin,'r') as fasta:
-			os.makedirs("../../predictions_"+mode+"_cleaned/"+strain,exist_ok=True)
+			os.makedirs("../../predictions_"+mode+"/"+strain,exist_ok=True)
 			assembly = fastaparser.Reader(fasta)
 			for contig in assembly:
 				#for unicycler headers, split header to obtain contig name
@@ -23,7 +24,7 @@ def remove_chromosomal_contigs(strain):
 					contig_name=contig.id
 				print(contig_name)
 				if contig_name in plasmids:
-					with open("../../predictions_"+mode+"_cleaned/"+strain+"/"+bin,'a') as output:
+					with open("../../predictions_"+mode+"/"+strain+"/"+bin,'a') as output:
 						writer = fastaparser.Writer(output)
 						writer.writefasta(contig)
 	os.chdir('../')
@@ -31,7 +32,7 @@ def remove_chromosomal_contigs(strain):
 
 #go to bins directory
 #wd=os.path.dirname(os.path.realpath(__file__))
-bins_dir='../results/predictions_'+mode+'/'
+bins_dir='../results/predictions_'+base+'/'
 os.chdir(bins_dir)
 
 #make empty list
