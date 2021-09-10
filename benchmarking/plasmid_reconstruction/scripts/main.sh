@@ -4,9 +4,10 @@
 #SBATCH -c 8
 
 #Set mode
-while getopts :m: flag; do
+while getopts :sm: flag; do
         case $flag in
                 m) mode=$OPTARG;;
+		s) skip_reconstruction='true'
         esac
 done
 
@@ -18,10 +19,10 @@ conda activate mobsuite
 #For parallelized scripts, I added a latency so that we only move on when the slurm scripts are finished
 
 #Run plasmid reconstruction tools
-if [[ $mode = mob* ]]; then
-	echo "Running mobsuite..."
-	bash run_mobsuite.sh -m $mode
-	sleep 2h
+#If mode is 'cleaned', I dont run this step because there is no difference in the mob reconstruction.
+#This means that mob_bac or mob_uni results should exist already before running 'cleaned' mode.
+if [[ $skip_reconstruction = true || $mode = mob.*cleaned ]]; then
+	:
 
 elif [[ $mode = spades ]]; then
 	echo "Running plasmidspades..."
@@ -29,6 +30,11 @@ elif [[ $mode = spades ]]; then
 	sleep 4h 30m
 	#for plasmidspades, also separate the bins
 	python separate_spades_bins.py	
+
+elif [[ $mode = mob* ]]; then
+	echo "Running mobsuite..."
+	bash run_mobsuite.sh -m $mode
+	sleep 30m
 fi
 
 #In case of the EC 'cleaned' approach, remove predicted chromosomal contigs from bins
