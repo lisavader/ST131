@@ -4,6 +4,7 @@ import fastaparser
 import glob
 import os
 import sys
+import shutil
 
 #set mode and define mode-specific variables
 mode=str(sys.argv[1])
@@ -28,7 +29,6 @@ def remove_chromosomal_contigs(strain):
 					contig_name=strain+'_'+contig.id.split('_')[0]
 				elif "bac" in mode:
 					contig_name=contig.id
-				print(contig_name)
 				if contig_name in plasmids:
 					with open("../../predictions_"+mode+"/"+strain+"/"+bin,'a') as output:
 						writer = fastaparser.Writer(output)
@@ -43,6 +43,9 @@ os.chdir(bins_dir)
 
 #make empty list
 plasmids = []
+
+#remove previous results files, if they exist
+shutil.rmtree("../predictions_"+mode+"/",ignore_errors=True)
 
 #save contig headers of predicted plasmids in list
 with open('../../../analysis/results/'+EC_prediction,'r') as EC_result:
