@@ -42,7 +42,7 @@ elif [[ $mode = "mob_bac_filtered" ]]; then
 	path=$(echo "shortread_assemblies_bactofidia/scaffolds/predicted_plasmid_contigs/${strain}.fna")
 
 elif [[ $mode = "mob_bac_filtered" ]]; then
-	path=$(echo "shortread_assemblies_unicycler/predicted_plasmid_contigs/${strain}.fna")
+	path=$(echo "shortread_assemblies_unicycler/predicted_plasmid_contigs/${strain}")
 fi
 
 echo "#!/bin/bash
