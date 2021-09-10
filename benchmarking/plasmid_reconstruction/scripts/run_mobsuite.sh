@@ -29,11 +29,11 @@ accessions=$(cat ../../../ST131_ncbi_download/results/longread_ST131_sra_accessi
 for strain in $accessions
 do
 
-if [[ $mode = "mob_bac" | $mode = "mob_bac_cleaned" ]];  then
+if [[ $mode = "mob_bac" || $mode = "mob_bac_cleaned" ]];  then
         path=$(echo "shortread_assemblies_bactofidia/scaffolds/${strain}.fna")
 fi
 
-if [[ $mode = "mob_uni" ]];  then
+if [[ $mode = "mob_uni" || $mode = "mob_uni_cleaned"]];  then
         path=$(echo "shortread_assemblies_unicycler/${strain}/assembly.fasta")
 fi
 
