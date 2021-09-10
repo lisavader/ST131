@@ -3,6 +3,7 @@ import fastaparser
 import glob
 import os
 import sys
+import shutil
 
 #set mode and assign mode-specific variables
 mode=str(sys.argv[1])
@@ -48,6 +49,12 @@ with open(EC_prediction_path,'r') as EC_result:
 		if 'plasmid' in line:
 			contig_name=line.split(',')[0].strip('"')
 			plasmids.append(contig_name)
+
+#make new directory for storing the results, if it already exists remove previous one
+if os.path.exists("predicted_plasmid_contigs/"):
+	shutil.rmtree("predicted_plasmid_contigs/") 
+else:
+	os.makedirs("predicted_plasmid_contigs/")
 
 #extract and save plasmid contigs for each assembly file
 strains=glob.glob('?RR*')
