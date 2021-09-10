@@ -6,7 +6,7 @@ while getopts :m: flag; do
 done
 
 #add assembly accessions to alignments statistics file
-cd ../results/quast_${mode}
+cd ../results/quast_statistics
 
 cat ${mode}_alignments_statistics.csv | while read line
 do
