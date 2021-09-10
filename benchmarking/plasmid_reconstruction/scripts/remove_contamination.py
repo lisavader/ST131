@@ -17,7 +17,7 @@ def remove_chromosomal_contigs(strain):
 			os.makedirs("../../predictions_"+mode+"/"+strain,exist_ok=True)
 			assembly = fastaparser.Reader(fasta)
 			for contig in assembly:
-				#for unicycler headers, split header to obtain contig name
+				#for unicycler, merge strain and node nr. to obtain contig name
 				if "uni" in mode:
 					contig_name=strain+'_'+contig.id.split('_')[0]
 				elif "bac" in mode:
