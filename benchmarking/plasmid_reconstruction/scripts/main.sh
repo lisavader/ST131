@@ -13,6 +13,8 @@ while getopts :sm: flag; do
         esac
 done
 
+echo "Mode =" $mode
+
 #Activate conda for loading python libraries
 source /home/dla_mm/lvader/data/miniconda3/etc/profile.d/conda.sh
 conda activate mobsuite
