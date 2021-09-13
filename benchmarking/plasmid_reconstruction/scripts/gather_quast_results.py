@@ -94,7 +94,7 @@ def bin_status(strain):
                             #Gather the information from this partially unaligned contig.
                             contig_length=information[5].split('_')[3]
                             #contig_coverage=information[5].split('_')[5]
-                            with open('../../quast_statistics/'+mode+'_unaligned_contigs.csv', 'a+') as unaligned_file:
+                            with open('../../quast_statistics/'+mode+'/'+mode+'_unaligned_contigs.csv', 'a+') as unaligned_file:
                                 unaligned_file.write(strain+','+contig_name+','+contig_length+','+'\n')
 
                                 
@@ -110,7 +110,7 @@ def bin_status(strain):
                                 max_alignnment_pos_dict[reference_name].append(end)
                                  
                                 #register the name of the correct contig alignment
-                                with open('../../quast_statistics/'+mode+'_references_file.csv', 'a+') as reference_file:
+                                with open('../../quast_statistics/'+mode+'/'+mode+'_references_file.csv', 'a+') as reference_file:
                                     reference_file.write(strain+','+prediction+','+reference_name+','+contig_name+'\n')
                                 
                                 #add the length of the alignment to the correct_lengths dictionary    
@@ -147,7 +147,7 @@ def bin_status(strain):
                                 contig_length=line.split('\t')[2]
                                 contig_name=information[1].split('_')[0:splitpoint]                                
                                 contig_name='_'.join(contig_name)
-                                with open('../../quast_statistics/'+mode+'_unaligned_contigs.csv', 'a+') as unaligned_file:
+                                with open('../../quast_statistics/'+mode+'/'+mode+'_unaligned_contigs.csv', 'a+') as unaligned_file:
                                     unaligned_file.write(strain+','+contig_name+','+contig_length+','+'\n')
                                #########################################################
                         
@@ -228,7 +228,7 @@ def bin_status(strain):
                                               correct_contig_count[reference_name]=1
                                                   
                                               #we will andd the name of the contig and the name of the refrence to the reference_file. This will be later used to study atb-R location
-                                          with open('../../quast_statistics/'+mode+'_references_file.csv', 'a+') as reference_file:
+                                          with open('../../quast_statistics/'+mode+'/'+mode+'_references_file.csv', 'a+') as reference_file:
                                               reference_file.write(strain+','+prediction+','+reference_name+','+contig_name+'\n')
                                               
                                         #If less than 90% of the contig is aligned, we will consider this as unaligned contig      
@@ -276,7 +276,7 @@ def bin_status(strain):
                                     else:
                                         correct_contig_count[reference_name]=1
                                         
-                                    with open('../../quast_statistics/'+mode+'_references_file.csv', 'a+') as reference_file:
+                                    with open('../../quast_statistics/'+mode+'/'+mode+'_references_file.csv', 'a+') as reference_file:
                                         reference_file.write(strain+','+prediction+','+reference_name+','+contig_name+'\n')
                                     
                                     i+=1
@@ -329,10 +329,10 @@ def bin_status(strain):
                                       else:
                                           correct_contig_count[ambiguous_reference_name]=1
                                           
-                                      with open('../../quast_statistics/'+mode+'_references_file.csv', 'a+') as reference_file:
+                                      with open('../../quast_statistics/'+mode+'/'+mode+'_references_file.csv', 'a+') as reference_file:
                                           reference_file.write(strain+','+prediction+','+ambiguous_reference_name+','+contig_name+'\n')
                                           
-                                      with open('../../quast_statistics/'+mode+'_ambiguous_references.csv', 'a+') as ambiguous_contigs_file:
+                                      with open('../../quast_statistics/'+mode+'/'+mode+'_ambiguous_references.csv', 'a+') as ambiguous_contigs_file:
                                           ambiguous_contigs_file.write(strain+','+prediction+','+ambiguous_reference_name+','+contig_name+','+str(ambiguous_alignment_length)+','+start+','+end+'\n')
                                           
                                 else:
@@ -406,7 +406,7 @@ def bin_status(strain):
                                             
                                             j+=1
                                             
-                                            with open('../../quast_statistics/'+mode+'_references_file.csv', 'a+') as reference_file:
+                                            with open('../../quast_statistics/'+mode+'/'+mode+'_references_file.csv', 'a+') as reference_file:
                                                       reference_file.write(strain+','+prediction+','+reference_name+','+contig_name+','+start_contig+','+end_contig+'\n') #new_line
                                                       
                                         #skipping lines that do not contain alignemtn information              
@@ -499,7 +499,7 @@ def bin_status(strain):
                                         else:
                                             correct_contig_count[reference_name]=1                                      
                                                                       
-                                        with open('../../quast_statistics/'+mode+'_references_file.csv', 'a+') as reference_file:
+                                        with open('../../quast_statistics/'+mode+'/'+mode+'_references_file.csv', 'a+') as reference_file:
                                             reference_file.write(strain+','+prediction+','+reference_name+','+contig_name+'\n')
                                         
                                     else: #If it is isn't,we will skip it.
@@ -577,15 +577,15 @@ def bin_status(strain):
                       
                     
                     
-                    with open('../../quast_statistics/'+mode+'_ambiguous_count.csv', 'a+') as ambiguous_count_file:
+                    with open('../../quast_statistics/'+mode+'/'+mode+'_ambiguous_count.csv', 'a+') as ambiguous_count_file:
                         ambiguous_count_file.write(strain+','+prediction+','+str(ambiguous_count)+'\n')
                         
-                    with open('../../quast_statistics/low_coverage_contigs_'+mode+'.csv', 'a+') as low_coverage_file:
+                    with open('../../quast_statistics/'+mode+'/low_coverage_contigs_'+mode+'.csv', 'a+') as low_coverage_file:
                         low_coverage_file.write(strain+','+str(low_qcov)+'\n')
                         
                         
                     for reference_name in overlapping:
-                        with open('../../quast_statistics/'+mode+'_overlapping.csv', 'a+') as overlapping_file:
+                        with open('../../quast_statistics/'+mode+'/'+mode+'_overlapping.csv', 'a+') as overlapping_file:
                             overlapping_file.write(strain+','+prediction+','+reference_name+','+str(overlapping[reference_name])+'\n')
                         
                     
@@ -599,27 +599,27 @@ def bin_status(strain):
                             #new line
                                 correct_count_percentages[reference_name]=float(correct_contig_count[reference_name])/(sum(correct_contig_count.values())+unaligned_count)
                                 #print(strain, prediction,reference_name,str(int(correct_lengths[reference_name])-int(overlapping[reference_name])),correct_contig_count[reference_name],correct_length_percentages[reference_name],correct_count_percentages[reference_name])
-                                with open('../../quast_statistics/'+mode+'_alignments_statistics.csv', 'a+') as statistics_file:
+                                with open('../../quast_statistics/'+mode+'/'+mode+'_alignments_statistics.csv', 'a+') as statistics_file:
                                     statistics_file.write(strain+','+prediction+','+reference_name+','+str(int(correct_lengths[reference_name])-int(overlapping[reference_name]))+','+str((total_bin_lengths[prediction]))+'\n')                            
                             else:
                                 correct_length_percentages[reference_name]=int(correct_lengths[reference_name])/(total_bin_lengths[prediction])
                             #new line
                                 correct_count_percentages[reference_name]=float(correct_contig_count[reference_name])/(sum(correct_contig_count.values())+unaligned_count)
                                 #print(strain, prediction,reference_name,correct_lengths[reference_name],correct_contig_count[reference_name],correct_length_percentages[reference_name],correct_count_percentages[reference_name])
-                                with open('../../quast_statistics/'+mode+'_alignments_statistics.csv', 'a+') as statistics_file:
+                                with open('../../quast_statistics/'+mode+'/'+mode+'_alignments_statistics.csv', 'a+') as statistics_file:
                                      statistics_file.write(strain+','+prediction+','+reference_name+','+str(correct_lengths[reference_name])+','+str((total_bin_lengths[prediction]))+'\n')                                  
                                  
                     
                     else:
                         print(strain,prediction,'no correct alignments')
-                        with open('../../quast_statistics/'+mode+'_alignments_statistics.csv', 'a+') as statistics_file:
+                        with open('../../quast_statistics/'+mode+'/'+mode+'_alignments_statistics.csv', 'a+') as statistics_file:
                             statistics_file.write(strain+','+prediction+','+'no_correct_alignments'+','+'0'+','+'0'+'\n')                            
                                 
                     
                    
             except FileNotFoundError:
                 print('no_alignment_file')
-                with open('../../quast_statistics/'+mode+'_alignments_statistics.csv', 'a+') as statistics_file:
+                with open('../../quast_statistics/'+mode+'/'+mode+'_alignments_statistics.csv', 'a+') as statistics_file:
                          statistics_file.write(strain+','+prediction+','+'contig_length_below_1k'+','+'0'+','+'0'+'\n')    
                          
     except FileNotFoundError:
@@ -653,8 +653,8 @@ os.chdir(predictions_directory) #this will have to change for every software
 genomes=glob.glob('?RR*') #this will have to change for every software
 os.chdir(wd)
 
-#make quast statistics directory if it doesn't yet exist
-os.makedirs("../results/quast_statistics",exist_ok=True)
+#make quast statistics directory for the specific mode
+os.makedirs("../results/quast_statistics/"+mode,exist_ok=True)
 
 for files in genomes:
 	print(files)
