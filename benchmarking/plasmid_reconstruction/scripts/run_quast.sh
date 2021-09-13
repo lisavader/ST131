@@ -29,7 +29,7 @@ rm -rf quast_scripts_${mode}
 mkdir quast_scripts_${mode}
 
 #put sra accessions in a variable
-sra_accessions=$(cat ../../../ST131_ncbi_download/results/longread_ST131_sra_accessions)
+sra_accessions=$(ls predictions_${mode})
 
 for sra_accession in $sra_accessions
 do
