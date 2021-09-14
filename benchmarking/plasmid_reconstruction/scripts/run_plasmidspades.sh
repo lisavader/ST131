@@ -30,7 +30,7 @@ for strain in $files
 do
 echo "#!/bin/bash
 cd ../../../../../${dataset}_ncbi_download/results
-plasmidspades.py --only-assembler -1 trimmed_sra_files/${strain}_R1*.fq -2 trimmed_sra_files/${strain}_R2*.fq -o ../../benchmarking/plasmid_reconstruction/results/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/${dataset}/predictions_spades/${strain}" > scripts_spades/${strain}
+plasmidspades.py --only-assembler -1 trimmed_sra_files/${strain}_R1*.fq -2 trimmed_sra_files/${strain}_R2*.fq -o ../../benchmarking/plasmid_reconstruction/results/${dataset}/predictions_spades/${strain}" > scripts_spades/${strain}
 done
 
 #Run the scripts
