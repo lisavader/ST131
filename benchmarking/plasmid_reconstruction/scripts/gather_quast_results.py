@@ -28,7 +28,7 @@ def create_bin_length_dict(strain):
     bin_length_dict={}
     total_bin_lengths={}
     os.chdir(predictions_directory+strain)
-    bins=glob.glob(binname+'_*fasta') #this will have to change for every software
+    bins=glob.glob(binname+'*fasta') #this will have to change for every software
     for prediction in bins:
         prediction_modified=prediction.replace('.fasta','')
         print(prediction_modified)
