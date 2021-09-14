@@ -41,7 +41,7 @@ elif [[ $mode = "mob_unitrim" ]];  then
 elif [[ $mode = "mob_bac_filtered" ]]; then
 	path=$(echo "shortread_assemblies_bactofidia/scaffolds/predicted_plasmid_contigs/${strain}.fna")
 
-elif [[ $mode = "mob_bac_filtered" ]]; then
+elif [[ $mode = "mob_uni_filtered" ]]; then
 	path=$(echo "shortread_assemblies_unicycler/predicted_plasmid_contigs/${strain}")
 fi
 
