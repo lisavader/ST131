@@ -1,12 +1,10 @@
-#Author: Julian Paganini
-#Adjusted by Lisa Vader
 
 
 source /home/dla_mm/lvader/data/miniconda3/etc/profile.d/conda.sh
 conda activate mobsuite
 
 #0. set mode
-while getopts :m: flag; do
+while getopts :m:d: flag; do
         case $flag in
 		d) dataset=$OPTARG;;
                 m) mode=$OPTARG;;
@@ -24,8 +22,12 @@ rm -rf predictions_$mode
 mkdir predictions_$mode
 
 #3. Get a list of strain names
-accessions=$(cat ../../../../ST131_ncbi_download/results/longread_ST131_sra_accessions)
+if [[ $dataset = "ST131" ]]; then
+	accessions=$(cat ../../../../ST131_ncbi_download/results/longread_ST131_sra_accessions)
 
+elif [[ $dataset = "Ecoli" ]]; then
+	accessions=$(cat ../../../../Ecoli_ncbi_download/results/benchmark_strains.csv)
+fi
 
 #4- create sbatch scripts - this part will create one individual sbatch script for running MOB for the samples
 for strain in $accessions
