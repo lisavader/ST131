@@ -4,14 +4,15 @@
 source /home/dla_mm/lvader/data/miniconda3/etc/profile.d/conda.sh
 conda activate mobsuite
 
-cd ../results
-
 #set mode
-while getopts :m: flag; do
+while getopts :m:d: flag; do
         case $flag in
                 m) mode=$OPTARG;;
+		d) dataset=$OPTARG;;
         esac
 done
+
+cd ../results/${dataset}
 
 #The way bins are named is different for spades and mobsuite, assign the correct one
 if [[ $mode = "spades" ]];  then
@@ -28,13 +29,19 @@ mkdir quast_${mode}
 rm -rf quast_scripts_${mode}
 mkdir quast_scripts_${mode}
 
-#put sra accessions in a variable
-sra_accessions=$(ls predictions_${mode})
+#put accessions in a variable
+accessions=$(ls predictions_${mode})
 
-for sra_accession in $sra_accessions
+for accession in $accessions
 do
-assembly_accession=$(grep ${sra_accession} ../../../ST131_ncbi_download/results/accessions_table.csv | cut -d , -f 1)      #find assembly accession
-cd predictions_${mode}/${sra_accession}
+
+if [[ $dataset = "ST131" ]]; then
+	assembly_accession=$(grep ${accession} ../../../../ST131_ncbi_download/results/accessions_table.csv | cut -d , -f 1)      #find assembly accession
+else
+	assembly_accession=$accession
+fi
+
+cd predictions_${mode}/${accession}
 all_bins=$(ls ${bin_name} | sed 's/.fasta//g')                                           #get names of all predicted plasmids for this strain
 #for each plasmid, perform quast with the corresponding complete assembly as reference
 cd ../..
@@ -44,7 +51,7 @@ echo "#!/bin/bash
 #move back to results directory
 cd ..
 #run quast
-quast -o quast_${mode}/${sra_accession}/${bin} -r ../../../ST131_ncbi_download/results/genomes/${assembly_accession}*genomic.fna -m 1000 -t 8 -i 500 --no-snps --ambiguity-usage all predictions_${mode}/${sra_accession}/${bin}.fasta" > quast_scripts_${mode}/${sra_accession}_${bin}
+quast -o quast_${mode}/${sra_accession}/${bin} -r ../../../../${dataset}_ncbi_download/results/genomes/${assembly_accession}*genomic.fna -m 1000 -t 8 -i 500 --no-snps --ambiguity-usage all predictions_${mode}/${sra_accession}/${bin}.fasta" > quast_scripts_${mode}/${sra_accession}_${bin}
 done
 done
 
