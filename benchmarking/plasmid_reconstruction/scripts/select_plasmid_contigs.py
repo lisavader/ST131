@@ -53,8 +53,7 @@ with open(EC_prediction_path,'r') as EC_result:
 #make new directory for storing the results, if it already exists remove previous one
 if os.path.exists("predicted_plasmid_contigs/"):
 	shutil.rmtree("predicted_plasmid_contigs/") 
-else:
-	os.makedirs("predicted_plasmid_contigs/")
+os.makedirs("predicted_plasmid_contigs/")
 
 #extract and save plasmid contigs for each assembly file
 strains=glob.glob('?RR*')
