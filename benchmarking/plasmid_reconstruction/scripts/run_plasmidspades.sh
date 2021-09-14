@@ -3,9 +3,6 @@
 ##Author: Julian Paganini
 ##Modified by: Lisa Vader
 
-source /home/dla_mm/lvader/data/miniconda3/etc/profile.d/conda.sh
-conda activate spades
-
 cd ../results
 
 #make directory for holding the results
