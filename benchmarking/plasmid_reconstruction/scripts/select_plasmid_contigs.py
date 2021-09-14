@@ -5,15 +5,16 @@ import os
 import sys
 import shutil
 
-#set mode and assign mode-specific variables
-mode=str(sys.argv[1])
+#set dataset and mode and assign mode-specific variables
+dataset=str(sys.argv[1])
+mode=str(sys.argv[2])
 
 if "uni" in mode:
-	assemblies_dir='../../../ST131_ncbi_download/results/shortread_assemblies_unicycler/'
-	EC_prediction_path='../../../benchmarking/analysis/results/EC_result_all_contigs3.csv'
+	assemblies_dir='../../../../'+dataset+'_ncbi_download/results/shortread_assemblies_unicycler/'
+	EC_prediction_path='../../../../benchmarking/analysis/results/EC_result_all_contigs3.csv'
 elif "bac" in mode:
-	assemblies_dir='../../../ST131_ncbi_download/results/shortread_assemblies_bactofidia/scaffolds/'
-	EC_prediction_path='../../../../benchmarking/analysis/results/EC_result_all_contigs2.csv'
+	assemblies_dir='../../../../'+dataset+'_ncbi_download/results/shortread_assemblies_bactofidia/scaffolds/'
+	EC_prediction_path='../../../../../benchmarking/analysis/results/EC_result_all_contigs2.csv'
 
 #Select plasmid contigs
 #INPUT: name of assembly file
@@ -56,7 +57,7 @@ if os.path.exists("predicted_plasmid_contigs/"):
 os.makedirs("predicted_plasmid_contigs/")
 
 #extract and save plasmid contigs for each assembly file
-strains=glob.glob('?RR*')
+strains=glob.glob('*')
 for strain in strains:
 	with open("predicted_plasmid_contigs/"+strain,'w') as output:
 		pass
