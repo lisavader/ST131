@@ -629,8 +629,9 @@ def bin_status(strain):
     os.chdir(wd)
                     
             
-#set mode
-mode=str(sys.argv[1])        
+#set mode and dataset
+dataset=str(sys.argv[1])
+mode=str(sys.argv[2])        
 
 if "mob_bac" in mode:
 	splitpoint = 3
@@ -642,19 +643,19 @@ elif "mob_uni" in mode:
 
 elif mode == "spades":
 	splitpoint = 2
-	binname = "?RR"
+	binname = "*"
                 
 #directories paths
 wd=os.path.dirname(os.path.realpath(__file__))
-predictions_directory='../results/predictions_'+mode+'/'
-alignment_directory='../results/quast_'+mode+'/'
+predictions_directory='../results/'+dataset+'/predictions_'+mode+'/'
+alignment_directory='../results/'+dataset+'/quast_'+mode+'/'
 
 os.chdir(predictions_directory) #this will have to change for every software
-genomes=glob.glob('?RR*') #this will have to change for every software
+genomes=glob.glob('*') #this will have to change for every software
 os.chdir(wd)
 
 #make quast statistics directory for the specific mode
-os.makedirs("../results/quast_statistics/"+mode,exist_ok=True)
+os.makedirs("../results/"+dataset+"/quast_statistics/"+mode,exist_ok=True)
 
 for files in genomes:
 	print(files)
