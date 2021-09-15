@@ -53,7 +53,7 @@ echo "#!/bin/bash
 #1. Move to the directory that will contain the mob predictions
 cd ../predictions_${mode}
 #2. Run MOB-suite
-mob_recon --infile ../../../../../${database}_ncbi_download/results/${path} --outdir ${strain}" > scripts_${mode}/${strain}.sh
+mob_recon --infile ../../../../../${dataset}_ncbi_download/results/${path} --outdir ${strain}" > scripts_${mode}/${strain}.sh
 done
 
 #5- Run the sbatch scripts
