@@ -9,10 +9,13 @@ import os
 import glob
 import fastaparser
 
+#set dataset
+set=str(sys.argv[1])
+
 wd=os.path.dirname(os.path.realpath(__file__))
 os.chdir(wd)
-os.chdir('../results/predictions_spades')
-genomes=glob.glob('?RR*')
+os.chdir('../results/'+dataset+'/predictions_spades')
+genomes=glob.glob('*')
 
 
 def organize_genome(input_folder):
