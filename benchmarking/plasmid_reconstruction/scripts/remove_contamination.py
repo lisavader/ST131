@@ -6,8 +6,10 @@ import os
 import sys
 import shutil
 
-#set mode and define mode-specific variables
-mode=str(sys.argv[1])
+#set mode and dataset and define mode-specific variables
+dataset=str(sys.argv[1])
+mode=str(sys.argv[2])
+
 base=mode.rsplit('_',1)[0]
 
 if "uni" in mode:
@@ -38,7 +40,7 @@ def remove_chromosomal_contigs(strain):
 
 #go to bins directory
 #wd=os.path.dirname(os.path.realpath(__file__))
-bins_dir='../results/predictions_'+base+'/'
+bins_dir='../results/'+dataset+'predictions_'+base+'/'
 os.chdir(bins_dir)
 
 #make empty list
@@ -48,13 +50,13 @@ plasmids = []
 shutil.rmtree("../predictions_"+mode+"/",ignore_errors=True)
 
 #save contig headers of predicted plasmids in list
-with open('../../../analysis/results/'+EC_prediction,'r') as EC_result:
+with open('../../../../analysis/results/'+EC_prediction,'r') as EC_result:
 	for line in EC_result.readlines():
 		if 'plasmid' in line:
 			contig_name=line.split(',')[0].strip('"')
 			plasmids.append(contig_name)
 
 #then for each strain, go over the bins and only keep contigs that are in the previously defined plasmids list
-strains=glob.glob('?RR*')
+strains=glob.glob('*')
 for strain in strains:
 	remove_chromosomal_contigs(strain)
