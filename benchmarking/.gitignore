@@ -1,6 +1,7 @@
-#ignore these directories
+#ignore these directories and files
 
 results
+slurm*
 
 #plasmid reconstuction
 !plasmid_reconstruction/results/ST131/quast_statistics
