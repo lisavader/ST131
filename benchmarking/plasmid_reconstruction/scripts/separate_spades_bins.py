@@ -10,7 +10,7 @@ import glob
 import fastaparser
 
 #set dataset
-set=str(sys.argv[1])
+dataset=str(sys.argv[1])
 
 wd=os.path.dirname(os.path.realpath(__file__))
 os.chdir(wd)
