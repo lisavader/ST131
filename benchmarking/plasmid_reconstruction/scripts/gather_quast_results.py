@@ -10,6 +10,7 @@ import os
 import glob
 import fastaparser
 import re
+import shutil
 from collections import defaultdict
 
 
@@ -66,14 +67,14 @@ def bin_status(strain):
             ambiguous_count=0
             unaligned_length=0 #new line
             unaligned_count=0 #new line
-            #new_prediction=prediction.replace('.','-') #change format found on quast output
+            new_prediction=prediction.replace('.','-') #change format found on quast output
             low_qcov=0
             min_alignnment_pos_dict=defaultdict(list)
             max_alignnment_pos_dict=defaultdict(list)
             overlapping={}
             
             try:
-                with open(prediction+'/contigs_reports/all_alignments_'+prediction+'.tsv') as contig_alignment:
+                with open(prediction+'/contigs_reports/all_alignments_'+new_prediction+'.tsv') as contig_alignment:
                     all_lines=contig_alignment.readlines()[1:]
                     i=0
                     information_lines=[]
@@ -643,7 +644,7 @@ elif "mob_uni" in mode:
 
 elif mode == "spades":
 	splitpoint = 2
-	binname = "*"
+	binname = "*component*"
                 
 #directories paths
 wd=os.path.dirname(os.path.realpath(__file__))
@@ -655,7 +656,9 @@ genomes=glob.glob('*') #this will have to change for every software
 os.chdir(wd)
 
 #make quast statistics directory for the specific mode
-os.makedirs("../results/"+dataset+"/quast_statistics/"+mode,exist_ok=True)
+if os.path.exists("../results/"+dataset+"/quast_statistics/"+mode):
+        shutil.rmtree("../results/"+dataset+"/quast_statistics/"+mode)
+os.makedirs("../results/"+dataset+"/quast_statistics/"+mode)
 
 for files in genomes:
 	print(files)
