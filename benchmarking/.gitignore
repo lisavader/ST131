@@ -1,59 +1,13 @@
 #ignore these directories
 
-#plasmidspades
-plasmidspades_slurm_scripts
-spades_predictions
-quast_slurm_scripts*
-plasmidspades/results/quast_output/*
-!plasmidspades/results/quast_output/*.csv
+results
 
-#mobsuite
-mob_sbatch_scripts*
-mob_predictions*
-mob_predictions_clean*
-mobsuite/results/quast_output/*
-!mobsuite/results/quast_output/*.csv
+#plasmid reconstuction
+!plasmid_reconstruction/results/ST131/quast_statistics
+!plasmid_reconstruction/results/Ecoli/quast_statistics
 
-#mobsuite_bac
-mobsuite_bac/results/quast_output/*
-!mobsuite_bac/results/quast_output/*.csv
-
-#mobsuite_clean
-mobsuite_clean/results/quast_output_clean/*
-!mobsuite_clean/results/quast_output_clean/*.csv
-
-mobsuite_clean/results/quast_output_clean2/*
-!mobsuite_clean/results/quast_output_clean2/*.csv
-
-mobsuite_clean/results/quast_output_clean3/*
-!mobsuite_clean/results/quast_output_clean3/*.csv
-
-#mobsuite_trimmed
-mobsuite_trimmed/results/quast_output/*
-!mobsuite_trimmed/results/quast_output/*.csv
-
-#mobsuite_EC
-mobsuite_EC/results/quast_output/*
-!mobsuite_EC/results/quast_output/*.csv
-
-mobsuite_EC/results/quast_output2/*
-!mobsuite_EC/results/quast_output2/*.csv
-
-mobsuite_EC/results/quast_output3/*
-!mobsuite_EC/results/quast_output3/*.csv
-
-#mlplasmids
-mlplasmids_predictions
-
-#platon
-data
-platon_predictions
-
-#plascope
-plascope_predictions
-
-#rfplasmid
-rfplasmid_predictions
+#binary classifiers
+!binary_classifiers/results/all_results.csv
 
 #analysis
 analysis/scripts/*.png
