@@ -51,7 +51,7 @@ echo "#!/bin/bash
 #move back to results directory
 cd ..
 #run quast
-quast -o quast_${mode}/${sra_accession}/${bin} -r ../../../../${dataset}_ncbi_download/results/genomes/${assembly_accession}*genomic.fna -m 1000 -t 8 -i 500 --no-snps --ambiguity-usage all predictions_${mode}/${sra_accession}/${bin}.fasta" > quast_scripts_${mode}/${sra_accession}_${bin}
+quast -o quast_${mode}/${accession}/${bin} -r ../../../../${dataset}_ncbi_download/results/genomes/${assembly_accession}*genomic.fna -m 1000 -t 8 -i 500 --no-snps --ambiguity-usage all predictions_${mode}/${accession}/${bin}.fasta" > quast_scripts_${mode}/${accession}_${bin}
 done
 done
 
