@@ -18,10 +18,10 @@ for sample in $accessions
 do
 echo "#!/bin/bash
 cd ..
-unicycler --threads 20 -1 trimmed_sra_files/${sample}_R1 -2 trimmed_sra_files/${sample}_R2 -o shortread_assemblies_unicycler_trimmed/${sample}" > scripts_unicycler${trim}/${sample}.sh
+unicycler --threads 20 -1 raw_reads/${sample}_R1* -2 raw_reads/${sample}_R2* -o shortread_assemblies_unicycler${trim}/${sample}" > scripts_unicycler${trim}/${sample}.sh
 done
 
-cd unit
+cd scripts_unicycler${trim}
 jobs=$(ls)
 for slurm in $jobs
 do
