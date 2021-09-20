@@ -1,4 +1,4 @@
 
 slurm*
-results
-!results/benchmark_strains.csv
+results/*
+!results/*.csv
