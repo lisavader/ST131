@@ -60,5 +60,5 @@ cd quast_scripts_${mode}
 jobs=$(ls)
 for slurm in $jobs
 do
-sbatch --time=00:00:05 --mem=20G $slurm
+sbatch --time=00:00:10 --mem=10G $slurm
 done
