@@ -32,12 +32,12 @@ def create_bin_length_dict(strain):
     bins=glob.glob(binname+'*fasta') #this will have to change for every software
     for prediction in bins:
         prediction_modified=prediction.replace('.fasta','')
-        print(prediction_modified)
+        #print(prediction_modified)
         with open(prediction) as fasta_prediction:
             prediction_parser = fastaparser.Reader(fasta_prediction, parse_method='quick')
             for seq in prediction_parser:
                 #the contig name might have to be change for every software
-                contig_name=seq.header.replace('>','')
+                contig_name=seq.header.replace('>','').replace('-','_')
                 contig_name=contig_name.split('_')[0:splitpoint]
                 contig_name='_'.join(contig_name)
                 contig_length=len(seq.sequence)
@@ -58,6 +58,7 @@ def bin_status(strain):
         bins=glob.glob(binname+'*') #this might have to be changed for the different softwares
         #this loop will run for every bin in the strain (which is defined outside the function)
         for prediction in bins:
+            print(prediction)
             correct_references=set()#this is a set for holding the references_id of the correct alignments
             correct_lengths={} #this is a dictionary {reference_id:length_of_contig}
             correct_contig_count={}
@@ -635,8 +636,11 @@ dataset=str(sys.argv[1])
 mode=str(sys.argv[2])        
 
 if "mob_bac" in mode:
-	splitpoint = 3
 	binname = "plasmid"
+	if "ST131" in dataset:
+		splitpoint = 3
+	elif "Ecoli" in dataset:
+		splitpoint = 2
 
 elif "mob_uni" in mode:
 	splitpoint = 1
