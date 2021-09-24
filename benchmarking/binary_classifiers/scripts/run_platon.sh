@@ -1,7 +1,8 @@
 #!/bin/bash
 
-#make results directory
+#make results and scripts directory
 mkdir -p ../results/platon_predictions
+mkdir -p ../results/platon_scripts
 
 #download database
 mkdir -p ../databases/platon
@@ -12,16 +13,27 @@ if [[ ! -d db ]]; then
 	rm db.tar.gz
 fi
 
+#activate conda
+source /home/dla_mm/lvader/data/miniconda3/etc/profile.d/conda.sh
+conda activate platon
+
 run_platon(){
-cd ../../results/platon_predictions
+cd ../../results
 #check whether input directory exists
-[ ! -d ../../$1 ] && exit 1
+[ ! -d ../$1 ] && exit 1
 #run platon on all strains in input directory
-for strain in ../../$1/*.fasta
+for strain in ../$1/*.fasta
 do
 name=$(basename $strain .fasta)
-echo "Running platon on" $name
-platon --db ../../databases/platon/db --output $name --threads 8 $strain
+echo "#!/bin/bash
+cd ../platon_predictions
+platon --db ../../databases/platon/db --output $name --threads 8 ../$strain" > platon_scripts/${name}.sh
+done
+
+cd platon_scripts
+for script in $(ls); do
+echo "Running" ${script}"..." 
+sbatch --time 1:00:00 --mem 5G -c 8 $script
 done
 }
 
