@@ -1,6 +1,9 @@
 #ignore these directories and files
 
+#always ignore these:
 slurm*
+tools
+databases
 
 #plasmid reconstuction
 plasmid_reconstruction/results/ST131/*
@@ -10,6 +13,7 @@ plasmid_reconstruction/results/Ecoli/*
 !plasmid_reconstruction/results/Ecoli/quast_statistics/
 
 #binary classifiers
+binary_classifiers/results/*
 !binary_classifiers/results/all_results.csv
 
 #analysis
