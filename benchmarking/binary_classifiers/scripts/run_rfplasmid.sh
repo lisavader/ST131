@@ -3,6 +3,10 @@
 #create output directory
 mkdir -p ../results/rfplasmid_predictions
 
+#activate conda
+source /home/dla_mm/lvader/data/miniconda3/etc/profile.d/conda.sh
+conda activate rfplasmid
+
 run_rfplasmid(){
 cd ../results/rfplasmid_predictions
 #check whether input directory exists

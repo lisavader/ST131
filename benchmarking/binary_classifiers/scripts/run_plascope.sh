@@ -12,6 +12,10 @@ if [[ ! -f chromosome_plasmid_db.3.cf ]]; then
 	rm chromosome_plasmid_db.tar.gz
 fi
 
+#activate conda
+source /home/dla_mm/lvader/data/miniconda3/etc/profile.d/conda.sh
+conda activate plascope
+
 run_plascope(){
 cd ../../results/plascope_predictions
 #check whether input directory exists
