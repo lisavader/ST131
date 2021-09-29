@@ -23,8 +23,10 @@ cd ../../results/plascope_predictions
 #run plascope on all strains in input directory
 for strain in ../../$1/*.fasta
 do
-name=$(basename $strain .fasta)
-plaScope.sh --fasta $strain -o . --db_dir ../../databases/plascope --db_name chromosome_plasmid_db --sample $name
+echo $strain
+name=$(echo $strain | rev | cut -d '/' -f 2 | rev)
+#plaScope.sh --fasta $strain -o . --db_dir ../../databases/plascope --db_name chromosome_plasmid_db --sample $name
+echo $name
 done
 }
 

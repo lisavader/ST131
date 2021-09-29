@@ -20,11 +20,11 @@ conda activate platon
 run_platon(){
 cd ../../results
 #check whether input directory exists
-[ ! -d ../$1 ] && exit 1
+#[ ! -d ../$1 ] && exit 1
 #run platon on all strains in input directory
 for strain in ../$1/*.fasta
 do
-name=$(basename $strain .fasta)
+name=$(echo $strain | rev | cut -d '/' -f 2 | rev)
 echo "#!/bin/bash
 cd ../platon_predictions
 platon --db ../../databases/platon/db --output $name --threads 8 ../$strain" > platon_scripts/${name}.sh
