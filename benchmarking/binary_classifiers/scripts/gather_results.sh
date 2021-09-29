@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #delete previous output file
-rm -f ../results/all_results.csv
+#rm -f ../results/${output_file}
 
 ##MLPLASMIDS
 gather_mlplasmids(){
@@ -11,7 +11,7 @@ tail -n +2 $file | while read line
 do
 prediction=$(echo $line | cut -d' ' -f3 | sed 's/"//g')
 contig=$(echo $line | cut -d' ' -f4 | sed 's/"//g')
-echo $contig,${prediction,,},mlplasmids >> ../results/all_results.csv
+echo $contig,${prediction,,},mlplasmids >> ../results/${output_file}
 done
 done
 }
@@ -29,19 +29,19 @@ cd $file
 cat PlaScope_predictions/*chromosome.fasta | grep '>' | while read line
 do
 contig=$(echo $line | cut -c 2-)
-echo $contig,"chromosome","plascope" >> ../../all_results.csv
+echo $contig,"chromosome","plascope" >> ../../${output_file}
 done
 #grab plasmid contigs
 cat PlaScope_predictions/*plasmid.fasta | grep '>' | while read line
 do
 contig=$(echo $line | cut -c 2-)
-echo $contig,"plasmid","plascope" >> ../../all_results.csv
+echo $contig,"plasmid","plascope" >> ../../${output_file}
 done
 #grab unclassified contigs
 cat PlaScope_predictions/*unclassified.fasta | grep '>' | while read line
 do
 contig=$(echo $line | cut -c 2-)
-echo $contig,"unclassified","plascope" >> ../../all_results.csv
+echo $contig,"unclassified","plascope" >> ../../${output_file}
 done
 
 cd ..
@@ -63,13 +63,13 @@ cd $file
 cat *chromosome.fasta | grep '>' | while read line
 do
 contig=$(echo $line | cut -c 2-)
-echo $contig,"chromosome","platon" >> ../../all_results.csv
+echo $contig,"chromosome","platon" >> ../../${output_file}
 done
 #grab plasmid contigs
 cat *plasmid.fasta | grep '>' | while read line
 do
 contig=$(echo $line | cut -c 2-)
-echo $contig,"plasmid","platon" >> ../../all_results.csv
+echo $contig,"plasmid","platon" >> ../../${output_file}
 done
 
 cd ..
@@ -85,12 +85,18 @@ tail -n +2 ../results/rfplasmid_predictions/$dir/prediction.csv | while read lin
 do
 contig=$(echo $line | cut -d, -f5 | sed 's/"//g')
 if [[ $line = *'"p"'* ]]; then
-echo $contig,"plasmid","rfplasmid" >> ../results/all_results.csv
+echo $contig,"plasmid","rfplasmid" >> ../results/${output_file}
 else
-echo $contig,"chromosome","rfplasmid" >> ../results/all_results.csv
+echo $contig,"chromosome","rfplasmid" >> ../results/${output_file}
 fi
 done
 }
+
+while getopts :o: flag; do
+	case $flag in
+		o) output_file=$OPTARG;;
+	esac
+done
 
 gather_mlplasmids
 gather_plascope
