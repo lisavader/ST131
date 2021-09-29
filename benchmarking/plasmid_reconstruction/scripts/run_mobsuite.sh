@@ -10,7 +10,6 @@ while getopts :m:d: flag; do
                 m) mode=$OPTARG;;
         esac
 done
-
 cd ../results/${dataset}
 
 #1. create directory to store slurm jobs
@@ -34,7 +33,8 @@ for strain in $accessions
 do
 
 if [[ $mode = "mob_bac" ]];  then
-        path=$(echo "shortread_assemblies_bactofidia/scaffolds/${strain}.fna")
+	name=$(echo ${strain} | sed 's/_/-/g')
+        path=$(echo "shortread_assemblies_bactofidia/scaffolds/${name}.fasta")
 
 elif [[ $mode = "mob_uni" ]];  then
         path=$(echo "shortread_assemblies_unicycler/${strain}/assembly.fasta")
@@ -43,7 +43,8 @@ elif [[ $mode = "mob_unitrim" ]];  then
         path=$(echo "shortread_assemblies_unicycler_trimmed/${strain}/assembly.fasta")
 
 elif [[ $mode = "mob_bac_filtered" ]]; then
-	path=$(echo "shortread_assemblies_bactofidia/scaffolds/predicted_plasmid_contigs/${strain}.fna")
+	name=$(echo ${strain} | sed 's/_/-/g')
+	path=$(echo "shortread_assemblies_bactofidia/scaffolds/predicted_plasmid_contigs/${name}.fasta")
 
 elif [[ $mode = "mob_uni_filtered" ]]; then
 	path=$(echo "shortread_assemblies_unicycler/predicted_plasmid_contigs/${strain}")
