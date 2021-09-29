@@ -14,7 +14,7 @@ plasmid_reconstruction/results/Ecoli/*
 
 #binary classifiers
 binary_classifiers/results/*
-!binary_classifiers/results/all_results.csv
+!binary_classifiers/results/*.csv
 
 #analysis
 analysis/scripts/*.png
