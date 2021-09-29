@@ -1,2 +1,12 @@
 #ignore these directories
-results
+
+#always ignore
+slurm*
+tools
+databases
+
+#results
+results/bactofidia*
+results/busco_output
+results/panaroo_output/*
+!results/panaroo_output/final_graph.gml
