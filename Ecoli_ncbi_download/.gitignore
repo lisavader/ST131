@@ -2,3 +2,8 @@
 slurm*
 results/*
 !results/*.csv
+!results/*.tsv
+
+!results/shortread_assemblies_bactofidia/
+results/shortread_assemblies_bactofidia/*
+!results/shortread_assemblies_bactofidia/*.txt
