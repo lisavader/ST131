@@ -11,11 +11,12 @@ dataset=str(sys.argv[1])
 mode=str(sys.argv[2])
 
 base=mode.rsplit('_',1)[0]
+print(base)
 
 if "uni" in mode:
-        EC_prediction='EC_result_all_contigs3.csv'
+        EC_prediction='EC_uni_PS-PT-RF.csv'
 elif "bac" in mode:
-        EC_prediction='EC_result_all_contigs2.csv'
+        EC_prediction='EC_bac_PS-PT-RF.csv'
 
 
 def remove_chromosomal_contigs(strain):
@@ -40,7 +41,8 @@ def remove_chromosomal_contigs(strain):
 
 #go to bins directory
 #wd=os.path.dirname(os.path.realpath(__file__))
-bins_dir='../results/'+dataset+'predictions_'+base+'/'
+bins_dir='../results/'+dataset+'/predictions_'+base+'/'
+print(bins_dir)
 os.chdir(bins_dir)
 
 #make empty list
@@ -50,7 +52,7 @@ plasmids = []
 shutil.rmtree("../predictions_"+mode+"/",ignore_errors=True)
 
 #save contig headers of predicted plasmids in list
-with open('../../../../analysis/results/'+EC_prediction,'r') as EC_result:
+with open('../../../../binary_classifiers/results/'+EC_prediction,'r') as EC_result:
 	for line in EC_result.readlines():
 		if 'plasmid' in line:
 			contig_name=line.split(',')[0].strip('"')
