@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH --time=1:00:00
-#SBATCH --mem=32G
+#SBATCH --time=10:00:00
+#SBATCH --mem=5G
 #SBATCH -c 8
 
 ##Set flags
@@ -47,7 +47,7 @@ elif [[ $mode = spades ]]; then
 elif [[ $mode = mob* ]]; then
 	echo "Running mobsuite..."
 	bash run_mobsuite.sh -d $dataset -m $mode
-	sleep 15m
+	sleep 30m
 fi
 
 #In case of the EC 'cleaned' approach, remove predicted chromosomal contigs from bins
@@ -59,7 +59,7 @@ fi
 #Run quast
 echo "Running quast..."
 bash run_quast.sh -d $dataset -m $mode
-sleep 5m
+sleep 20m
 
 #Gather quast results
 echo "Gathering quast results..."
