@@ -22,6 +22,7 @@ require(VennDiagram)
 require(RColorBrewer)
 require(tibble)
 require(venn)
+require(flextable)
 ```
 
 ```{r, include=FALSE}
@@ -32,21 +33,22 @@ theme_set(theme_bw())
 This script is used to test the performance of four binary classifiers (Mlplasmids,Platon,Plascope and RFPlasmid) that were developed to differentiate chromosomal contigs from plasmidal contigs. We evaluate their performance specifically for E. coli ST131 strains, using a benchmarking dataset of 50 ST131 samples that have been sequenced by short-read as well as long-read technologies, and that have their complete genomes. We have previously assembled the short reads of all samples and used the resulting contigs as input for the four binary classifiers. These contigs have also been mapped to their reference genomes by QUAST so that we know whether they belong to the chromosome or the plasmid. Now we will assess for each contig whether the prediction made by the binary classifiers matches the actual classification.
 
 
-### Import contig related data##
+### Import contig related data
 Import replicon data.  
 This file contains the classifications (chromosome or plasmid) for all replicons in our dataset.
 ```{r}
-replicon_data <- read.csv("../../../ST131_ncbi_download/results/replicon_data.csv", header = FALSE)
+replicon_data <- read.csv("../../../Ecoli_ncbi_download/results/replicon_data.csv", header = FALSE)
 names(replicon_data)<-c('assembly_accession','replicon_name','replicon_length','classification')
 ```
 
-Import all contig names.  
+Import all contig names.
 The full list of all contigs in our dataset.
 ```{r}
-all_contigs <- read.csv("../../../ST131_ncbi_download/results/shortread_assemblies_bactofidia/all_contig_names.txt", header = FALSE)
+all_contigs <- read.csv("../../../Ecoli_ncbi_download/results/shortread_assemblies_bactofidia/all_contig_names.txt", header = FALSE)
 names(all_contigs)="contig_name"
-all_contigs %<>% mutate(contig_name=str_replace(contig_name,'>',''))
+all_contigs %<>% mutate(contig_name=str_replace(contig_name,'>','')) %<>% mutate(contig_name=str_replace_all(contig_name,'-','_'))
 ```
+
 
 Import quast information.  
 Quast has been used to align the contigs to one of the replicons in the reference genome. However, not all contigs could be fully aligned to one replicon. We will select only those contigs for which we are confident that they belong to a certain replicon.  
@@ -59,12 +61,13 @@ We do some preprocessing of the output file:
 * Calculate the alignment length by substracting S2 (start of contig) from E2 (end of contig). (A one is added to compensate for the starting base that is also substracted, while it should be included in the alignment length)  
 
 ```{r,message=FALSE,warning=FALSE}
-quast_out <- read_tsv("../../../ST131_ncbi_download/results/bactofidia_all_true_alignments.tsv", col_names = c("S1","E1","S2","E2","replicon_name","contig_name","identity","ambiguous","best_group"))
+quast_out <- read_tsv("../../../Ecoli_ncbi_download/results/bactofidia_all_true_alignments.tsv", col_names = c("S1","E1","S2","E2","replicon_name","contig_name","identity","ambiguous","best_group"))
 quast_out %<>% mutate(duplicated = duplicated(contig_name) | duplicated(contig_name, fromLast = TRUE))
 quast_out %<>% mutate(contig_length=as.numeric(sub(".*?length_(.*?)_.*", "\\1",contig_name)))
 quast_out %<>% mutate_each_(funs(as.integer), c("S1","E1","S2","E2","contig_length")) 
 quast_out %<>% mutate(alignment_length=abs(S2-E2)+1)
 ```
+
 ### Contig selection
 Make groups based on type of contig.  
 If a contig only appears in the output file once, this means it only aligns to one part of the reference, and it is correctly aligned.  
@@ -143,12 +146,6 @@ unmapped_contigs <- filter(all_contigs,!contig_name %in% mapped_contigs$contig_n
 contig_type_overview <- rbind(mapped_contigs,unmapped_contigs)
 ```
 
-Remove replicons that occur in one of the tools' training sets or databases.
-```{r}
-replicons_to_remove <- read.csv("../results/replicons_to_remove", header = FALSE)
-contig_type_overview %<>% filter(!replicon_name %in% replicons_to_remove$V1)
-```
-
 The relative frequency and length distribution of contig types. Selected contigs are coloured, discarded contigs in greyscale. Misassemblies also include fake misassemblies.  
 
 ```{r, echo=FALSE}
@@ -190,71 +187,33 @@ selected_contig_info <- full_join(selected_contigs,replicon_data,by="replicon_na
 ```
 
 ### Import binary classifier output
-Mlplasmids
-```{r,message=FALSE}
-mlplasmids_out <- read_tsv("../../mlplasmids_bac/results/mlplasmids_all_results.tsv")
-names(mlplasmids_out)<-c('assembly_accession','sra_accession','prob_chromosome','prob_plasmid','prediction','contig_name','contig_length')
-mlplasmids_out$prediction %<>% tolower()
-mlplasmids_out %<>% mutate(software="mlplasmids")
-#no_prediction_mlplasmids <- all_contigs %>% filter(!contig_name %in% mlplasmids_out$contig_name) %>% mutate(prediction="no prediction",software="mlplasmids")
-```
 
-Platon
 ```{r}
-platon_out <- read.csv("../../platon_bac/results/platon_all_results.csv", header = FALSE)
-names(platon_out) <- c("contig_name","prediction")
-platon_out %<>% mutate(contig_name=str_replace(contig_name,'>',''))
-platon_out %<>% mutate(software="platon")
-#no_prediction_platon <- all_contigs %>% filter(!contig_name %in% platon_out$contig_name) %>% mutate(prediction="no prediction",software="platon")
-```
-
-Plascope
-```{r}
-plascope_out <- read.csv("../../plascope_bac/results/plascope_all_results.csv", header = FALSE)
-names(plascope_out) <- c("contig_name","prediction")
-plascope_out %<>% mutate(contig_name=str_replace(contig_name,'>',''))
-plascope_out %<>% mutate(software="plascope")
-#no_prediction_plascope <- all_contigs %>% filter(!contig_name %in% plascope_out$contig_name) %>% mutate(prediction="no prediction",software="plascope")
-```
-
-RFPlasmid
-```{r}
-rfplasmid_out <- read.csv("../../rfplasmid_bac/results/rfplasmid_predictions/prediction.csv")
-names(rfplasmid_out) <- c("short_name","prediction","votes_chromosome","votes_plasmid","contig_name")
-rfplasmid_out$prediction[rfplasmid_out$prediction=="c"]<- "chromosome"
-rfplasmid_out$prediction[rfplasmid_out$prediction=="p"]<- "plasmid"
-rfplasmid_out %<>% mutate(software="rfplasmid")
-#no_prediction_rfplasmid <- all_contigs %>% filter(!contig_name %in% rfplasmid_out$contig_name) %>% mutate(prediction="no prediction",software="rfplasmid")
-```
-
-Merge the outputs, take only the three common columns
-```{r}
-all_output <- rbind(select(mlplasmids_out,c(contig_name,prediction,software)),platon_out,plascope_out,select(rfplasmid_out,c(contig_name,prediction,software)))
+all_output <- read.csv("../../binary_classifiers/results/output_Ecoli_bac.csv", header = FALSE)
+names(all_output) <- c("contig_name","prediction","software")
+all_output %<>% mutate(contig_name=str_replace_all(contig_name,'-','_'))
 ```
 
 ### Calculate results
 Cross the output with the selected contigs.
-Remove strains that occur in one of the tools' training sets or databases.
 ```{r}
 all_analysis<- full_join(all_output,selected_contig_info,by="contig_name")
-assemblies_to_remove <- read.csv("../results/assemblies_to_remove", header = FALSE)
-all_analysis %<>% filter(!assembly_accession %in% assemblies_to_remove$V1)
 ```
 
 Determine true positives, false positives, true negatives and false negatives.
+For PlaScope, we decided to treat 'unclassified' contigs as negatives (chromosome).
 ```{r}
 true_positives <- all_analysis %>% filter(prediction=="plasmid" & classification=="plasmid") %>% mutate(result="TP")
-true_negatives <- all_analysis %>% filter(prediction=="chromosome" & classification=="chromosome") %>% mutate(result="TN")
+true_negatives <- all_analysis %>% filter((prediction=="chromosome" | prediction=="unclassified") & classification=="chromosome") %>% mutate(result="TN")
 false_positives <- all_analysis %>% filter(prediction=="plasmid" & classification=="chromosome") %>% mutate(result="FP")
-false_negatives <- all_analysis %>% filter(prediction=="chromosome" & classification=="plasmid") %>% mutate(result="FN")
-unclassified <- all_analysis %>% filter(prediction=="unclassified" & !is.na(classification)) %>% mutate(result="unclassified")
+false_negatives <- all_analysis %>% filter((prediction=="chromosome" | prediction=="unclassified")& classification=="plasmid") %>% mutate(result="FN")
 ```
 
 Bind together in final result file.  
 All contigs that don't have a classification (the discarded contigs) are a separate group called 'no category'.
 A column with the contig length is added to the dataset.
 ```{r,warning=FALSE}
-final_result <- rbind(true_positives,true_negatives,false_positives,false_negatives,unclassified)
+final_result <- rbind(true_positives,true_negatives,false_positives,false_negatives)
 #no_prediction <- all_analysis %>% filter(prediction=="no prediction" & !is.na(classification)) %>% mutate(result="no prediction")
 no_category <- all_analysis %>% filter(is.na(classification)) %>% mutate(result="no category")
 final_result %<>% rbind(no_category)
@@ -265,19 +224,10 @@ Calculate metrics
 ```{r,message=FALSE}
 count_results <- final_result %>% group_by(software) %>% count(result)
 count_results %<>% spread(result,n) %>% mutate(precision=TP/(TP+FP),recall=TP/(TP+FN),f1_score=2*(precision*recall)/(precision+recall))
-kable(count_results %>% select(TP,TN,FP,FN,precision,recall,f1_score),caption = "Performance of binary classifiers (calculated per contig)")
+count_results %>% select(TP,TN,FP,FN,precision,recall,f1_score) %>% flextable()
+      #caption = "Performance of binary classifiers (calculated per contig)")
 ```
 
-```{r,echo=FALSE}
-level_order_results <- c("TP","TN","FP","FN","unclassified","no category")
-ggplot(final_result %>% group_by(software) %>% count(result),aes(x=n, y= factor(result, level= rev(level_order_results)),fill=factor(result, level= level_order_results)))+
-  geom_bar(stat = "identity")+
-  facet_wrap(~software,labeller = labeller(software=c("mlplasmids"="Mlplasmids","platon"="Platon","plascope"="PlaScope","rfplasmid"="RFPlasmid")))+
-  labs(title="Contig predictions for each tool",x = "Number of contigs", y = "Outcome")+
-  guides(fill= FALSE)+
-  scale_fill_manual(values=c("#47954D","#75C24B","#B94B33","#FA6C4D","#FACE1B","#5c5d5f"))+
-  scale_y_discrete(labels=rev(c("TP","TN","FP","FN","Unclassified","No category")))
-```
 ```{r}
 ggsave("binary_comparison.png",height = 5, width = 8)
 ```
@@ -288,57 +238,24 @@ Because longer contigs are easier to categorise, this leads to more favourable r
 ```{r,message=FALSE}
 length_result <- final_result %>% group_by(software,result) %>% summarise(total_bp = sum(contig_length))
 count_lengths <- spread(length_result,result,total_bp) %>% mutate(precision=TP/(TP+FP),recall=TP/(TP+FN),f1_score=2*(precision*recall)/(precision+recall))
-kable(count_lengths %>% select(TP,TN,FP,FN,precision,recall,f1_score),caption = "Performance of binary classifiers (calculated per basepair)")
+count_lengths %>% select(TP,TN,FP,FN,precision,recall,f1_score) %>% flextable() #caption = "Performance of binary classifiers (calculated per basepair)")
 ```
 
-```{r,echo=FALSE}
-ggplot(length_result,aes(x=total_bp,y= factor(result, level= rev(level_order_results)),fill=factor(result, level= level_order_results)))+
-  geom_bar(stat ='identity')+
-  facet_wrap(~software,labeller = labeller(software=c("mlplasmids"="Mlplasmids","platon"="Platon","plascope"="PlaScope","rfplasmid"="RFPlasmid")))+
-  labs(title="Basepair predictions for each tool (zoomed in)",x = "Nr. of basepairs", y = "Outcome")+
-  guides(fill= FALSE)+
-  scale_fill_manual(values=c("#47954D","#75C24B","#B94B33","#FA6C4D","#FACE1B","#868686","#595959"))+
-  coord_cartesian(xlim=c(0,1e7))+
-  scale_y_discrete(labels=rev(c("TP","TN","FP","FN","Unclassified","No category")))
-```
+
 ```{r,echo=FALSE,message=FALSE,fig.height=7}
-ggplot(final_result,aes(x=log(contig_length,10),fill=factor(result, level= level_order_results)))+
-  geom_histogram()+
-  scale_fill_manual(labels=c("TP","TN","FP","FN","Unclassified","No category"),values=c("#47954D","#75C24B","#B94B33","#FA6C4D","#FACE1B","#868686","#595959"))+
+final_result_lengthplot <- final_result %>% mutate(result=ifelse(prediction=="unclassified" & result!="no category","unclassified",result))
+level_order_results <- c("TP","TN","FP","FN","unclassified","no category")
+ggplot(final_result_lengthplot,aes(x=log(contig_length,10),fill=factor(result, level= level_order_results)))+
+  geom_histogram(binwidth = 0.2, boundary=0)+
+  scale_fill_manual(labels=c("TP","TN","FP","FN","No category"),values=c("#47954D","#75C24B","#B94B33","#FA6C4D","#FACE1B","#868686"))+
   labs(title="Predictions according to contig length",x = "Contig length (log10 bp)", y = "Count",fill="Result")+
   facet_wrap(~software,labeller = labeller(software=c("mlplasmids"="Mlplasmids","platon"="Platon","plascope"="PlaScope","rfplasmid"="RFPlasmid")))
 ```
-  
-### Conclusions  
-Out of the four softwares, PlaScope calls the least false chromosomes and false plasmids, which results in a high F1-score of 94.9% (97,0% when counting per basepair). Although this tool scores very favourably for the contigs it assigns to a conclusive category (either plasmid or chromosome), it also assigns a part of the contigs to the 'unclassified' category. Because the other tools categorise contigs in a strictly binary matter, comparison to PlaScope based on recall, precision and F1-score is not fair. To compensate for this effect, we can consider all unclassified contigs as incorrect, i.e. we artificially assign the category 'chromosome' to the plasmidal contigs, and 'plasmid' to the chromosomal contigs.
-```{r}
-final_result_adj <- final_result %>% mutate(result=ifelse(prediction=="unclassified" & classification=="plasmid","FP",result)) %>% mutate(result=ifelse(prediction=="unclassified" & classification=="chromosome","FN",result)) %>% mutate(result=ifelse(is.na(result),"no category",result))
-```
-
-When we now calculate the metrics, they have gone down for PlaScope. Interestingly, the difference is much smaller when we calculate the metrics per basepair instead of per contig. This makes sense, because the unclassified contigs are relatively small in size.
-```{r,message=FALSE}
-count_results_adj <- final_result_adj %>% group_by(software) %>% count(result)
-count_results_adj %<>% spread(result,n) %>% mutate(precision=TP/(TP+FP),recall=TP/(TP+FN),f1_score=2*(precision*recall)/(precision+recall))
-kable(count_results_adj %>% select(TP,TN,FP,FN,precision,recall,f1_score),caption = "Performance of binary classifiers (calculated per contig, adjusted for unclassified contigs)")
-```
-
-```{r,message=FALSE}
-length_result_adj <- final_result_adj %>% group_by(software,result) %>% summarise(total_bp = sum(contig_length))
-count_lengths_adj <- spread(length_result_adj,result,total_bp) %>% mutate(precision=TP/(TP+FP),recall=TP/(TP+FN),f1_score=2*(precision*recall)/(precision+recall))
-kable(count_lengths_adj %>% select(TP,TN,FP,FN,precision,recall,f1_score),caption = "Performance of binary classifiers (calculated per basepair, adjusted for unclassified contigs)")
-```
-
-RFPlasmid has the lowest F1-score, when calculated per contig (80.8%) as well as per basepair (86.7%), mainly due to a low precision (= many false positives). However, RFPlasmid does score an exceptionally high recall for large contigs (95.0%), which is the highest recall of all tools when considered per basepair. Platon accomplishes the highest recall when calculated per contig (85.9%). PlaScope performs best in terms of precision (contig: 89.5%, bp: 94.0%), resulting in a top F1-score (contig: 85.5%, bp: 94.4%). However, the lack of conclusive results for some contigs poses a major drawback in using PlaScope as a binary classifier. Based on these results, Platon would be most suitable to use as a classifier.
-
 
 ### Combining multiple softwares
 We are also interested in whether combining the outputs of multiple binary classifiers into an ensemble classifier improves our results.
 We can explore which contigs are differentially predicted by different softwares using Venn diagrams.  
-For PlaScope, we will again categorise all unidentified contigs as 'incorrect'.
-```{r}
-false_negatives_venn <- rbind(false_negatives,unclassified %>% filter(classification=="plasmid"))
-false_positives_venn <- rbind(false_positives,unclassified %>% filter(classification=="chromosome"))
-```
+For PlaScope, we again categorise 'unclassified' contigs as chromosome.
 
 Build Venn diagrams
 ```{r}
@@ -354,12 +271,12 @@ VennTN<- venn.diagram(venn_TN,filename = NULL,fill=brewer.pal(4, "Set3"))
 ```
 
 ```{r}
-venn_FP <- list(Mlplasmids = false_positives_venn %>% filter(software=='mlplasmids') %>% pull(contig_name),Platon =false_positives_venn %>% filter(software=='platon') %>% pull(contig_name),PlaScope=false_positives_venn %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=false_positives_venn %>% filter(software=='rfplasmid') %>% pull(contig_name))
+venn_FP <- list(Mlplasmids = false_positives %>% filter(software=='mlplasmids') %>% pull(contig_name),Platon =false_positives %>% filter(software=='platon') %>% pull(contig_name),PlaScope=false_positives %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=false_positives %>% filter(software=='rfplasmid') %>% pull(contig_name))
 VennFP<- venn.diagram(venn_FP,filename = NULL,fill=brewer.pal(4, "Set3"))
 ```
 
 ```{r}
-venn_FN <- list(Mlplasmids = false_negatives_venn %>% filter(software=='mlplasmids') %>% pull(contig_name),Platon =false_negatives_venn %>% filter(software=='platon') %>% pull(contig_name),PlaScope=false_negatives_venn %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=false_negatives_venn %>% filter(software=='rfplasmid') %>% pull(contig_name))
+venn_FN <- list(Mlplasmids = false_negatives %>% filter(software=='mlplasmids') %>% pull(contig_name),Platon =false_negatives %>% filter(software=='platon') %>% pull(contig_name),PlaScope=false_negatives %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=false_negatives %>% filter(software=='rfplasmid') %>% pull(contig_name))
 VennFN<- venn.diagram(venn_FN,filename = NULL,fill=brewer.pal(4, "Set3"))
 ```
 
@@ -370,16 +287,6 @@ cowplot::plot_grid(VennFP,VennFN,labels = c("False Positives","False Negatives")
 These diagrams show that false positives and false negatives are often misclassified by only one of the softwares, while the other softwares classify them correctly. Besides, a significant portion of true positives and true negatives is correctly identified by two or three, but not all of the tools.
 
 We now explore what happens when we combine three of the softwares, and assume the classification that the majority of softwares call.  
-In order to include the 'unclassified' contigs from PlaScope, we always categorise them as 'chromosome'.
-```{r}
-true_negatives_venn2 <- rbind(true_negatives,unclassified %>% filter(classification=="chromosome"))
-```
-
-Because we changed the classification of unidentified contigs, we have to make new lists for true negatives, false negatives and false positives.
-```{r}
-venn_TN2 <- list(Mlplasmids = true_negatives_venn2 %>% filter(software=='mlplasmids') %>% pull(contig_name),Platon =true_negatives_venn2 %>% filter(software=='platon') %>% pull(contig_name),PlaScope=true_negatives_venn2 %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=true_negatives_venn2 %>% filter(software=='rfplasmid') %>% pull(contig_name))
-venn_FP2 <- list(Mlplasmids = false_positives %>% filter(software=='mlplasmids') %>% pull(contig_name),Platon =false_positives %>% filter(software=='platon') %>% pull(contig_name),PlaScope=false_positives %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=false_positives %>% filter(software=='rfplasmid') %>% pull(contig_name))
-```
 
 Count the number of contigs at the intersections of the resulting venn diagrams (not drawn). For example, for all true positive contigs we count which tool or combination of tools categorised them as true positive. We do this for all results, and merge the files.
 ```{r,fig.show='hide'}
@@ -389,7 +296,7 @@ venn_counts_TN <- as_tibble(as.list(lengths(attributes(venn(venn_TN))$intersecti
 venn_counts_FN <- as_tibble(as.list(lengths(attributes(venn(venn_FN))$intersections)))
 venn_counts <- merge(merge(merge(venn_counts_TP,venn_counts_TN,all=TRUE),venn_counts_FN,all=TRUE),venn_counts_FP,all=TRUE)
 venn_counts %<>% replace(is.na(.), 0)
-rownames(venn_counts) <- c("FN","FP","TP","TN")
+rownames(venn_counts) <- c("TN","TP","FN","FP")
 venn_counts <- venn_counts[c("TP","TN","FP","FN"),]
 ```
 
@@ -418,10 +325,12 @@ venn_scores <- venn_counts %>% select(`Mlplasmids/PlaScope/RFPlasmid`,`Mlplasmid
 venn_scores <- as.data.frame(t(venn_scores))
 rownames(venn_scores) <- str_replace(row.names(venn_scores),"Total_","")
 venn_scores %<>% mutate(precision=TP/(TP+FP),recall=TP/(TP+FN),f1_score=2*(precision*recall)/(precision+recall))
+venn_scores %<>% rownames_to_column("Combination")
 ```
 
 ```{r,echo=FALSE}
-kable(venn_scores,caption = "Performance of ensemble classifiers (calculated per contig)")
+venn_scores %>% flextable()
+#caption = "Performance of ensemble classifiers (calculated per contig)")
 ```
 With regard to contigs, the ensemble classifiers outperform all the individual classifiers (top F1-score 85.5%). The combination Mlplasmids/Platon/PlaScope performs best with a recall of 96.8%, precision of 87.9% and F1-score of 92.1%. This combination scores the highest precision as well as the highest recall.
 
@@ -476,13 +385,14 @@ lengths_contigs_ensembles %<>% rename(contig_name=value) %>% mutate(contig_lengt
 Metrics per bp
 ```{r}
 count_ensemble_lengths <- lengths_contigs_ensembles %>% group_by(combination,result) %>% summarise(total_bp = sum(contig_length)) %>% spread(result,total_bp) %>% mutate(precision=TP/(TP+FP),recall=TP/(TP+FN),f1_score=2*(precision*recall)/(precision+recall))
-kable(count_ensemble_lengths,caption = "Performance of ensemble classifiers (calculated per basepair)")
+count_ensemble_lengths %>% flextable()
+#caption = "Performance of ensemble classifiers (calculated per basepair)")
 ```
 
 
 ```{r,message=FALSE}
 ggplot(lengths_contigs_ensembles %>% filter(result %in% c('FN','FP')),aes(x=log(contig_length,10),fill=result))+
-  geom_histogram()+
+  geom_histogram(boundary=0)+
   facet_wrap(~combination)
 ```
 Most miscategorised contigs are in the 1000 to 5000 (≈ 10e3.7) bp range. Mlplasmids/Platon/PlaScope misidentifies very few large contigs (>5000 bp), mostly are all false positives. 
