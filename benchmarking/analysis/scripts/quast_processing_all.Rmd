@@ -61,24 +61,6 @@ quast_output_mob_trimmed<-unite(quast_output_mob_trimmed,'bin_name',c('strain','
 #remove old bin name
 quast_output_mob_trimmed<-quast_output_mob_trimmed[,c(2,1,4:7)]
 
-#MOB_BAC_FILTERED
-quast_output_mob_ec<-read.csv('../../plasmid_reconstruction/results/Ecoli/quast_statistics/mob_bac_trimmed/mob_bac_trimmed_alignments_statistics.csv', sep=',', header=FALSE)
-names(quast_output_mob_ec)<-c('assembly_accession','strain','bin_name_temp','reference_id','alignment_length','bin_length')
-quast_output_mob_ec %<>% mutate(software = "MOB-suite (bactofidia, plasmid contigs)")
-#For MOB-suite we will fuse the name of the bin with the name of the strain, to be able to do statistics properly
-quast_output_mob_ec<-unite(quast_output_mob_ec,'bin_name',c('strain','bin_name_temp'),remove=FALSE) 
-#remove old bin name
-quast_output_mob_ec<-quast_output_mob_ec[,c(2,1,3,5:8)]
-
-#MOB_BAC_CLEANED
-quast_output_mob_clean<-read.csv('../../plasmid_reconstruction/results/Ecoli/quast_statistics/mob_uni/mob_uni_alignments_statistics.csv', sep=',', header=FALSE)
-names(quast_output_mob_clean)<-c('assembly_accession','strain','bin_name_temp','reference_id','alignment_length','bin_length')
-quast_output_mob_clean %<>% mutate(software = "MOB-suite (bactofidia, cleaned)")
-#For MOB-suite we will fuse the name of the bin with the name of the strain, to be able to do statistics properly
-quast_output_mob_clean<-unite(quast_output_mob_clean,'bin_name',c('strain','bin_name_temp'),remove=FALSE) 
-#remove old bin name
-quast_output_mob_clean<-quast_output_mob_clean[,c(2,1,3,5:8)]
-
 #SPADES
 quast_output_spades<-read.csv('../../plasmid_reconstruction/results/Ecoli/quast_statistics/spades/spades_alignments_statistics.csv', sep = ',', header = FALSE)
 names(quast_output_spades)<-c('strain','bin_name','reference_id','alignment_length','bin_length')
@@ -127,38 +109,6 @@ ambiguous_alignments_mob_trimmed<-unite(ambiguous_alignments_mob_trimmed,'bin_na
 ambiguous_alignments_mob_trimmed<-ambiguous_alignments_mob_trimmed[,c(1,2,4:8)]
 ambiguous_alignments_mob_trimmed$software<-'MOB-suite (unicycler, trimmed)'
 
-#mob_ec
-ambiguous_alignments_mob_ec<-read.csv('../../mobsuite_EC/results/quast_output2/mob_ambiguous_references.csv', sep=',', header=FALSE)
-names(ambiguous_alignments_mob_ec)<-c('strain','bin_name_temp','reference_id','contig_name','contig_length','start','end')
-ambiguous_alignments_mob_ec<-unite(ambiguous_alignments_mob_ec,'bin_name',c('strain','bin_name_temp'),remove=FALSE) 
-#remove old bin name
-ambiguous_alignments_mob_ec<-ambiguous_alignments_mob_ec[,c(1,2,4:8)]
-ambiguous_alignments_mob_ec$software<-'MOB-suite (bactofidia, plasmid contigs)'
-
-#mob_ec3
-ambiguous_alignments_mob_ec3<-read.csv('../../mobsuite_EC/results/quast_output3/mob_ambiguous_references.csv', sep=',', header=FALSE)
-names(ambiguous_alignments_mob_ec3)<-c('strain','bin_name_temp','reference_id','contig_name','contig_length','start','end')
-ambiguous_alignments_mob_ec3<-unite(ambiguous_alignments_mob_ec3,'bin_name',c('strain','bin_name_temp'),remove=FALSE) 
-#remove old bin name
-ambiguous_alignments_mob_ec3<-ambiguous_alignments_mob_ec3[,c(1,2,4:8)]
-ambiguous_alignments_mob_ec3$software<-'MOB-suite (unicycler, plasmid contigs)'
-
-#mob_clean
-ambiguous_alignments_mob_clean<-read.csv('../../mobsuite_clean/results/quast_output_clean2/mob_ambiguous_references.csv', sep=',', header=FALSE)
-names(ambiguous_alignments_mob_clean)<-c('strain','bin_name_temp','reference_id','contig_name','contig_length','start','end')
-ambiguous_alignments_mob_clean<-unite(ambiguous_alignments_mob_clean,'bin_name',c('strain','bin_name_temp'),remove=FALSE) 
-#remove old bin name
-ambiguous_alignments_mob_clean<-ambiguous_alignments_mob_clean[,c(1,2,4:8)]
-ambiguous_alignments_mob_clean$software<-'MOB-suite (bactofidia, cleaned)'
-
-#mob_clean3
-ambiguous_alignments_mob_clean3<-read.csv('../../mobsuite_clean/results/quast_output_clean3/mob_ambiguous_references.csv', sep=',', header=FALSE)
-names(ambiguous_alignments_mob_clean3)<-c('strain','bin_name_temp','reference_id','contig_name','contig_length','start','end')
-ambiguous_alignments_mob_clean3<-unite(ambiguous_alignments_mob_clean3,'bin_name',c('strain','bin_name_temp'),remove=FALSE) 
-#remove old bin name
-ambiguous_alignments_mob_clean3<-ambiguous_alignments_mob_clean3[,c(1,2,4:8)]
-ambiguous_alignments_mob_clean3$software<-'MOB-suite (unicycler, cleaned)'
-
 #spades
 ambiguous_alignments_spades<-read.csv('../../plasmid_reconstruction/results/Ecoli/quast_statistics/spades/spades_ambiguous_references.csv', sep=',', header=FALSE)
 names(ambiguous_alignments_spades)<-c('strain','bin_name','reference_id','contig_name','contig_length','start','end')
@@ -174,31 +124,36 @@ ambiguous_alignments_total<-rbind(ambiguous_alignments_mob_uni,ambiguous_alignme
 ambiguous_alignments_total<-unique(ambiguous_alignments_total)
 
 #count how many times each contig ambiguously aligns to the same replicon (n)
-count_ambiguous_alignments_to_same_replicon<- ambiguous_alignments_total %>% group_by(strain,bin_name,reference_id,contig_name,software) %>% summarise(total_ambiguous_alignments=n())
+count_ambiguous_alignments_to_same_replicon<- ambiguous_alignments_total %>% group_by(strain,bin_name,reference_id,contig_name,software) %>% summarise(total_ambiguous_alignments=n(),ambiguous_alignment=sum(contig_length))
 
 #join this information with the ambiguous_alignments
 all_ambiguous_alignments<-inner_join(ambiguous_alignments_total,count_ambiguous_alignments_to_same_replicon,by=c('strain','bin_name','reference_id','contig_name','software'))
 
 #filter out the start and end column
 all_ambiguous_alignments<-all_ambiguous_alignments[,-c(6,7)]
+```
 
-#filter the multiple_alignments 
-multiple_ambiguous_alignments<-unique(filter(all_ambiguous_alignments,total_ambiguous_alignments>=2))
-#the problem here is that we have several entries that have a slightly different contig lenght. We will retain the largest
-multiple_ambiguous_alignments<-multiple_ambiguous_alignments %>% group_by(strain,bin_name,reference_id,contig_name,software) %>% mutate(max_length=max(contig_length)) %>% ungroup() %>% filter(contig_length==max_length)
+
+```{r, warning=FALSE, fig.width=14, fig.height=18}
+#the problem here is that we have several entries that have a slightly different contig lenght. We will calculate the median
+all_ambiguous_alignments %<>% group_by(strain,bin_name,reference_id,contig_name,software) %>% mutate(contig_length=round(median(contig_length))) %>% ungroup()
+#keep only unique rows
+all_ambiguous_alignments %<>% unique()
 
 #get the total substraciton contigs (n-1)
-multiple_ambiguous_alignments$substraction_times<-multiple_ambiguous_alignments$total_ambiguous_alignments-1
+all_ambiguous_alignments$substraction_times<-all_ambiguous_alignments$total_ambiguous_alignments-1
 
 #now get the length that we will have to substract
-multiple_ambiguous_alignments$ambiguous_substraction_length<-multiple_ambiguous_alignments$contig_length*multiple_ambiguous_alignments$substraction_times
+all_ambiguous_alignments$ambiguous_substraction_length<-all_ambiguous_alignments$contig_length*all_ambiguous_alignments$substraction_times
 
 #now we will sum all ambiguous substraction lengths that belong to the same bin_name/refrence_id (because there might be multiple contigs within the same bin that align to the same replicon)
-multiple_ambiguous_alignments_final_substracion_data<-multiple_ambiguous_alignments %>% group_by(strain,bin_name,reference_id,software) %>% summarise(total_substraction_length=sum(ambiguous_substraction_length))
- 
+all_ambiguous_alignments_final_substracion_data<-all_ambiguous_alignments %<>% group_by(strain,bin_name,reference_id,software) %>% summarise(total_substraction_length=sum(ambiguous_substraction_length),total_ambiguous_length=sum(ambiguous_alignment))
+```
 
+
+```{r, warning=FALSE, fig.width=14, fig.height=18}
 #2.---- Cross information with the 'quast_output_plasmids_chromosomes' from previous section (this will allow us to calculate precision) ------
-quast_output_plasmids_chromosomes<-left_join(quast_output_plasmids_chromosomes,multiple_ambiguous_alignments_final_substracion_data,by=c('strain','bin_name','reference_id','software'))
+quast_output_plasmids_chromosomes<-left_join(quast_output_plasmids_chromosomes,all_ambiguous_alignments_final_substracion_data,by=c('strain','bin_name','reference_id','software'))
 #replace NA values with 0 in the total_substraction_length (for cases in which there are no multiple alignments)
 quast_output_plasmids_chromosomes$total_substraction_length[is.na(quast_output_plasmids_chromosomes$total_substraction_length)]<-0
 
