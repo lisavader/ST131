@@ -9,6 +9,10 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r, include=FALSE}
+theme_set(theme_bw())
+```
+
 Import/install packages
 ```{r, warning=FALSE, message=FALSE}
 packages <- c("proxy","magrittr","dplyr","stats","ggplot2","stringr")
@@ -48,11 +52,18 @@ mds <- as.data.frame(cmdscale(jaccard_matrix))
 colnames(mds) <- c("dim_1","dim_2")
 ```
 
+Add number of genes as variable to mds data.
+```{r}
+total_genes <- rowSums(accessory_presence_absence)
+mds %<>% mutate(total_genes=total_genes)
+```
 
 ```{r}
 ggplot(mds,aes(x=dim_1,y=dim_2))+
-  geom_point()
+  geom_point(aes(colour=total_genes))+
+  scale_colour_gradient(low ="#ffff00", high = "#cc0099")
 ```
+
 Add metadata
 ```{r}
 metadata <- read.csv("../../rgnosis_metadata/results/selected_ST131_metadata.csv") %>% mutate(strain=run_ID)
