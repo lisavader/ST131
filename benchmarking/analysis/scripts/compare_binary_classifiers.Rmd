@@ -10,19 +10,11 @@ knitr::opts_chunk$set(echo = TRUE,fig.width = 9,fig.align = "left")
 ```
 
 ```{r, include=FALSE}
-require(readr)
-require(magrittr)
-require(dplyr)
-require(ggplot2)
-require(stringr)
-require(tidyr)
-require(knitr)
-require(ggrepel)
-require(VennDiagram)
-require(RColorBrewer)
-require(tibble)
-require(venn)
-require(flextable)
+packages <- c("readr","magrittr","dplyr","ggplot2","stringr","tidyr","knitr","ggrepel","VennDiagram","RColorBrewer","tibble","venn","flextable")
+for (package in packages){
+  if (!require(package, character.only = TRUE)) install.packages(package)
+  require(package, character.only = TRUE)
+}
 ```
 
 ```{r, include=FALSE}
@@ -391,8 +383,213 @@ count_ensemble_lengths %>% flextable()
 
 
 ```{r,message=FALSE}
-ggplot(lengths_contigs_ensembles %>% filter(result %in% c('FN','FP')),aes(x=log(contig_length,10),fill=result))+
-  geom_histogram(boundary=0)+
+ggplot(lengths_contigs_ensembles,aes(x=log(contig_length,10),fill=factor(result, level= level_order_results)))+
+  geom_histogram(binwidth = 0.2, boundary=0)+
+  scale_fill_manual(labels=c("TP","TN","FP","FN","No category"),values=c("#47954D","#75C24B","#B94B33","#FA6C4D","#FACE1B","#868686"))+
+  labs(title="Predictions according to contig length",x = "Contig length (log10 bp)", y = "Count",fill="Result")+
   facet_wrap(~combination)
 ```
-Most miscategorised contigs are in the 1000 to 5000 (≈ 10e3.7) bp range. Mlplasmids/Platon/PlaScope misidentifies very few large contigs (>5000 bp), mostly are all false positives. 
+
+## Analysis for AMR containing replicons
+
+Import AMR containing plasmid info, delete any strains that are not in the base dataset.
+```{r}
+AMR_replicons <- read.csv("../../binary_classifiers/results/arg_plasmids.csv", header = TRUE)
+names(AMR_replicons) <- c("assembly_accession","replicon_name","atbr_count")
+all_strains <- sub("_2021.*","\\1",all_contigs$contig_name)
+AMR_replicons %<>% filter(assembly_accession %in% all_strains)
+```
+
+For every AMR replicon we find the corresponding contig information.
+```{r}
+AMR_contig_info <- right_join(selected_contig_info,AMR_replicons)
+```
+
+From the binary classifier output we select all contigs that belong to an AMR plasmid. We disregard contigs that have no alignments, because we don't know whether they belong to an AMR plasmid.
+```{r}
+AMR_analysis<- right_join(all_output,AMR_contig_info,by="contig_name")
+```
+
+The rest of the analysis is the same as before, just with a smaller dataset.
+We now only have information about recall (true positives and false negatives) because there are only plasmids in this dataset.
+```{r}
+true_positives_AMR <- AMR_analysis %>% filter(prediction=="plasmid" & classification=="plasmid") %>% mutate(result="TP")
+false_negatives_AMR <- AMR_analysis %>% filter((prediction=="chromosome" | prediction=="unclassified")& classification=="plasmid") %>% mutate(result="FN")
+```
+
+Bind together in final result file.  
+A column with the contig length is added to the dataset.
+```{r,warning=FALSE}
+final_result_AMR <- rbind(true_positives_AMR,false_negatives_AMR)
+final_result_AMR %<>% mutate(contig_length=as.numeric(sub(".*?length_(.*?)_.*", "\\1",contig_name)))
+```
+
+Calculate metrics
+```{r,message=FALSE}
+count_results_AMR <- final_result_AMR %>% group_by(software) %>% count(result)
+count_results_AMR %<>% spread(result,n) %>% mutate(recall=TP/(TP+FN))
+count_results_AMR %>% select(TP,FN,recall) %>% flextable()
+      #caption = "Performance of binary classifiers (calculated per contig)")
+```
+
+```{r}
+ggsave("binary_comparison.png",height = 5, width = 8)
+```
+
+Instead of calculating the metrics for each contig, we can also assess the total number of basepairs that a software identifies as correct/incorrect.
+Because longer contigs are easier to categorise, this leads to more favourable results.
+
+```{r,message=FALSE}
+length_result_AMR <- final_result_AMR %>% group_by(software,result) %>% summarise(total_bp = sum(contig_length))
+count_lengths_AMR <- spread(length_result_AMR,result,total_bp) %>% mutate(recall=TP/(TP+FN))
+count_lengths_AMR %>% select(TP,FN,recall) %>% flextable() #caption = "Performance of binary classifiers (calculated per basepair)")
+```
+
+
+```{r,echo=FALSE,message=FALSE,fig.height=7}
+final_result_lengthplot_AMR <- final_result_AMR %>% mutate(result=ifelse(prediction=="unclassified" & result!="no category","unclassified",result))
+level_order_results_AMR <- c("TP","FN","unclassified")
+ggplot(final_result_lengthplot_AMR,aes(x=log(contig_length,10),fill=factor(result, level= level_order_results_AMR)))+
+  geom_histogram(binwidth = 0.2, boundary=0)+
+  scale_fill_manual(labels=c("TP","FN","unclassified"),values=c("#47954D","#FA6C4D","#FACE1B"))+
+  labs(title="Predictions according to contig length",x = "Contig length (log10 bp)", y = "Count",fill="Result")+
+  facet_wrap(~software,labeller = labeller(software=c("mlplasmids"="Mlplasmids","platon"="Platon","plascope"="PlaScope","rfplasmid"="RFPlasmid")))
+```
+
+### Combining multiple softwares
+We are also interested in whether combining the outputs of multiple binary classifiers into an ensemble classifier improves our results.
+We can explore which contigs are differentially predicted by different softwares using Venn diagrams.  
+For PlaScope, we again categorise 'unclassified' contigs as chromosome.
+
+Build Venn diagrams
+```{r}
+#Make a list of all true positives per software
+venn_TP_AMR <- list(Mlplasmids = true_positives_AMR %>% filter(software=='mlplasmids') %>% pull(contig_name),Platon =true_positives_AMR %>% filter(software=='platon') %>% pull(contig_name),PlaScope=true_positives_AMR %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=true_positives_AMR %>% filter(software=='rfplasmid') %>% pull(contig_name))
+#Convert list to venn diagram
+VennTP_AMR <- venn.diagram(venn_TP_AMR,filename = NULL,fill=brewer.pal(4, "Set3"))
+```
+
+```{r}
+venn_FN_AMR <- list(Mlplasmids = false_negatives_AMR %>% filter(software=='mlplasmids') %>% pull(contig_name),Platon =false_negatives_AMR %>% filter(software=='platon') %>% pull(contig_name),PlaScope=false_negatives_AMR %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=false_negatives_AMR %>% filter(software=='rfplasmid') %>% pull(contig_name))
+VennFN_AMR<- venn.diagram(venn_FN_AMR,filename = NULL,fill=brewer.pal(4, "Set3"))
+```
+
+```{r,echo=FALSE}
+cowplot::plot_grid(VennTP_AMR,VennFN_AMR,labels = c("True Positives","False Negatives"),label_x = 0.1)
+```
+These diagrams show that false positives and false negatives are often misclassified by only one of the softwares, while the other softwares classify them correctly. Besides, a significant portion of true positives and true negatives is correctly identified by two or three, but not all of the tools.
+
+We now explore what happens when we combine three of the softwares, and assume the classification that the majority of softwares call.  
+
+Count the number of contigs at the intersections of the resulting venn diagrams (not drawn). For example, for all true positive contigs we count which tool or combination of tools categorised them as true positive. We do this for all results, and merge the files.
+```{r,fig.show='hide'}
+venn_counts_TP_AMR <- as_tibble(as.list(lengths(attributes(venn(venn_TP_AMR))$intersections)))
+venn_counts_FN_AMR <- as_tibble(as.list(lengths(attributes(venn(venn_FN_AMR))$intersections)))
+venn_counts_AMR <- merge(venn_counts_TP_AMR,venn_counts_FN_AMR,all=TRUE)
+venn_counts_AMR %<>% replace(is.na(.), 0)
+rownames(venn_counts_AMR) <- c("TP","FN")
+venn_counts_AMR <- venn_counts_AMR[c("TP","FN"),]
+```
+
+We calculate the number of true positive, true negative, false positive and false negative contigs for each of the four combinations of softwares. Contigs are included if they are classified by at least two out of three softwares. This means that contigs predicted by three of four softwares are always included.
+```{r}
+for (combination in c("Mlplasmids/Platon/PlaScope","Mlplasmids/Platon/RFPlasmid","Mlplasmids/PlaScope/RFPlasmid","Platon/PlaScope/RFPlasmid")){
+  #Split the input names into variables soft1/soft2/soft3
+  softwares <- unlist(str_split(combination,'/'))
+  i<-1
+  for (software in softwares){
+    assign(paste("soft",i,sep=""),software)
+    i<-i+1
+  }
+  #For each column in venn_counts2 it is evaluated whether it is included in the final result.
+  #This is the case if it contains three or four softwares in total, or two of the input softwares (soft1 + soft2, soft1 + soft3 or soft2 + soft3)
+  pattern<-paste(":.*:|",soft1,":",soft2,"|",soft1,":",soft3,"|",soft2,":",soft3,sep = "")
+  #The row sum of these columns is added as a new column named after the software combination
+  venn_counts_AMR$new_column <- rowSums(venn_counts_AMR[grepl(pattern,colnames(venn_counts_AMR))])
+  names(venn_counts_AMR)[names(venn_counts_AMR) == "new_column"] <- combination
+}
+```
+
+Calculate recall for the ensemble combinations.
+```{r}
+venn_scores_AMR <- venn_counts_AMR %>% select(`Mlplasmids/PlaScope/RFPlasmid`,`Mlplasmids/Platon/PlaScope`,`Mlplasmids/Platon/RFPlasmid`,`Platon/PlaScope/RFPlasmid`)
+venn_scores_AMR <- as.data.frame(t(venn_scores_AMR))
+rownames(venn_scores_AMR) <- str_replace(row.names(venn_scores_AMR),"Total_","")
+venn_scores_AMR %<>% mutate(recall=TP/(TP+FN))
+venn_scores_AMR %<>% rownames_to_column("Combination")
+```
+
+```{r,echo=FALSE}
+venn_scores_AMR %>% flextable()
+#caption = "Performance of ensemble classifiers (calculated per contig)")
+```
+With regard to contigs, the ensemble classifiers outperform all the individual classifiers (top F1-score 85.5%). The combination Mlplasmids/Platon/PlaScope performs best with a recall of 96.8%, precision of 87.9% and F1-score of 92.1%. This combination scores the highest precision as well as the highest recall.
+
+Furthermore, we can take a look at the length of the false positive and false negative contigs that are called by the ensemble classifiers. We want to avoid large contigs being misclassified.
+
+Get the contig names of the false positives and false negatives for each ensemble classifier
+```{r,fig.show='hide'}
+#Get the contig names of false negatives and false postives grouped by software combination
+venn_contigs_FN_AMR <- attributes(venn(venn_FN_AMR))$intersections
+venn_contigs_TP_AMR <- attributes(venn(venn_TP_AMR))$intersections
+
+lengths_contigs_ensembles_AMR <- as_tibble(data.frame())
+for (combination in c("Mlplasmids/Platon/PlaScope","Mlplasmids/Platon/RFPlasmid","Mlplasmids/PlaScope/RFPlasmid","Platon/PlaScope/RFPlasmid")){
+  #Split the input names into variables soft1/soft2/soft3
+  softwares <- unlist(str_split(combination,'/'))
+  i<-1
+  for (software in softwares){
+    assign(paste("soft",i,sep=""),software)
+    i<-i+1
+  }
+  #Apply same pattern as before for column selection
+  pattern<-paste(":.*:|",soft1,":",soft2,"|",soft1,":",soft3,"|",soft2,":",soft3,sep = "")
+  columns <- colnames(venn_counts_AMR[grepl(pattern,colnames(venn_counts_AMR))])
+  file_TP <- as_tibble(data.frame())
+  file_FN <- as_tibble(data.frame())
+  #Rbind all contigs in those columns to intermediate files file_FP and file_FN
+  for (column in columns){
+    file_FN <- rbind(file_FN,as_tibble(venn_contigs_FN_AMR[[column]]))
+    file_TP <- rbind(file_TP,as_tibble(venn_contigs_TP_AMR[[column]]))
+  }
+  #Add result and combination names
+  file_FN %<>% mutate(result="FN",combination=combination)
+  file_TP %<>% mutate(result="TP",combination=combination)
+  
+  #Append output file
+  lengths_contigs_ensembles_AMR <- rbind(lengths_contigs_ensembles_AMR,file_FN,file_TP)
+}
+```
+
+Calculate contig length
+```{r}
+lengths_contigs_ensembles_AMR %<>% rename(contig_name=value) %>% mutate(contig_length=as.numeric(sub(".*?length_(.*?)_.*", "\\1",contig_name)))
+```
+
+Metrics per bp
+```{r}
+count_ensemble_lengths_AMR <- lengths_contigs_ensembles_AMR %>% group_by(combination,result) %>% summarise(total_bp = sum(contig_length)) %>% spread(result,total_bp) %>% mutate(recall=TP/(TP+FN))
+count_ensemble_lengths_AMR %>% flextable()
+#caption = "Performance of ensemble classifiers (calculated per basepair)")
+```
+
+
+```{r,message=FALSE}
+ggplot(lengths_contigs_ensembles_AMR,aes(x=log(contig_length,10),fill=factor(result, level= level_order_results_AMR)))+
+  geom_histogram(binwidth = 0.2, boundary=0)+
+  scale_fill_manual(labels=c("TP","FN","unclassified"),values=c("#47954D","#FA6C4D","#FACE1B"))+
+  facet_wrap(~combination)+
+  labs(title="Predictions according to contig length",x = "Contig length (log10 bp)", y = "Count",fill="Result")
+```
+
+Why is there an increase in performance for AMR containing plasmids? A possible explanation would be that the contigs are larger on average, making it easier to classify them.
+
+```{r}
+plasmid_length_data <- rbind(final_result %>% filter(classification=="plasmid") %>% select(contig_length) %>% mutate(dataset="full"),final_result_AMR %>% select(contig_length) %>% mutate(dataset="AMR plasmids"))
+
+ggplot(plasmid_length_data,aes(x=dataset,y=log(contig_length,10)))+
+  geom_boxplot()
+```
+
+Hmm actually the full dataset has a slightly larger median contig length, so this is not the right explanation.
+
