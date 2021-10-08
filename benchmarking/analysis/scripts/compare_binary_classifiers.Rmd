@@ -278,6 +278,7 @@ cowplot::plot_grid(VennFP,VennFN,labels = c("False Positives","False Negatives")
 ```
 These diagrams show that false positives and false negatives are often misclassified by only one of the softwares, while the other softwares classify them correctly. Besides, a significant portion of true positives and true negatives is correctly identified by two or three, but not all of the tools.
 
+
 We now explore what happens when we combine three of the softwares, and assume the classification that the majority of softwares call.  
 
 Count the number of contigs at the intersections of the resulting venn diagrams (not drawn). For example, for all true positive contigs we count which tool or combination of tools categorised them as true positive. We do this for all results, and merge the files.
@@ -290,6 +291,18 @@ venn_counts <- merge(merge(merge(venn_counts_TP,venn_counts_TN,all=TRUE),venn_co
 venn_counts %<>% replace(is.na(.), 0)
 rownames(venn_counts) <- c("TN","TP","FN","FP")
 venn_counts <- venn_counts[c("TP","TN","FP","FN"),]
+```
+
+Calculate by how many tools each result is achieved.
+I use regex patterns for selecting the column names with either just one ':' or two ':'s, the  pattern can be explained this way:
+^ beginning of line
+[^:]* all characters except ':'
+$ end of line
+```{r}
+tool_numbers <- venn_counts %>% mutate(one_tool=rowSums(venn_counts %>% select(c("Mlplasmids","Platon","PlaScope","RFPlasmid"))),two_tools=rowSums(venn_counts %>% select(matches('^[^:]*:[^:]*$'))),three_tools=rowSums(venn_counts %>% select(matches('^[^:]*:[^:]*:[^:]*$'))),all_tools=`Mlplasmids:Platon:PlaScope:RFPlasmid`) %>% select(one_tool,two_tools,three_tools,all_tools) %>%mutate(total=rowSums(.))
+```
+```{r}
+tool_numbers
 ```
 
 We calculate the number of true positive, true negative, false positive and false negative contigs for each of the four combinations of softwares. Contigs are included if they are classified by at least two out of three softwares. This means that contigs predicted by three of four softwares are always included.
