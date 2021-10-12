@@ -24,7 +24,9 @@ cd ../../results
 #run platon on all strains in input directory
 for strain in ../$1/*.fasta
 do
-name=$(echo $strain | rev | cut -d '/' -f 2 | rev)
+name=$(basename $strain .fasta)
+#For unicycler
+#name=$(echo $strain | rev | cut -d '/' -f 2 | rev)
 echo "#!/bin/bash
 cd ../platon_predictions
 platon --db ../../databases/platon/db --output $name --threads 8 ../$strain" > platon_scripts/${name}.sh

@@ -17,4 +17,4 @@ mkdir -p ../databases
 #panaroo-qc -t 3 --graph_type all -i bactofidia_output_ST131/stats/annotated/*/*.gff --ref_db ../databases/refseq.genomes.k21s1000.msh -o panaroo_output
 
 ##Run panaroo
-panaroo -i bactofidia_output_ST131/stats/annotated/*/*.gff -o panaroo_output --clean-mode sensitive
+panaroo -i bactofidia_output_ST131/stats/annotated/*/*.gff -o panaroo_output --clean-mode sensitive -a core --core_threshold 1
