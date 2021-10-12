@@ -1,0 +1,86 @@
+---
+title: "Panaroo post processing"
+author: "Lisa"
+date: "30/09/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+theme_set(theme_bw())
+```
+
+Import/install packages
+```{r, warning=FALSE, message=FALSE}
+packages <- c("proxy","magrittr","dplyr","stats","ggplot2","stringr")
+for (package in packages){
+  if (!require(package, character.only = TRUE)) install.packages(package)
+  require(package, character.only = TRUE)
+}
+```
+
+Import gene presence absence matrix.
+```{r}
+presence_absence <- read.table("../results/panaroo_output/gene_presence_absence.Rtab", header = TRUE, row.names = 1)
+presence_absence %<>% t(.)   #transpose the data
+presence_absence %<>% as.data.frame()
+```
+
+For comparing the strains we are only interested in the accessory genome.
+Therefore we delete all core genes, e.g. genes with a 100% presence in the strains (all rows are 1).
+```{r}
+accessory_presence_absence <- presence_absence %>% select_if(~min(.) == 0)
+```
+
+Calculate Jaccard distances
+```{r}
+jaccard_matrix <- as.matrix(proxy::dist(accessory_presence_absence, by_rows = TRUE, method = "Jaccard"))
+```
+
+### Visualisation
+
+Heatmap
+```{r}
+heatmap(jaccard_matrix, symm = TRUE)
+```
+Classical multidimensional scaling
+```{r}
+mds <- as.data.frame(cmdscale(jaccard_matrix))
+colnames(mds) <- c("dim_1","dim_2")
+```
+
+Add number of genes as variable to mds data.
+```{r}
+total_genes <- rowSums(accessory_presence_absence)
+mds %<>% mutate(total_genes=total_genes)
+```
+
+```{r}
+ggplot(mds,aes(x=dim_1,y=dim_2))+
+  geom_point(aes(colour=total_genes))+
+  scale_colour_gradient(low ="#ffff00", high = "#cc0099")
+```
+
+Add metadata
+```{r}
+metadata <- read.csv("../../rgnosis_metadata/results/selected_ST131_metadata.csv") %>% mutate(strain=run_ID)
+mds %<>% tibble::rownames_to_column("strain") %>% mutate(strain=str_replace_all(strain,fixed('.'),'-'))
+mds_metadata <- full_join(mds,metadata)
+```
+
+```{r}
+ggplot(mds_metadata,aes(x=dim_1,y=dim_2))+
+  geom_point(aes(colour=SITE_N))
+```
+```{r}
+ggplot(mds_metadata,aes(x=dim_1,y=dim_2))+
+  geom_point(aes(colour=treatment))
+```
+
+```{r}
+ggplot(mds_metadata,aes(x=dim_1,y=dim_2))+
+  geom_point(aes(colour=tracti))
+```
