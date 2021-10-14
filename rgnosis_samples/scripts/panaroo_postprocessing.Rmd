@@ -9,22 +9,22 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r, include=FALSE}
-theme_set(theme_bw())
-```
-
 Import/install packages
 ```{r, warning=FALSE, message=FALSE}
-packages <- c("proxy","magrittr","dplyr","stats","ggplot2","stringr")
+packages <- c("proxy","magrittr","dplyr","stats","ggplot2","stringr","Rtsne","ape")
 for (package in packages){
   if (!require(package, character.only = TRUE)) install.packages(package)
   require(package, character.only = TRUE)
 }
 ```
 
+```{r, include=FALSE}
+theme_set(theme_bw())
+```
+
 Import gene presence absence matrix.
 ```{r}
-presence_absence <- read.table("../results/panaroo_output/gene_presence_absence.Rtab", header = TRUE, row.names = 1)
+presence_absence <- read.table("../results/panaroo_output_ST131/gene_presence_absence.Rtab", header = TRUE, row.names = 1)
 presence_absence %<>% t(.)   #transpose the data
 presence_absence %<>% as.data.frame()
 ```
@@ -66,9 +66,24 @@ ggplot(mds,aes(x=dim_1,y=dim_2))+
 
 Add metadata
 ```{r}
-metadata <- read.csv("../../rgnosis_metadata/results/selected_ST131_metadata.csv") %>% mutate(strain=run_ID)
+metadata <- read.csv("../../rgnosis_metadata/results/selected_ST131_metadata.csv") %>% rename(strain=run_ID)
 mds %<>% tibble::rownames_to_column("strain") %>% mutate(strain=str_replace_all(strain,fixed('.'),'-'))
 mds_metadata <- full_join(mds,metadata)
+```
+Correlation with genome size?
+```{r}
+ST131_strains <- read.delim("../results/sample_summaries_ST131.csv",sep = ';') %>% rename(strain=Sample)
+mds_metadata <- full_join(mds_metadata,ST131_strains %>% select(strain,Total.length))
+```
+```{r}
+ggplot(mds_metadata,aes(x=dim_1,y=dim_2))+
+  geom_point(aes(colour=Total.length))+
+  scale_colour_gradient(low ="#ffff00", high = "#cc0099")
+```
+```{r}
+ggplot(mds_metadata,aes(x=Total.length,y=total_genes))+
+  geom_point()+
+  geom_smooth(method = 'lm', se=FALSE, colour='darkred', size =0.5)
 ```
 
 ```{r}
@@ -82,5 +97,87 @@ ggplot(mds_metadata,aes(x=dim_1,y=dim_2))+
 
 ```{r}
 ggplot(mds_metadata,aes(x=dim_1,y=dim_2))+
+  geom_point(aes(colour=tracti))
+```
+
+We can also do a t-SNE
+```{r}
+tsne_out <- Rtsne(jaccard_matrix,is_distance = TRUE)
+plot(tsne_out$Y)
+```
+Build a phylogenetic tree based on core genome snp distances
+
+Load distance matrix and use first column as row names
+```{r}
+snp_dists <- read.delim("../results/panaroo_output/all_snp_dists.tsv")
+row.names(snp_dists) <- snp_dists$snp.dists.0.8.2
+snp_dists %<>% select(-snp.dists.0.8.2)
+```
+
+Microreact for tree visualisation
+
+Perform neighbour joining
+```{r}
+tree <- nj(as.matrix(snp_dists))
+plot(tree)
+```
+There are 1484 snps in total
+
+### And now for the plasmidome!
+
+Import gene presence absence matrix.
+```{r}
+presence_absence_plasmid <- read.table("../results/plasmidome_ST131/panaroo_output/gene_presence_absence.Rtab", header = TRUE, row.names = 1)
+presence_absence_plasmid %<>% t(.)   #transpose the data
+presence_absence_plasmid %<>% as.data.frame()
+```
+
+Calculate Jaccard distances
+```{r}
+jaccard_matrix_plasmid <- as.matrix(proxy::dist(presence_absence_plasmid, by_rows = TRUE, method = "Jaccard"))
+```
+
+### Visualisation
+
+Heatmap
+```{r}
+heatmap(jaccard_matrix_plasmid, symm = TRUE)
+```
+Classical multidimensional scaling
+```{r}
+mds_plasmid <- as.data.frame(cmdscale(jaccard_matrix_plasmid))
+colnames(mds_plasmid) <- c("dim_1","dim_2")
+```
+
+Add number of genes as variable to mds data.
+```{r}
+total_genes <- rowSums(presence_absence_plasmid)
+mds_plasmid %<>% mutate(total_genes=total_genes)
+```
+
+```{r}
+ggplot(mds_plasmid,aes(x=dim_1,y=dim_2))+
+  geom_point(aes(colour=total_genes))+
+  scale_colour_gradient(low ="#ffff00", high = "#cc0099")
+```
+
+Add metadata
+```{r}
+metadata <- read.csv("../../rgnosis_metadata/results/selected_ST131_metadata.csv") %>% rename(strain=run_ID)
+mds_plasmid %<>% tibble::rownames_to_column("strain") %>% mutate(strain=str_replace_all(strain,fixed('.'),'-'))
+mds_plasmid_metadata <- full_join(mds_plasmid,metadata)
+```
+
+```{r}
+ggplot(mds_plasmid_metadata,aes(x=dim_1,y=dim_2))+
+  geom_point(aes(colour=SITE_N))
+```
+```{r}
+ggplot(mds_plasmid_metadata,aes(x=dim_1,y=dim_2))+
+  geom_point(aes(colour=treatment))
+```
+
+```{r}
+ggplot(mds_plasmid_metadata,aes(x=dim_1,y=dim_2))+
   geom_point(aes(colour=tracti))
 ```
