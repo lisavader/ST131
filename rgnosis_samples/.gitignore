@@ -7,7 +7,12 @@ databases
 
 #results
 results/bactofidia*
+results/*predictions
 results/busco_output
-results/panaroo_output/*
-!results/panaroo_output/final_graph.gml
-!results/panaroo_output/gene_presence_absence.Rtab
+results/raw_reads
+results/*scripts
+results/plasmidome_ST131
+results/panaroo_output_ST131/*
+!results/panaroo_output_ST131/final_graph.gml
+!results/panaroo_output_ST131/gene_presence_absence.Rtab
+!results/panaroo_output_ST131/all_snp_dists.tsv
