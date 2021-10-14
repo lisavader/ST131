@@ -10,10 +10,10 @@ python combine_core_alignments.py
 
 #Calculate distances with snp-dists
 run_snp-dists(){
-cd ../results/panaroo_output/aligned_gene_sequences
-snp-dists all_aligned_genes.aln.fas > all_snp_dists.tsv
+cd ../results/panaroo_output
+snp-dists all_alignments.aln.fas > all_snp_dists.tsv
 }
 
 #Run these parts:
-concatenate_alignments
+#concatenate_alignments
 run_snp-dists

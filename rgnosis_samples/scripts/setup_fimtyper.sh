@@ -16,5 +16,8 @@ cd fimtyper
 
 #Install dependencies
 bash brew.sh
-#make install
+
+#I needed to install the blast databases myself, the brew.sh script gave me an error:
+curl ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/ncbi-blast-2.12.0+-x64-linux.tar.gz > blast.tar.gz
+tar -zxvf blast.tar.gz
 
