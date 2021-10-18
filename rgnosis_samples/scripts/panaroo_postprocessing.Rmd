@@ -109,7 +109,7 @@ Build a phylogenetic tree based on core genome snp distances
 
 Load distance matrix and use first column as row names
 ```{r}
-snp_dists <- read.delim("../results/panaroo_output/all_snp_dists.tsv")
+snp_dists <- read.delim("../results/panaroo_output_ST131/all_snp_dists.tsv")
 row.names(snp_dists) <- snp_dists$snp.dists.0.8.2
 snp_dists %<>% select(-snp.dists.0.8.2)
 ```
@@ -119,6 +119,8 @@ Microreact for tree visualisation
 Perform neighbour joining
 ```{r}
 tree <- nj(as.matrix(snp_dists))
+#export in newick format
+write.tree(tree, file = "../results/panaroo_output_ST131/ST131_tree.newick")
 plot(tree)
 ```
 There are 1484 snps in total
@@ -174,10 +176,12 @@ ggplot(mds_plasmid_metadata,aes(x=dim_1,y=dim_2))+
 ```
 ```{r}
 ggplot(mds_plasmid_metadata,aes(x=dim_1,y=dim_2))+
-  geom_point(aes(colour=treatment))
+  geom_point(aes(colour=treatment))+
+  stat_ellipse(aes(colour=treatment))
 ```
 
 ```{r}
 ggplot(mds_plasmid_metadata,aes(x=dim_1,y=dim_2))+
-  geom_point(aes(colour=tracti))
+  geom_point(aes(colour=tracti))+
+  stat_ellipse(aes(colour=tracti))
 ```
