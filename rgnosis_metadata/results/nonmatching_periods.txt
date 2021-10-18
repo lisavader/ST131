@@ -1,0 +1,4 @@
+"sample_ID"	"stud_per"	"samp_per"	"SITE_N"
+30931	"before study start"	"baseline period"	"BC Hospital Clinic of Barcelona, Barcelona, SPAIN"
+100426	"baseline period"	"SOD"	"PS Hospital de Sant Pau, Barcelona, SPAIN"
+30929	"before study start"	"baseline period"	"BC Hospital Clinic of Barcelona, Barcelona, SPAIN"
