@@ -86,7 +86,18 @@ write.csv(ST131_metadata_selected,"selected_ST131_metadata.csv",row.names = FALS
 
 #select metadata for microreact
 ST131_metadata_microreact <- ST131_metadata %>% rename(id=run_ID,year=sample_yr,month=sample_mo,day=sample_day) %>% select(id,treatment,SITE_N,tracti,year,month,day)
-write.csv(ST131_metadata_microreact,"ST131_metadata_microreact.csv",row.names = FALSE)
 
 #geocode with tmap
-hospital_coordinates <- geocode_OSM(ST131_metadata$SITE_N)
+hospital_info <- data.frame(query=unique(ST131_metadata_microreact$SITE_N) %>% substring(.,4),hospital_ID=unique(ST131_metadata_microreact$SITE_N) %>% substring(.,0,2))
+#For these locations I had to change the query, otherwise tmap couldn't find them:
+hospital_info$query[9] <- "Gent"
+hospital_info$query[10] <- "Golnik"
+hospital_coordinates <- geocode_OSM(hospital_info$query)
+
+#merge the coordinate info with the microreact metadata
+hospital_coordinates <- merge(hospital_coordinates %>% select(query,lat,lon),hospital_info)
+ST131_metadata_microreact %<>% mutate(hospital_ID=substring(SITE_N,0,2))
+ST131_metadata_microreact %<>% full_join(hospital_coordinates,by="hospital_ID") 
+ST131_metadata_microreact %<>% select(!query) %>% rename(latitude=lat,longitude=lon)
+
+write.csv(ST131_metadata_microreact,"ST131_metadata_microreact.csv",row.names = FALSE)

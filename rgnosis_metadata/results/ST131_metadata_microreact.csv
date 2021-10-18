@@ -1,99 +1,99 @@
-"id","treatment","SITE_N","tracti","year","month","day"
-"ECO-JSC-RGN-105230","baseline","BC Hospital Clinic of Barcelona, Barcelona, SPAIN","respiratory",2014,11,3
-"ECO-JSC-RGN-105232","baseline","BC Hospital Clinic of Barcelona, Barcelona, SPAIN","rectum",2015,11,2
-"ECO-JSC-RGN-105235","CHX","CD Cardiff University Hospital, UK","rectum",2016,9,22
-"ECO-JSC-RGN-105238","baseline","LB CHU Liege, BELGIUM","rectum",2014,10,2
-"ECO-JSC-RGN-105243","baseline","LB CHU Liege, BELGIUM","respiratory",2016,8,8
-"ECO-JSC-RGN-105245","baseline","LB CHU Liege, BELGIUM","rectum",2016,8,8
-"ECO-JSC-RGN-105248","baseline","LB CHU Liege, BELGIUM","respiratory",2016,8,11
-"ECO-JSC-RGN-105249","baseline","LB CHU Liege, BELGIUM","rectum",2016,8,16
-"ECO-JSC-RGN-105250","baseline","LB CHU Liege, BELGIUM","respiratory",2016,8,17
-"ECO-JSC-RGN-105251","baseline","LB CHU Liege, BELGIUM","respiratory",2016,8,29
-"ECO-JSC-RGN-105252","baseline","LB CHU Liege, BELGIUM","rectum",2016,8,29
-"ECO-JSC-RGN-105446","baseline","FE HOSPITAL UNIVERSITARI I POLITÈCNIC LA FE, Valencia, SPAIN","respiratory",2015,1,17
-"ECO-JSC-RGN-105447","baseline","LB CHU Liege, BELGIUM","respiratory",2016,5,19
-"ECO-JSC-RGN-105452","SDD","UZ Universitair Ziekenhuis, Gent, BELGIUM","rectum",2015,9,17
-"ECO-JSC-RGN-105455","SDD","BC Hospital Clinic of Barcelona, Barcelona, SPAIN","rectum",2016,3,21
-"ECO-JSC-RGN-103675","SDD","LB CHU Liege, BELGIUM","rectum",2017,2,20
-"ECO-JSC-RGN-103678","SDD","LB CHU Liege, BELGIUM","rectum",2017,3,6
-"ECO-JSC-RGN-103679","SDD","LB CHU Liege, BELGIUM","rectum",2017,3,9
-"ECO-JSC-RGN-103681","SDD","LB CHU Liege, BELGIUM","blood",2017,3,28
-"ECO-JSC-RGN-103684","SDD","LB CHU Liege, BELGIUM","rectum",2016,12,8
-"ECO-JSC-RGN-103687","baseline","LB CHU Liege, BELGIUM","rectum",2016,11,28
-"ECO-JSC-RGN-103688","baseline","LB CHU Liege, BELGIUM","rectum",2016,11,28
-"ECO-JSC-RGN-103689","SDD","LB CHU Liege, BELGIUM","rectum",2016,12,5
-"ECO-JSC-RGN-103693","baseline","LB CHU Liege, BELGIUM","rectum",2016,12,26
-"ECO-JSC-RGN-103695","SDD","LB CHU Liege, BELGIUM","rectum",2017,1,2
-"ECO-JSC-RGN-103701","baseline","LB CHU Liege, BELGIUM","rectum",2017,1,30
-"ECO-JSC-RGN-103705","SDD","LB CHU Liege, BELGIUM","rectum",2017,1,16
-"ECO-JSC-RGN-103709","SDD","LB CHU Liege, BELGIUM","rectum",2017,1,3
-"ECO-JSC-RGN-103710","SDD","AN Universitair Ziekenhuis, Antwerpen, BELGIUM","rectum",2015,1,19
-"ECO-JSC-RGN-103720","baseline","PS Hospital de Sant Pau, Barcelona, SPAIN","rectum",2014,7,7
-"ECO-JSC-RGN-103721","baseline","PS Hospital de Sant Pau, Barcelona, SPAIN","rectum",2014,7,7
-"ECO-JSC-RGN-103737","baseline","PS Hospital de Sant Pau, Barcelona, SPAIN","rectum",2014,10,6
-"ECO-JSC-RGN-103746","SDD","AN Universitair Ziekenhuis, Antwerpen, BELGIUM","rectum",2014,11,19
-"ECO-JSC-RGN-103747","SDD","AN Universitair Ziekenhuis, Antwerpen, BELGIUM","rectum",2014,10,15
-"ECO-JSC-RGN-103752","baseline","AN Universitair Ziekenhuis, Antwerpen, BELGIUM","rectum",2014,12,17
-"ECO-JSC-RGN-103754","SDD","AN Universitair Ziekenhuis, Antwerpen, BELGIUM","rectum",2014,12,22
-"ECO-JSC-RGN-103758","baseline","UZ Universitair Ziekenhuis, Gent, BELGIUM","rectum",2014,2,24
-"ECO-JSC-RGN-103760","baseline","UZ Universitair Ziekenhuis, Gent, BELGIUM","rectum",2014,4,10
-"ECO-JSC-RGN-103761","baseline","UZ Universitair Ziekenhuis, Gent, BELGIUM","rectum",2014,3,31
-"ECO-JSC-RGN-103770","baseline","CD Cardiff University Hospital, UK","rectum",2015,4,30
-"ECO-JSC-RGN-103771","baseline","CD Cardiff University Hospital, UK","rectum",2015,5,7
-"ECO-JSC-RGN-103777","baseline","CD Cardiff University Hospital, UK","rectum",2015,7,9
-"ECO-JSC-RGN-103778","baseline","CD Cardiff University Hospital, UK","rectum",2015,7,23
-"ECO-JSC-RGN-103779","baseline","CD Cardiff University Hospital, UK","rectum",2015,8,6
-"ECO-JSC-RGN-103781","baseline","CD Cardiff University Hospital, UK","rectum",2015,9,3
-"ECO-JSC-RGN-103785","baseline","CD Cardiff University Hospital, UK","rectum",2015,7,30
-"ECO-JSC-RGN-103789","SDD","CD Cardiff University Hospital, UK","rectum",2016,12,30
-"ECO-JSC-RGN-103791","SDD","CD Cardiff University Hospital, UK","blood",2016,12,27
-"ECO-JSC-RGN-103793","SDD","CD Cardiff University Hospital, UK","rectum",2017,1,16
-"ECO-JSC-RGN-103794","SDD","CD Cardiff University Hospital, UK","rectum",2017,3,20
-"ECO-JSC-RGN-103796","SDD","CD Cardiff University Hospital, UK","rectum",2017,5,8
-"ECO-JSC-RGN-103797","SDD","CD Cardiff University Hospital, UK","rectum",2017,5,11
-"ECO-JSC-RGN-103801","SDD","PS Hospital de Sant Pau, Barcelona, SPAIN","rectum",2016,5,2
-"ECO-JSC-RGN-103802","SDD","PS Hospital de Sant Pau, Barcelona, SPAIN","rectum",2016,4,25
-"ECO-JSC-RGN-103805","baseline","PS Hospital de Sant Pau, Barcelona, SPAIN","rectum",2016,7,4
-"ECO-JSC-RGN-103817","baseline","PS Hospital de Sant Pau, Barcelona, SPAIN","rectum",2014,8,4
-"ECO-JSC-RGN-103820","SDD","UZ Universitair Ziekenhuis, Gent, BELGIUM","rectum",2016,1,4
-"ECO-JSC-RGN-103833","baseline","AN Universitair Ziekenhuis, Antwerpen, BELGIUM","rectum",2014,6,23
-"ECO-JSC-RGN-103834","baseline","AN Universitair Ziekenhuis, Antwerpen, BELGIUM","rectum",2014,6,18
-"ECO-JSC-RGN-103841","baseline","AN Universitair Ziekenhuis, Antwerpen, BELGIUM","rectum",2015,4,15
-"ECO-JSC-RGN-103856","baseline","PS Hospital de Sant Pau, Barcelona, SPAIN","rectum",2014,6,12
-"ECO-JSC-RGN-103862","baseline","UZ Universitair Ziekenhuis, Gent, BELGIUM","rectum",2013,12,11
-"ECO-JSC-RGN-103864","baseline","LB CHU Liege, BELGIUM","rectum",2014,9,17
-"ECO-JSC-RGN-103870","baseline","LB CHU Liege, BELGIUM","rectum",2014,10,30
-"ECO-JSC-RGN-103871","baseline","LB CHU Liege, BELGIUM","rectum",2014,11,17
-"ECO-JSC-RGN-103881","baseline","PS Hospital de Sant Pau, Barcelona, SPAIN","rectum",2014,10,6
-"ECO-JSC-RGN-103882","SDD","UZ Universitair Ziekenhuis, Gent, BELGIUM","rectum",2016,1,22
-"ECO-JSC-RGN-103889","baseline","LB CHU Liege, BELGIUM","rectum",2014,10,6
-"ECO-JSC-RGN-103890","baseline","LB CHU Liege, BELGIUM","rectum",2014,12,8
-"ECO-JSC-RGN-103892","baseline","LB CHU Liege, BELGIUM","rectum",2014,12,22
-"ECO-JSC-RGN-103895","baseline","LB CHU Liege, BELGIUM","rectum",2014,12,22
-"ECO-JSC-RGN-103896","baseline","LB CHU Liege, BELGIUM","rectum",2014,12,26
-"ECO-JSC-RGN-104536","CHX","CD Cardiff University Hospital, UK","respiratory",2016,9,19
-"ECO-JSC-RGN-104540","baseline","LB CHU Liege, BELGIUM","rectum",2016,8,26
-"ECO-JSC-RGN-104542","baseline","LB CHU Liege, BELGIUM","respiratory",2016,8,25
-"ECO-JSC-RGN-104544","baseline","PS Hospital de Sant Pau, Barcelona, SPAIN","rectum",2015,5,25
-"ECO-JSC-RGN-104546","baseline","LB CHU Liege, BELGIUM","respiratory",2014,9,17
-"ECO-JSC-RGN-104549","baseline","LB CHU Liege, BELGIUM","rectum",2016,5,19
-"ECO-JSC-RGN-104552","baseline","LB CHU Liege, BELGIUM","rectum",2016,6,27
-"ECO-JSC-RGN-104553","baseline","LB CHU Liege, BELGIUM","respiratory",2016,8,4
-"ECO-JSC-RGN-104555","baseline","LB CHU Liege, BELGIUM","respiratory",2016,8,11
-"ECO-JSC-RGN-104562","CHX","PS Hospital de Sant Pau, Barcelona, SPAIN","rectum",2015,10,15
-"ECO-JSC-RGN-104565","baseline","BC Hospital Clinic of Barcelona, Barcelona, SPAIN","rectum",2014,11,3
-"ECO-JSC-RGN-104568","baseline","UZ Universitair Ziekenhuis, Gent, BELGIUM","rectum",2014,8,4
-"ECO-JSC-RGN-104196","CHX","BC Hospital Clinic of Barcelona, Barcelona, SPAIN","rectum",2015,12,21
-"ECO-JSC-RGN-104205","baseline","FE HOSPITAL UNIVERSITARI I POLITÈCNIC LA FE, Valencia, SPAIN","rectum",2015,1,12
-"ECO-JSC-RGN-104210","CHX","FE HOSPITAL UNIVERSITARI I POLITÈCNIC LA FE, Valencia, SPAIN","rectum",2016,12,12
-"ECO-JSC-RGN-104211","baseline","IT Ospedale San Camillo, Rome, ITALY","rectum",2015,11,9
-"ECO-JSC-RGN-104212","baseline","IT Ospedale San Camillo, Rome, ITALY","rectum",2015,11,16
-"ECO-JSC-RGN-104224","SDD","LB CHU Liege, BELGIUM","rectum",2017,2,6
-"ECO-JSC-RGN-104229","SOD","PS Hospital de Sant Pau, Barcelona, SPAIN","rectum",2015,6,2
-"ECO-JSC-RGN-104232","SDD","PS Hospital de Sant Pau, Barcelona, SPAIN","rectum",2016,6,30
-"ECO-JSC-RGN-104243","SDD","UZ Universitair Ziekenhuis, Gent, BELGIUM","rectum",2015,10,26
-"ECO-JSC-MOD-104868","SOD","AN Universitair Ziekenhuis, Antwerpen, BELGIUM","rectum",2016,5,18
-"ECO-JSC-MOD-104872","SOD","GL Academisch Ziekenhuis Sint Lucas, Gent, BELGIUM","rectum",2016,1,18
-"ECO-JSC-MOD-104873","baseline","KG University clinic of respiratory and allergic diseases, G","rectum",2014,6,23
-"ECO-JSC-MOD-104875","SOD","LB CHU Liege, BELGIUM","rectum",2015,11,12
-"KLP-JSC-MOD-104895","SDD","CD Cardiff University Hospital, UK","rectum",2017,5,4
+"id","treatment","SITE_N","tracti","year","month","day","hospital_ID","latitude","longitude"
+"ECO-JSC-RGN-105230","baseline","BC Hospital Clinic of Barcelona, Barcelona, SPAIN","respiratory",2014,11,3,"BC",41.3880618,2.1506393
+"ECO-JSC-RGN-105232","baseline","BC Hospital Clinic of Barcelona, Barcelona, SPAIN","rectum",2015,11,2,"BC",41.3880618,2.1506393
+"ECO-JSC-RGN-105235","CHX","CD Cardiff University Hospital, UK","rectum",2016,9,22,"CD",51.4876641,-3.17916209561513
+"ECO-JSC-RGN-105238","baseline","LB CHU Liege, BELGIUM","rectum",2014,10,2,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-105243","baseline","LB CHU Liege, BELGIUM","respiratory",2016,8,8,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-105245","baseline","LB CHU Liege, BELGIUM","rectum",2016,8,8,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-105248","baseline","LB CHU Liege, BELGIUM","respiratory",2016,8,11,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-105249","baseline","LB CHU Liege, BELGIUM","rectum",2016,8,16,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-105250","baseline","LB CHU Liege, BELGIUM","respiratory",2016,8,17,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-105251","baseline","LB CHU Liege, BELGIUM","respiratory",2016,8,29,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-105252","baseline","LB CHU Liege, BELGIUM","rectum",2016,8,29,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-105446","baseline","FE HOSPITAL UNIVERSITARI I POLITECNIC LA FE, Valencia, SPAIN","respiratory",2015,1,17,"FE",39.4434289,-0.376040401988849
+"ECO-JSC-RGN-105447","baseline","LB CHU Liege, BELGIUM","respiratory",2016,5,19,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-105452","SDD","UZ Universitair Ziekenhuis, Gent, BELGIUM","rectum",2015,9,17,"UZ",51.02353555,3.72663598061666
+"ECO-JSC-RGN-105455","SDD","BC Hospital Clinic of Barcelona, Barcelona, SPAIN","rectum",2016,3,21,"BC",41.3880618,2.1506393
+"ECO-JSC-RGN-103675","SDD","LB CHU Liege, BELGIUM","rectum",2017,2,20,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-103678","SDD","LB CHU Liege, BELGIUM","rectum",2017,3,6,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-103679","SDD","LB CHU Liege, BELGIUM","rectum",2017,3,9,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-103681","SDD","LB CHU Liege, BELGIUM","blood",2017,3,28,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-103684","SDD","LB CHU Liege, BELGIUM","rectum",2016,12,8,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-103687","baseline","LB CHU Liege, BELGIUM","rectum",2016,11,28,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-103688","baseline","LB CHU Liege, BELGIUM","rectum",2016,11,28,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-103689","SDD","LB CHU Liege, BELGIUM","rectum",2016,12,5,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-103693","baseline","LB CHU Liege, BELGIUM","rectum",2016,12,26,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-103695","SDD","LB CHU Liege, BELGIUM","rectum",2017,1,2,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-103701","baseline","LB CHU Liege, BELGIUM","rectum",2017,1,30,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-103705","SDD","LB CHU Liege, BELGIUM","rectum",2017,1,16,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-103709","SDD","LB CHU Liege, BELGIUM","rectum",2017,1,3,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-103710","SDD","AN Universitair Ziekenhuis, Antwerpen, BELGIUM","rectum",2015,1,19,"AN",51.1575056,4.4106863
+"ECO-JSC-RGN-103720","baseline","PS Hospital de Sant Pau, Barcelona, SPAIN","rectum",2014,7,7,"PS",41.4150963,2.1741411683893
+"ECO-JSC-RGN-103721","baseline","PS Hospital de Sant Pau, Barcelona, SPAIN","rectum",2014,7,7,"PS",41.4150963,2.1741411683893
+"ECO-JSC-RGN-103737","baseline","PS Hospital de Sant Pau, Barcelona, SPAIN","rectum",2014,10,6,"PS",41.4150963,2.1741411683893
+"ECO-JSC-RGN-103746","SDD","AN Universitair Ziekenhuis, Antwerpen, BELGIUM","rectum",2014,11,19,"AN",51.1575056,4.4106863
+"ECO-JSC-RGN-103747","SDD","AN Universitair Ziekenhuis, Antwerpen, BELGIUM","rectum",2014,10,15,"AN",51.1575056,4.4106863
+"ECO-JSC-RGN-103752","baseline","AN Universitair Ziekenhuis, Antwerpen, BELGIUM","rectum",2014,12,17,"AN",51.1575056,4.4106863
+"ECO-JSC-RGN-103754","SDD","AN Universitair Ziekenhuis, Antwerpen, BELGIUM","rectum",2014,12,22,"AN",51.1575056,4.4106863
+"ECO-JSC-RGN-103758","baseline","UZ Universitair Ziekenhuis, Gent, BELGIUM","rectum",2014,2,24,"UZ",51.02353555,3.72663598061666
+"ECO-JSC-RGN-103760","baseline","UZ Universitair Ziekenhuis, Gent, BELGIUM","rectum",2014,4,10,"UZ",51.02353555,3.72663598061666
+"ECO-JSC-RGN-103761","baseline","UZ Universitair Ziekenhuis, Gent, BELGIUM","rectum",2014,3,31,"UZ",51.02353555,3.72663598061666
+"ECO-JSC-RGN-103770","baseline","CD Cardiff University Hospital, UK","rectum",2015,4,30,"CD",51.4876641,-3.17916209561513
+"ECO-JSC-RGN-103771","baseline","CD Cardiff University Hospital, UK","rectum",2015,5,7,"CD",51.4876641,-3.17916209561513
+"ECO-JSC-RGN-103777","baseline","CD Cardiff University Hospital, UK","rectum",2015,7,9,"CD",51.4876641,-3.17916209561513
+"ECO-JSC-RGN-103778","baseline","CD Cardiff University Hospital, UK","rectum",2015,7,23,"CD",51.4876641,-3.17916209561513
+"ECO-JSC-RGN-103779","baseline","CD Cardiff University Hospital, UK","rectum",2015,8,6,"CD",51.4876641,-3.17916209561513
+"ECO-JSC-RGN-103781","baseline","CD Cardiff University Hospital, UK","rectum",2015,9,3,"CD",51.4876641,-3.17916209561513
+"ECO-JSC-RGN-103785","baseline","CD Cardiff University Hospital, UK","rectum",2015,7,30,"CD",51.4876641,-3.17916209561513
+"ECO-JSC-RGN-103789","SDD","CD Cardiff University Hospital, UK","rectum",2016,12,30,"CD",51.4876641,-3.17916209561513
+"ECO-JSC-RGN-103791","SDD","CD Cardiff University Hospital, UK","blood",2016,12,27,"CD",51.4876641,-3.17916209561513
+"ECO-JSC-RGN-103793","SDD","CD Cardiff University Hospital, UK","rectum",2017,1,16,"CD",51.4876641,-3.17916209561513
+"ECO-JSC-RGN-103794","SDD","CD Cardiff University Hospital, UK","rectum",2017,3,20,"CD",51.4876641,-3.17916209561513
+"ECO-JSC-RGN-103796","SDD","CD Cardiff University Hospital, UK","rectum",2017,5,8,"CD",51.4876641,-3.17916209561513
+"ECO-JSC-RGN-103797","SDD","CD Cardiff University Hospital, UK","rectum",2017,5,11,"CD",51.4876641,-3.17916209561513
+"ECO-JSC-RGN-103801","SDD","PS Hospital de Sant Pau, Barcelona, SPAIN","rectum",2016,5,2,"PS",41.4150963,2.1741411683893
+"ECO-JSC-RGN-103802","SDD","PS Hospital de Sant Pau, Barcelona, SPAIN","rectum",2016,4,25,"PS",41.4150963,2.1741411683893
+"ECO-JSC-RGN-103805","baseline","PS Hospital de Sant Pau, Barcelona, SPAIN","rectum",2016,7,4,"PS",41.4150963,2.1741411683893
+"ECO-JSC-RGN-103817","baseline","PS Hospital de Sant Pau, Barcelona, SPAIN","rectum",2014,8,4,"PS",41.4150963,2.1741411683893
+"ECO-JSC-RGN-103820","SDD","UZ Universitair Ziekenhuis, Gent, BELGIUM","rectum",2016,1,4,"UZ",51.02353555,3.72663598061666
+"ECO-JSC-RGN-103833","baseline","AN Universitair Ziekenhuis, Antwerpen, BELGIUM","rectum",2014,6,23,"AN",51.1575056,4.4106863
+"ECO-JSC-RGN-103834","baseline","AN Universitair Ziekenhuis, Antwerpen, BELGIUM","rectum",2014,6,18,"AN",51.1575056,4.4106863
+"ECO-JSC-RGN-103841","baseline","AN Universitair Ziekenhuis, Antwerpen, BELGIUM","rectum",2015,4,15,"AN",51.1575056,4.4106863
+"ECO-JSC-RGN-103856","baseline","PS Hospital de Sant Pau, Barcelona, SPAIN","rectum",2014,6,12,"PS",41.4150963,2.1741411683893
+"ECO-JSC-RGN-103862","baseline","UZ Universitair Ziekenhuis, Gent, BELGIUM","rectum",2013,12,11,"UZ",51.02353555,3.72663598061666
+"ECO-JSC-RGN-103864","baseline","LB CHU Liege, BELGIUM","rectum",2014,9,17,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-103870","baseline","LB CHU Liege, BELGIUM","rectum",2014,10,30,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-103871","baseline","LB CHU Liege, BELGIUM","rectum",2014,11,17,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-103881","baseline","PS Hospital de Sant Pau, Barcelona, SPAIN","rectum",2014,10,6,"PS",41.4150963,2.1741411683893
+"ECO-JSC-RGN-103882","SDD","UZ Universitair Ziekenhuis, Gent, BELGIUM","rectum",2016,1,22,"UZ",51.02353555,3.72663598061666
+"ECO-JSC-RGN-103889","baseline","LB CHU Liege, BELGIUM","rectum",2014,10,6,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-103890","baseline","LB CHU Liege, BELGIUM","rectum",2014,12,8,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-103892","baseline","LB CHU Liege, BELGIUM","rectum",2014,12,22,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-103895","baseline","LB CHU Liege, BELGIUM","rectum",2014,12,22,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-103896","baseline","LB CHU Liege, BELGIUM","rectum",2014,12,26,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-104536","CHX","CD Cardiff University Hospital, UK","respiratory",2016,9,19,"CD",51.4876641,-3.17916209561513
+"ECO-JSC-RGN-104540","baseline","LB CHU Liege, BELGIUM","rectum",2016,8,26,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-104542","baseline","LB CHU Liege, BELGIUM","respiratory",2016,8,25,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-104544","baseline","PS Hospital de Sant Pau, Barcelona, SPAIN","rectum",2015,5,25,"PS",41.4150963,2.1741411683893
+"ECO-JSC-RGN-104546","baseline","LB CHU Liege, BELGIUM","respiratory",2014,9,17,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-104549","baseline","LB CHU Liege, BELGIUM","rectum",2016,5,19,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-104552","baseline","LB CHU Liege, BELGIUM","rectum",2016,6,27,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-104553","baseline","LB CHU Liege, BELGIUM","respiratory",2016,8,4,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-104555","baseline","LB CHU Liege, BELGIUM","respiratory",2016,8,11,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-104562","CHX","PS Hospital de Sant Pau, Barcelona, SPAIN","rectum",2015,10,15,"PS",41.4150963,2.1741411683893
+"ECO-JSC-RGN-104565","baseline","BC Hospital Clinic of Barcelona, Barcelona, SPAIN","rectum",2014,11,3,"BC",41.3880618,2.1506393
+"ECO-JSC-RGN-104568","baseline","UZ Universitair Ziekenhuis, Gent, BELGIUM","rectum",2014,8,4,"UZ",51.02353555,3.72663598061666
+"ECO-JSC-RGN-104196","CHX","BC Hospital Clinic of Barcelona, Barcelona, SPAIN","rectum",2015,12,21,"BC",41.3880618,2.1506393
+"ECO-JSC-RGN-104205","baseline","FE HOSPITAL UNIVERSITARI I POLITECNIC LA FE, Valencia, SPAIN","rectum",2015,1,12,"FE",39.4434289,-0.376040401988849
+"ECO-JSC-RGN-104210","CHX","FE HOSPITAL UNIVERSITARI I POLITECNIC LA FE, Valencia, SPAIN","rectum",2016,12,12,"FE",39.4434289,-0.376040401988849
+"ECO-JSC-RGN-104211","baseline","IT Ospedale San Camillo, Rome, ITALY","rectum",2015,11,9,"IT",41.8809583,12.5433825621092
+"ECO-JSC-RGN-104212","baseline","IT Ospedale San Camillo, Rome, ITALY","rectum",2015,11,16,"IT",41.8809583,12.5433825621092
+"ECO-JSC-RGN-104224","SDD","LB CHU Liege, BELGIUM","rectum",2017,2,6,"LB",50.57192195,5.56716066191956
+"ECO-JSC-RGN-104229","SOD","PS Hospital de Sant Pau, Barcelona, SPAIN","rectum",2015,6,2,"PS",41.4150963,2.1741411683893
+"ECO-JSC-RGN-104232","SDD","PS Hospital de Sant Pau, Barcelona, SPAIN","rectum",2016,6,30,"PS",41.4150963,2.1741411683893
+"ECO-JSC-RGN-104243","SDD","UZ Universitair Ziekenhuis, Gent, BELGIUM","rectum",2015,10,26,"UZ",51.02353555,3.72663598061666
+"ECO-JSC-MOD-104868","SOD","AN Universitair Ziekenhuis, Antwerpen, BELGIUM","rectum",2016,5,18,"AN",51.1575056,4.4106863
+"ECO-JSC-MOD-104872","SOD","GL Academisch Ziekenhuis Sint Lucas, Gent, BELGIUM","rectum",2016,1,18,"GL",51.0538286,3.7250121
+"ECO-JSC-MOD-104873","baseline","KG University clinic of respiratory and allergic diseases, G","rectum",2014,6,23,"KG",46.3273129,14.3330921
+"ECO-JSC-MOD-104875","SOD","LB CHU Liege, BELGIUM","rectum",2015,11,12,"LB",50.57192195,5.56716066191956
+"KLP-JSC-MOD-104895","SDD","CD Cardiff University Hospital, UK","rectum",2017,5,4,"CD",51.4876641,-3.17916209561513
