@@ -19,3 +19,4 @@ results/panaroo_output_ST131/*
 !results/panaroo_output_ST131/final_graph.gml
 !results/panaroo_output_ST131/gene_presence_absence.Rtab
 !results/panaroo_output_ST131/all_snp_dists.tsv
+!results/panaroo_output_ST131/ST131_tree.newick
