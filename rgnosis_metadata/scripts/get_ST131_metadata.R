@@ -100,4 +100,6 @@ ST131_metadata_microreact %<>% mutate(hospital_ID=substring(SITE_N,0,2))
 ST131_metadata_microreact %<>% full_join(hospital_coordinates,by="hospital_ID") 
 ST131_metadata_microreact %<>% select(!query) %>% rename(latitude=lat,longitude=lon)
 
+#add autocolour to headers
+ST131_metadata_microreact %<>% rename_with(~paste0(.,"__autocolour"),c(SITE_N,tracti,treatment))
 write.csv(ST131_metadata_microreact,"ST131_metadata_microreact.csv",row.names = FALSE)
