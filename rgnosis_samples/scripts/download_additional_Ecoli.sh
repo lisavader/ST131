@@ -8,6 +8,7 @@ cd ../results
 find_strains(){
 #Save strains that still have to be assembled in a list
 
+#remove old file
 rm strains_to_be_assembled.txt
 
 all_strains=$(cat all_ecoli_rgnosis.txt)
@@ -54,8 +55,54 @@ run_bactofidia(){
 cd ../../../bactofidia
 ln -s ../ST131_repo/rgnosis_samples/results/raw_reads/*.gz .
 sbatch --time 48:00:00 --mem 32G -c 8 bactofidia.sh ALL
+cd ../ST131_repo/rgnosis_samples/results
+}
+
+merge_all_assemblies(){
+#Add newly assembled and previously assembled strains in one dir
+
+all_strains=$(cat all_ecoli_rgnosis.txt)
+
+#copy results of all strains to new directory
+for folder in stats/annotated; do
+
+        #make new directories
+        mkdir -p bactofidia_output_all/${folder}
+
+        #define file extensions
+        if [[ $folder = "scaffolds" ]]; then
+                extension=.fna
+        elif [[ $folder = "assembly_graphs" ]]; then
+                extension=.gfa
+        fi
+
+        for strain in $all_strains; do
+	failed=0
+		for output_folder in bactofidia_output bactofidia_output_add_Ecoli; do
+                	if [[ $folder = "stats/annotated" ]]; then
+                        	mkdir -p bactofidia_output_all/stats/annotated/${strain}
+                        	#in this case the strain is a directory and we want to copy all contents
+				cp -r ${output_folder}/${folder}/${strain}/* bactofidia_output_all/${folder}/${strain} || ((failed++))
+			else
+                        	cp -r ${output_folder}/${folder}/${strain}${extension} bactofidia_output_all/${folder}/${strain}${extension} || ((failed++))
+                	fi
+		done
+	#If searches in both output folders failed, output an error
+	if [[ $failed > 1 ]]; then
+		echo "Error:" $strain "not found in" $folder
+	else
+		echo $strain "was found"
+	fi
+
+        done
+done
+}
+
+merge_resfinder(){
+cat bactofidia_output/stats/ResFinder.tsv > bactofidia_output_all/stats/ResFinder.tsv
+tail -n +2 bactofidia_output_add_Ecoli/stats/ResFinder.tsv >> bactofidia_output_all/stats/ResFinder.tsv
 }
 
 #Specify which functions to run:
-run_bactofidia
+merge_resfinder
 
