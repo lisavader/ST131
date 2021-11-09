@@ -12,12 +12,14 @@ rgnosis_metadata <- read_excel("data/metadata/all_rgnosis_strains_metadata_20200
 Julians_metadata <- read_delim("./data/metadata/full_meta_data.csv", ',', trim_ws = TRUE)
 WGS_metadata <- read_delim("./data/metadata/RGNOSIS_WGS_DATA_clean.csv", ";", trim_ws = TRUE)
 ST131_assembly_summaries <- read_delim("./results/bactofidia/bactofidia_23032021/sample_summaries_ST131.csv", ";", trim_ws = TRUE)
+Ecoli_accessions <- read_delim("all_ecoli_rgnosis.txt","/n",col_names = FALSE)
 
 #Rename columns
 rgnosis_metadata %<>% rename(sample_ID = all_results)
 Julians_metadata %<>% rename(sample_ID = all_results, run_ID = Sample)
 WGS_metadata %<>% rename(sample_ID = All_results, run_ID = UNIQUE_ID)
 ST131_assembly_summaries %<>% rename(run_ID = Sample)
+colnames(Ecoli_accessions) <- "run_ID"
 
 #change run_ID delimiter in Julians_metadata and remove .fna extension in WGS metadata
 Julians_metadata %<>% mutate(run_ID=str_replace_all(run_ID,'_','-')) 
@@ -28,6 +30,7 @@ WGS_IDs <- WGS_metadata %>% select(sample_ID,run_ID)
 Julians_IDs <- Julians_metadata %>% select(sample_ID,run_ID)
 all_IDs <- bind_rows(WGS_IDs,Julians_IDs)
 
+##ST131
 #Get ST131 metadata
 ST131_IDs <- inner_join(all_IDs,ST131_assembly_summaries,by="run_ID") %>% select(sample_ID,run_ID) %>% filter(sample_ID!='NA')
 ST131_metadata <- inner_join(ST131_IDs,rgnosis_metadata) %>% select(sample_ID,run_ID,subject,SITE_N,stud_per,samp_per,INCL,tracti,ICU_LOS,sample_date,adm_date_icu,everything())
@@ -80,12 +83,31 @@ ggplot(ST131_metadata[-76,],aes(x=ICU_LOS,y=LOS_sampled))+
   geom_abline()
 #what's up with 63338?
 
-#select metadata for general analysis
-ST131_metadata_selected <- ST131_metadata %>% select(run_ID,treatment,SITE_N,tracti)
-write.csv(ST131_metadata_selected,"selected_ST131_metadata.csv",row.names = FALSE)
+##E.coli
+#Get E.coli metadata
+Ecoli_IDs <- inner_join(all_IDs,Ecoli_accessions,by="run_ID")
+Ecoli_metadata <- inner_join(Ecoli_IDs,rgnosis_metadata) %>% select(sample_ID,run_ID,subject,SITE_N,stud_per,samp_per,INCL,tracti,ICU_LOS,sample_date,adm_date_icu,everything())
 
-#select metadata for microreact
-ST131_metadata_microreact <- ST131_metadata %>% rename(id=run_ID,year=sample_yr,month=sample_mo,day=sample_day) %>% select(id,treatment,SITE_N,tracti,year,month,day)
+#Find samples for which study_per and samp_per do not match
+nonmatching_periods <- Ecoli_metadata %>% filter(stud_per!=samp_per) %>% select(sample_ID,stud_per,samp_per,SITE_N)
+write.table(nonmatching_periods,"nonmatching_periods.txt",sep = "\t",row.names = FALSE)
+
+#Add treatment column
+Ecoli_metadata %<>% mutate(treatment=samp_per)%>% select(1:4,treatment,everything())
+#make baseline if before study start
+baseline_treatments <- c('baseline period','before study start')
+Ecoli_metadata %<>% mutate(treatment = ifelse(samp_per %in% baseline_treatments, 'baseline', treatment))
+#make baseline if INCL = no
+Ecoli_metadata %<>% mutate(treatment = ifelse(INCL == 'no', 'baseline', treatment))
+
+#Make a nice table
+hospital_distribution <- table(Ecoli_metadata$SITE_N,Ecoli_metadata$treatment)
+write.table(hospital_distribution,"hospital_distribution.txt",sep = "\t")
+
+#select metadata for analysis
+Ecoli_metadata_selected <- Ecoli_metadata %>% select(run_ID,treatment,SITE_N,tracti,INCL,samp_per,stud_per,ICU_LOS,Culture_type,sample_yr,sample_mo,sample_day,age_adm_icu,acute_ill,AB,DIED_icu,ESBL,IPM:OFX)
+Ecoli_metadata_selected %<>% rename(id=run_ID,year=sample_yr,month=sample_mo,day=sample_day)
+write.csv(Ecoli_metadata_selected,"data/metadata/selected_metadata.csv",row.names = FALSE)
 
 #geocode with tmap
 hospital_info <- data.frame(query=unique(ST131_metadata_microreact$SITE_N) %>% substring(.,4),hospital_ID=unique(ST131_metadata_microreact$SITE_N) %>% substring(.,0,2))
@@ -100,4 +122,6 @@ ST131_metadata_microreact %<>% mutate(hospital_ID=substring(SITE_N,0,2))
 ST131_metadata_microreact %<>% full_join(hospital_coordinates,by="hospital_ID") 
 ST131_metadata_microreact %<>% select(!query) %>% rename(latitude=lat,longitude=lon)
 
+#add autocolour to headers
+ST131_metadata_microreact %<>% rename_with(~paste0(.,"__autocolour"),c(SITE_N,tracti,treatment))
 write.csv(ST131_metadata_microreact,"ST131_metadata_microreact.csv",row.names = FALSE)

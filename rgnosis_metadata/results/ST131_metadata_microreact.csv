@@ -1,4 +1,4 @@
-"id","treatment","SITE_N","tracti","year","month","day","hospital_ID","latitude","longitude"
+"id","treatment__autocolour","SITE_N__autocolour","tracti__autocolour","year","month","day","hospital_ID","latitude","longitude"
 "ECO-JSC-RGN-105230","baseline","BC Hospital Clinic of Barcelona, Barcelona, SPAIN","respiratory",2014,11,3,"BC",41.3880618,2.1506393
 "ECO-JSC-RGN-105232","baseline","BC Hospital Clinic of Barcelona, Barcelona, SPAIN","rectum",2015,11,2,"BC",41.3880618,2.1506393
 "ECO-JSC-RGN-105235","CHX","CD Cardiff University Hospital, UK","rectum",2016,9,22,"CD",51.4876641,-3.17916209561513
