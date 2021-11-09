@@ -133,4 +133,4 @@ colnames(MLST) <- c("id","species","ST","adk","fumC","gyrB","icd","mdh","purA","
 MLST %<>% select(id,ST) %>% mutate(id=sub(".fna","",id))
 
 Ecoli_metadata_selected %<>% left_join(.,MLST,by="id")
-write.csv(Ecoli_metadata_selected,"Ecoli_metadata_selected.csv",row.names = FALSE)
+write.csv(Ecoli_metadata_selected,"../results/Ecoli_metadata_selected.csv",row.names = FALSE)
