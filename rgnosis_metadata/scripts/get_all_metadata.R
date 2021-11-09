@@ -124,6 +124,13 @@ Ecoli_metadata_selected %<>% mutate(hospital_ID=substring(SITE_N,0,2))
 Ecoli_metadata_selected %<>% full_join(hospital_coordinates,by="hospital_ID") 
 Ecoli_metadata_selected %<>% select(!query) %>% rename(latitude=lat,longitude=lon)
 
-#add autocolour to headers
-Ecoli_metadata_selected %<>% rename_with(~paste0(.,"__autocolour"),c(SITE_N,tracti,treatment))
+#add autocolour to headers (not necessary anymore with new version)
+#Ecoli_metadata_selected %<>% rename_with(~paste0(.,"__autocolour"),c(SITE_N,tracti,treatment)) 
+
+#cross with MLSTs
+MLST <- read.delim("../../rgnosis_samples/results/bactofidia_output_all/stats/MLST.tsv",header = FALSE)
+colnames(MLST) <- c("id","species","ST","adk","fumC","gyrB","icd","mdh","purA","recA")
+MLST %<>% select(id,ST) %>% mutate(id=sub(".fna","",id))
+
+Ecoli_metadata_selected %<>% left_join(.,MLST,by="id")
 write.csv(Ecoli_metadata_selected,"Ecoli_metadata_selected.csv",row.names = FALSE)
