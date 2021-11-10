@@ -1,0 +1,63 @@
+---
+title: "Modify phylogenetic trees"
+author: "Lisa"
+date: "10/11/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+packages <- c("ape","magrittr")
+for (package in packages){
+  if (!require(package, character.only = TRUE)) install.packages(package)
+  require(package, character.only = TRUE)
+}
+```
+
+```{r}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+packages <- c("ggtree")
+for (package in packages){
+  if (!require(package, character.only = TRUE)) BiocManager::install(package)
+  require(package, character.only = TRUE)
+}
+```
+
+### Import phylogenetic trees
+```{r}
+nj_tree <- ape::read.tree("../results/panaroo_output_all/nj_snp_tree.newick")
+ml_tree <- ape::read.tree("../results/panaroo_output_all/RAxML_bestTree.ml_tree")
+```
+
+Let's take a look
+```{r}
+ggtree(nj_tree)
+ggtree(ml_tree)
+```
+We already see the trees produced by the different methods are quite different.
+
+### Modify trees
+There is one sample that has an extremely long edge length, it seems to be a species other than E. coli entirely.
+We can exclude it.
+```{r}
+nj_tree %<>% ape::drop.tip("ECO-JSC-RGN-103823")
+ml_tree %<>% ape::drop.tip("ECO-JSC-RGN-103823")
+```
+
+Save trees
+```{r}
+write.tree(nj_tree,"../results/final_nj_tree.newick")
+write.tree(ml_tree,"../results/final_ml_tree.newick")
+```
+
+These trees are unrooted, which means that they show the relatedness of the strains but we cannot make assumptions about common ancestry.
+Let's visualise them in a nicer way.
+```{r}
+ggtree(nj_tree,layout = "unrooted")
+ggtree(ml_tree,layout = "unrooted")
+```
+
