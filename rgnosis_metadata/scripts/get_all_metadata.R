@@ -110,18 +110,27 @@ Ecoli_metadata_selected %<>% rename(id=run_ID,year=sample_yr,month=sample_mo,day
 write.csv(Ecoli_metadata_selected,"data/metadata/selected_metadata.csv",row.names = FALSE)
 
 #geocode with tmap
-hospital_info <- data.frame(query=unique(ST131_metadata_microreact$SITE_N) %>% substring(.,4),hospital_ID=unique(ST131_metadata_microreact$SITE_N) %>% substring(.,0,2))
+hospital_info <- data.frame(query=unique(Ecoli_metadata_selected$SITE_N) %>% substring(.,4),hospital_ID=unique(Ecoli_metadata_selected$SITE_N) %>% substring(.,0,2))
 #For these locations I had to change the query, otherwise tmap couldn't find them:
-hospital_info$query[9] <- "Gent"
-hospital_info$query[10] <- "Golnik"
+hospital_info %<>% mutate(query=ifelse(query=="Hospital Clinic of Barcelona, Barcelona, SPAIN","Barcelona",query))
+hospital_info %<>% mutate(query=ifelse(query=="Academisch Ziekenhuis Sint Lucas, Gent, BELGIUM","Gent",query))
+hospital_info %<>% mutate(query=ifelse(query=="University clinic of respiratory and allergic diseases, G","Golnik",query))
+hospital_info %<>% mutate(query=ifelse(query=="Clinique St Pierre Ottiginies, BELGIUM","Ottignies",query))
 hospital_coordinates <- geocode_OSM(hospital_info$query)
 
 #merge the coordinate info with the microreact metadata
 hospital_coordinates <- merge(hospital_coordinates %>% select(query,lat,lon),hospital_info)
-ST131_metadata_microreact %<>% mutate(hospital_ID=substring(SITE_N,0,2))
-ST131_metadata_microreact %<>% full_join(hospital_coordinates,by="hospital_ID") 
-ST131_metadata_microreact %<>% select(!query) %>% rename(latitude=lat,longitude=lon)
+Ecoli_metadata_selected %<>% mutate(hospital_ID=substring(SITE_N,0,2))
+Ecoli_metadata_selected %<>% full_join(hospital_coordinates,by="hospital_ID") 
+Ecoli_metadata_selected %<>% select(!query) %>% rename(latitude=lat,longitude=lon)
 
-#add autocolour to headers
-ST131_metadata_microreact %<>% rename_with(~paste0(.,"__autocolour"),c(SITE_N,tracti,treatment))
-write.csv(ST131_metadata_microreact,"ST131_metadata_microreact.csv",row.names = FALSE)
+#add autocolour to headers (not necessary anymore with new version)
+#Ecoli_metadata_selected %<>% rename_with(~paste0(.,"__autocolour"),c(SITE_N,tracti,treatment)) 
+
+#cross with MLSTs
+MLST <- read.delim("../../rgnosis_samples/results/bactofidia_output_all/stats/MLST.tsv",header = FALSE)
+colnames(MLST) <- c("id","species","ST","adk","fumC","gyrB","icd","mdh","purA","recA")
+MLST %<>% select(id,ST) %>% mutate(id=sub(".fna","",id))
+
+Ecoli_metadata_selected %<>% left_join(.,MLST,by="id")
+write.csv(Ecoli_metadata_selected,"../results/Ecoli_metadata_selected.csv",row.names = FALSE)
