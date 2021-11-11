@@ -61,6 +61,31 @@ quast_output_mob_trimmed<-unite(quast_output_mob_trimmed,'bin_name',c('strain','
 #remove old bin name
 quast_output_mob_trimmed<-quast_output_mob_trimmed[,c(2,1,4:7)]
 
+#MOB_TRIMMED
+quast_output_mob_trimmed<-read.csv('../../plasmid_reconstruction/results/Ecoli/quast_statistics/mob_unitrim/mob_unitrim_alignments_statistics.csv', sep=',', header=FALSE)
+names(quast_output_mob_trimmed)<-c('strain','bin_name_temp','reference_id','alignment_length','bin_length')
+quast_output_mob_trimmed %<>% mutate(software = "MOB-suite (unicycler, trimmed)")
+#For MOB-suite we will fuse the name of the bin with the name of the strain, to be able to do statistics properly
+quast_output_mob_trimmed<-unite(quast_output_mob_trimmed,'bin_name',c('strain','bin_name_temp'),remove=FALSE) 
+#remove old bin name
+quast_output_mob_trimmed<-quast_output_mob_trimmed[,c(2,1,4:7)]
+
+#MOB_BAC_FILTERED
+quast_output_mob_ec<-read.csv('../../plasmid_reconstruction/results/Ecoli/quast_statistics/mob_bac_filtered/mob_bac_filtered_alignments_statistics.csv', sep=',', header=FALSE)
+names(quast_output_mob_ec)<-c('assembly_accession','strain','bin_name_temp','reference_id','alignment_length','bin_length')
+quast_output_mob_ec %<>% mutate(software = "MOB-suite (bactofidia, plasmid contigs)")
+quast_output_mob_ec<-unite(quast_output_mob_ec,'bin_name',c('strain','bin_name_temp'),remove=FALSE) 
+#remove old bin name
+quast_output_mob_ec<-quast_output_mob_ec[,c(2,1,3,5:8)]
+
+#MOB_BAC_CLEANED
+quast_output_mob_clean<-read.csv('../../plasmid_reconstruction/results/Ecoli/quast_statistics/mob_bac_cleaned/mob_bac_cleaned_alignments_statistics.csv', sep=',', header=FALSE)
+names(quast_output_mob_clean)<-c('assembly_accession','strain','bin_name_temp','reference_id','alignment_length','bin_length')
+quast_output_mob_clean %<>% mutate(software = "MOB-suite (bactofidia, cleaned)")
+quast_output_mob_clean<-unite(quast_output_mob_clean,'bin_name',c('strain','bin_name_temp'),remove=FALSE) 
+#remove old bin name
+quast_output_mob_clean<-quast_output_mob_clean[,c(2,1,3,5:8)]
+
 #SPADES
 quast_output_spades<-read.csv('../../plasmid_reconstruction/results/Ecoli/quast_statistics/spades/spades_alignments_statistics.csv', sep = ',', header = FALSE)
 names(quast_output_spades)<-c('strain','bin_name','reference_id','alignment_length','bin_length')
