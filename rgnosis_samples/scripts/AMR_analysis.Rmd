@@ -20,13 +20,15 @@ for (package in packages){
 
 Import resfinder file
 ```{r}
-resfinder <- read.delim("../results/ResFinder.tsv")
+resfinder <- read.delim("../results/bactofidia_output_all/stats/ResFinder.tsv")
 ```
 
-Extract ST131 samples
+Choose: Full dataset or ST131 dataset
+
+Keep all valid samples
 ```{r}
-ST131_strains <- read.delim("../results/sample_summaries_ST131.csv",sep = ';') 
-resfinder %<>% filter(sub(".fna","",X.FILE) %in% ST131_strains$Sample)
+all_strains <- read.delim("../results/all_ecoli_rgnosis.txt",header = FALSE)
+resfinder %<>% filter(sub(".fna","",X.FILE) %in% all_strains$V1) %>% filter(X.FILE != "ECO-JSC-RGN-103823.fna")
 ```
 
 Filter based on coverage threshold
@@ -49,8 +51,8 @@ count_AMR <- resfinder %>% group_by(X.FILE) %>% summarise(count=n())
 ```{r}
 ggplot(count_AMR,aes(x=count))+
   geom_histogram(binwidth=1,stat = 'count')+
-  xlim(0,13)+
-  scale_x_continuous(breaks = seq(0,13,1))+
+  xlim(0,NA)+
+  #scale_x_continuous(breaks = seq(0,40,1))+
   labs(x="Nr. of AMR genes",y="Nr. of samples")
 ```
 
@@ -65,12 +67,19 @@ ggplot(count_samples, aes(x=count,y=reorder(GENE,+total_count), fill=classificat
   geom_bar(position= 'stack', stat = 'identity')
 ```
 
-### Co-occurrence analysis
+
+## Co-occurrence analysis for ST131
 Are certain AMR genes more frequently found together?
+
+Extract ST131 samples
+```{r}
+ST131_strains <- read.delim("../results/sample_summaries_ST131.csv",sep = ';') 
+resfinder_ST131 <- resfinder %>% filter(sub(".fna","",X.FILE) %in% ST131_strains$Sample)
+```
 
 Transform the resfinder data to get a presence absence matrix for each gene / sample
 ```{r}
-cooccur_data <- resfinder %>% select(X.FILE,GENE)
+cooccur_data <- resfinder_ST131 %>% select(X.FILE,GENE)
 pres_abs <- as.data.frame.matrix(table(cooccur_data[2:1]))
 ```
 
@@ -90,18 +99,109 @@ Build nodes
 ```{r}
 #Find the genes that have significant results (so that are either in s1 or s2 of cooccur_sign)
 sign_genes <- (unique(c(cooccur_sign$sp1_name,cooccur_sign$sp2_name)))
-#Build noded file with significant genes and their id's (row numbers)
-nodes <- data.frame(label=rownames(pres_abs),id=1:nrow(pres_abs)) %>% filter(label %in% sign_genes)
+
+#Calculate per gene how often it is found on plasmids
+plasmid_fractions <- count_samples %>% select(-total_count) %>% spread(classification,count) %>% replace(is.na(.),0) %>% mutate(plasmid_fraction=plasmid/(chromosome+plasmid))
+
+#Build node file with significant genes and their id's (row numbers)
+nodes <- data.frame(
+  label=rownames(pres_abs),
+  id=1:nrow(pres_abs),
+  value=rowSums(pres_abs),
+  plasmid_fraction=plasmid_fractions$plasmid_fraction) %>% filter(label %in% sign_genes) 
+
+#Convert plasmid fraction to colour
+values <- nodes$plasmid_fraction
+ii <- cut(values, breaks = seq(0,1, len = 100), 
+          include.lowest = TRUE)
+nodes$color <- colorRampPalette(c("#21d4ff", "#0fa34a"))(99)[ii]
+
 ```
+
 
 Build edges
 ```{r}
-edges <- data.frame(from=cooccur_sign$sp1,to=cooccur_sign$sp2,color=ifelse(cooccur_sign$p_lt <= 0.05,'#D5232F','#4CB942'))
+edges <- data.frame(
+  from=cooccur_sign$sp1,
+  to=cooccur_sign$sp2,
+  #Colour according to positive / negative interaction
+  color=list(color=ifelse(cooccur_sign$p_lt <= 0.05,'#D5232F','#4CB942'),opacity=0.5),
+  #The smaller the p value, the thicker the edge
+  value=0.05-apply(cooccur_sign[,c('p_lt','p_gt')],1,FUN = min),
+  length=1
+  )
 ```
 
 Plot the network
 ```{r}
 visNetwork(nodes, edges) %>%
-    visIgraphLayout(layout = "layout_with_kk")
+    visIgraphLayout(layout="layout_with_kk")
 ```
 
+### Co-occurrence analysis for other E.coli
+Are certain AMR genes more frequently found together?
+
+Extract other E.coli samples
+```{r}
+resfinder_other <- resfinder %>% filter(!sub(".fna","",X.FILE) %in% ST131_strains$Sample)
+```
+
+Transform the resfinder data to get a presence absence matrix for each gene / sample
+```{r}
+cooccur_data <- resfinder_other %>% select(X.FILE,GENE)
+pres_abs <- as.data.frame.matrix(table(cooccur_data[2:1]))
+```
+
+Use cooccur package to perform co-occurrence analysis
+```{r}
+cooccurrence <- cooccur(pres_abs, spp_names = TRUE)
+cooccur_results <- cooccurrence$results
+```
+Filter to keep only significant values
+```{r}
+cooccur_sign <- cooccur_results %>% filter(p_lt <= 0.01 | p_gt <= 0.01)
+```
+
+### Visualisation with visNetwork
+
+Build nodes
+```{r}
+#Find the genes that have significant results (so that are either in s1 or s2 of cooccur_sign)
+sign_genes <- (unique(c(cooccur_sign$sp1_name,cooccur_sign$sp2_name)))
+
+#Calculate per gene how often it is found on plasmids
+#plasmid_fractions <- count_samples %>% select(-total_count) %>% spread(classification,count) %>% replace(is.na(.),0) %>% mutate(plasmid_fraction=plasmid/(chromosome+plasmid))
+
+#Build node file with significant genes and their id's (row numbers)
+nodes <- data.frame(
+  label=rownames(pres_abs),
+  id=1:nrow(pres_abs),
+  value=rowSums(pres_abs)) %>% filter(label %in% sign_genes) #,plasmid_fraction=plasmid_fractions$plasmid_fraction) 
+
+#Convert plasmid fraction to colour
+#values <- nodes$plasmid_fraction
+#ii <- cut(values, breaks = seq(0,1, len = 100), 
+          #include.lowest = TRUE)
+#nodes$color <- colorRampPalette(c("#21d4ff", "#0fa34a"))(99)[ii]
+
+```
+
+
+Build edges
+```{r}
+edges <- data.frame(
+  from=cooccur_sign$sp1,
+  to=cooccur_sign$sp2,
+  #Colour according to positive / negative interaction
+  color=list(color=ifelse(cooccur_sign$p_lt <= 0.05,'#D5232F','#4CB942'),opacity=0.5),
+  #The smaller the p value, the thicker the edge
+  value=0.05-apply(cooccur_sign[,c('p_lt','p_gt')],1,FUN = min),
+  length=1
+  )
+```
+
+Plot the network
+```{r}
+visNetwork(nodes, edges) %>%
+    visIgraphLayout(layout="layout_with_kk")
+```
