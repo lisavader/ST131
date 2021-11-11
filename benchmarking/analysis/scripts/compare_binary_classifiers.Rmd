@@ -141,30 +141,30 @@ contig_type_overview <- rbind(mapped_contigs,unmapped_contigs)
 The relative frequency and length distribution of contig types. Selected contigs are coloured, discarded contigs in greyscale. Misassemblies also include fake misassemblies.  
 
 ```{r, echo=FALSE}
-level_order_contigs <- c("correctly_aligned","ambiguously_aligned_one_replicon","ambiguously_aligned_only_plasmid","other_issue_one_replicon","other_issue_only_plasmid","unmapped","failed_threshold","ambiguously_aligned_both")
+level_order_contigs <- c("correctly_aligned","ambiguously_aligned_one_replicon","ambiguously_aligned_only_plasmid","other_issue_one_replicon","other_issue_only_plasmid","unmapped","failed_threshold","ambiguously_aligned_both","other_issue_both")
 ggplot(contig_type_overview %>% count(contig_type),aes(x="",y=n,fill=factor(contig_type,level = rev(level_order_contigs))))+
   geom_bar(width = 1,stat = "identity")+
   coord_polar("y",start=0)+
-  scale_fill_manual(labels=rev(c("Correctly aligned","Ambiguously aligned to one replicon","Ambiguously aligned to multiple plasmids","Misassembled and aligned to one replicon","Misassembled and aligned to multiple plasmids","Unaligned","Alignment less than 90% of contig size","Ambiguously aligned to both plasmid and chromosome")),values=rev(c("#ffa600","#ff6361","#bc5090","#58508d","#003f5c","#bcbcbc","#8b8b8c","#5c5d5f")))+
-  #geom_label_repel(aes(label = n), size=3, position = position_stack(vjust = 0.5))+
+  scale_fill_manual(labels=rev(c("Correctly aligned","Ambiguously aligned to one replicon","Ambiguously aligned to multiple plasmids","Misassembled and aligned to one replicon","Misassembled and aligned to multiple plasmids","Unaligned","Alignment less than 90% of contig size","Ambiguously aligned to both plasmid and chromosome","Misassembled and aligned to both plasmid and chromosome")),values=rev(c("#ffa600","#ff6361","#bc5090","#58508d","#003f5c","#bcbcbc","#8b8b8c","#5c5d5f","#393939")))+
+  geom_label_repel(aes(label = n/sum(n)), size=3, position = position_stack(vjust = 0.5))+
   labs(title = "Relative frequency of contig types",x = "",y = "Count",fill="Contig type")+
   guides(fill=guide_legend(reverse = TRUE))
 
 ```
   
 ```{r}
-ggsave('contigtypes.png')
+ggsave('../results/figures/contigtypes.svg')
 ```
 
 ```{r, echo=FALSE,warning=FALSE,message=FALSE}
 contig_type_overview %<>% mutate(contig_length=as.numeric(sub(".*?length_(.*?)_.*", "\\1",contig_name)))
 ggplot(contig_type_overview,aes(x=log(contig_length,10),fill=factor(contig_type,level = level_order_contigs)))+
-  geom_histogram()+
-  scale_fill_manual(labels=c("Correctly aligned","Ambiguously aligned to one replicon","Ambiguously aligned to multiple plasmids","Misassembled and aligned to one replicon","Misassembled and aligned to multiple plasmids","Unaligned","Alignment less than 90% of contig size","Ambiguously aligned to both plasmid and chromosome"),values=c("#ffa600","#ff6361","#bc5090","#58508d","#003f5c","#bcbcbc","#8b8b8c","#5c5d5f"))+
-  labs(title = "Length distribution of contig types",x="Contig length (log10 bp)",y = "Count",fill="Contig type")
+  geom_histogram(binwidth = 0.2, boundary=0)+
+  scale_fill_manual(labels=c("Correctly aligned","Ambiguously aligned to one replicon","Ambiguously aligned to multiple plasmids","Misassembled and aligned to one replicon","Misassembled and aligned to multiple plasmids","Unaligned","Alignment less than 90% of contig size","Ambiguously aligned to both plasmid and chromosome","Misassembled and aligned to both plasmid and chromosome"),values=c("#ffa600","#ff6361","#bc5090","#58508d","#003f5c","#bcbcbc","#8b8b8c","#5c5d5f","#393939"))+
+  labs(title = "Overview of contigs in the dataset",x="Contig length (log10 bp)",y = "Count",fill="Alignment type")
 ```
 ```{r}
-ggsave('contiglengths.png',width = 10,height = 6)
+ggsave('../results/figures/contiglengths.svg',width = 10,height = 5)
 ```  
 45% of all contigs could be correctly mapped to a replicon.  
 43% could not be aligned at all, most of them being smaller than 1000 bp.  
@@ -220,9 +220,27 @@ count_results %>% select(TP,TN,FP,FN,precision,recall,f1_score) %>% flextable()
       #caption = "Performance of binary classifiers (calculated per contig)")
 ```
 
+Show metrics in plot
 ```{r}
-ggsave("binary_comparison.png",height = 5, width = 8)
+metrics_levels <- c('recall','precision','f1_score')
+ggplot(count_results %>% select(software,precision,recall,f1_score) %>% pivot_longer(precision:f1_score, names_to = "metric", values_to = "value"),aes(x=software,y=value))+
+  geom_point(size=3,aes(colour=factor(metric,level = metrics_levels)))+
+  labs(title="Performance of binary classifiers",x="Software",y="Score",colour="Metric")+
+  scale_colour_manual(labels=c("Recall","Precision","F1-Score"),values=c("#4c7af2","#f2924c","#f24c76"))+
+  scale_x_discrete(labels=c("Mlplasmids","PlaScope","Platon","RFPlasmid"))+
+  theme(plot.title = element_text(size = 12))
 ```
+
+Plot per genome. Here we only select genomes that actually contain plasmids, otherwise precision and recall can't be established.
+```{r}
+count_results_per_genome <- final_result %>% group_by(software,assembly_accession) %>% count(result)
+count_results_per_genome %<>% spread(result,n) %>% mutate_all(~replace(., is.na(.), 0)) %>% filter(TP+FN>0) %>% mutate(precision=TP/(TP+FP),recall=TP/(TP+FN),f1_score=2*(precision*recall)/(precision+recall))
+```
+```{r}
+ggplot(count_results_per_genome,aes(x=software,y=f1_score))+
+  geom_boxplot(outlier.shape = NA) +geom_jitter(shape=16, position=position_jitter(0.2), alpha=0.5)
+```
+
 
 Instead of calculating the metrics for each contig, we can also assess the total number of basepairs that a software identifies as correct/incorrect.
 Because longer contigs are easier to categorise, this leads to more favourable results.
@@ -278,6 +296,9 @@ cowplot::plot_grid(VennFP,VennFN,labels = c("False Positives","False Negatives")
 ```
 These diagrams show that false positives and false negatives are often misclassified by only one of the softwares, while the other softwares classify them correctly. Besides, a significant portion of true positives and true negatives is correctly identified by two or three, but not all of the tools.
 
+```{r}
+ggsave("../results/figures/venn_false.svg",width = 10, height =6)
+```
 
 We now explore what happens when we combine three of the softwares, and assume the classification that the majority of softwares call.  
 
@@ -337,6 +358,32 @@ venn_scores %<>% rownames_to_column("Combination")
 venn_scores %>% flextable()
 #caption = "Performance of ensemble classifiers (calculated per contig)")
 ```
+Plot all metrics, for individual and ensemble classifiers:
+
+```{r}
+metrics_plotting_data <- rbind(venn_scores %>% rename(software=Combination) ,count_results %>% select(!"no category"))
+metrics_plotting_data %<>% pivot_longer(precision:f1_score, names_to = "metric", values_to = "value")
+
+metrics_levels <- c('recall','precision','f1_score')
+software_levels <- c("mlplasmids","plascope","platon","rfplasmid","Mlplasmids/Platon/PlaScope","Mlplasmids/PlaScope/RFPlasmid","Mlplasmids/Platon/RFPlasmid","Platon/PlaScope/RFPlasmid")
+```
+
+
+```{r}
+ggplot(metrics_plotting_data,aes(y=factor(software,level = rev(software_levels)),x=value))+
+  geom_point(size=2,aes(colour=factor(metric,level = metrics_levels)))+
+  labs(title="Performance of binary and ensemble classifiers",y="Classifier",x="Score",colour="Metric")+
+  scale_colour_manual(labels=c("Recall","Precision","F1-Score"),values=c("#4c7af2","#f2924c","#f24c76"))+
+  scale_y_discrete(labels=rev(c("mlplasmids","PlaScope","Platon","RFPlasmid","mlplasmids/PlaScope/Platon","mlplasmids/PlaScope/RFPlasmid","mlplasmids/Platon/RFPlasmid","Platon/PlaScope/RFPlasmid")))+
+  xlim(0.69,1)+
+  geom_hline(yintercept=4.5,colour="#8b8b8c")+
+  theme(plot.title = element_text(size = 12))
+```
+
+```{r}
+ggsave("../results/figures/result_overall.svg",width = 8, height = 2.5)
+```
+
 With regard to contigs, the ensemble classifiers outperform all the individual classifiers (top F1-score 85.5%). The combination Mlplasmids/Platon/PlaScope performs best with a recall of 96.8%, precision of 87.9% and F1-score of 92.1%. This combination scores the highest precision as well as the highest recall.
 
 Furthermore, we can take a look at the length of the false positive and false negative contigs that are called by the ensemble classifiers. We want to avoid large contigs being misclassified.
@@ -593,6 +640,24 @@ ggplot(lengths_contigs_ensembles_AMR,aes(x=log(contig_length,10),fill=factor(res
   scale_fill_manual(labels=c("TP","FN","unclassified"),values=c("#47954D","#FA6C4D","#FACE1B"))+
   facet_wrap(~combination)+
   labs(title="Predictions according to contig length",x = "Contig length (log10 bp)", y = "Count",fill="Result")
+```
+
+```{r}
+metrics_plotting_data_AMR <- rbind(venn_scores_AMR %>% rename(software=Combination) ,count_results_AMR)
+```
+
+```{r}
+ggplot(metrics_plotting_data_AMR,aes(y=factor(software,level = rev(software_levels)),x=recall))+
+  geom_point(size=3,colour="#4c7af2")+
+  labs(title="Recall of binary and ensemble classifiers for plasmids containing AMR genes",y="Classifier",x="Recall")+
+  scale_colour_manual(labels=c("Recall","Precision","F1-Score"),values=c("#4c7af2","#f2924c","#f24c76"))+
+  scale_y_discrete(labels=rev(c("mlplasmids","PlaScope","Platon","RFPlasmid","mlplasmids/PlaScope/Platon","mlplasmids/PlaScope/RFPlasmid","mlplasmids/Platon/RFPlasmid","Platon/PlaScope/RFPlasmid")))+
+  xlim(0.69,1)+
+  geom_hline(yintercept=4.5,colour="#8b8b8c")+
+  theme(plot.title = element_text(size = 12))
+```
+```{r}
+ggsave("../results/figures/result_AMR.svg",width = 8, height = 3)
 ```
 
 Why is there an increase in performance for AMR containing plasmids? A possible explanation would be that the contigs are larger on average, making it easier to classify them.
