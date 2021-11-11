@@ -11,9 +11,19 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Import/install packages
 ```{r, warning=FALSE, message=FALSE}
-packages <- c("proxy","magrittr","dplyr","stats","ggplot2","stringr","Rtsne","ape")
+packages <- c("proxy","magrittr","dplyr","stats","ggplot2","stringr","Rtsne","ape","circlize","RColorBrewer","gplots","pheatmap","phylogram")
 for (package in packages){
   if (!require(package, character.only = TRUE)) install.packages(package)
+  require(package, character.only = TRUE)
+}
+```
+
+```{r}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+packages <- c("ComplexHeatmap","ggtree")
+for (package in packages){
+  if (!require(package, character.only = TRUE)) BiocManager::install(package)
   require(package, character.only = TRUE)
 }
 ```
@@ -22,11 +32,24 @@ for (package in packages){
 theme_set(theme_bw())
 ```
 
+Define dataset to analyse: Accessory genome or plasmidome
+```{r}
+dataset <- "A"
+if (dataset == "A") {
+  input = "../results/panaroo_output_all/gene_presence_absence.Rtab"
+} else if (dataset =="P") {
+  input = "../results/plasmidome_all/panaroo_output/gene_presence_absence.Rtab"
+}
+```
+
+
 Import gene presence absence matrix.
 ```{r}
-presence_absence <- read.table("../results/panaroo_output_ST131/gene_presence_absence.Rtab", header = TRUE, row.names = 1)
+presence_absence <- read.table(input, header = TRUE, row.names = 1)
 presence_absence %<>% t(.)   #transpose the data
 presence_absence %<>% as.data.frame()
+#remove non.Ecoli sample
+presence_absence <- presence_absence[row.names(presence_absence) != "ECO.JSC.RGN.103823",]
 ```
 
 For comparing the strains we are only interested in the accessory genome.
@@ -37,15 +60,10 @@ accessory_presence_absence <- presence_absence %>% select_if(~min(.) == 0)
 
 Calculate Jaccard distances
 ```{r}
-jaccard_matrix <- as.matrix(proxy::dist(accessory_presence_absence, by_rows = TRUE, method = "Jaccard"))
+jaccard_distances <- proxy::dist(accessory_presence_absence, by_rows = TRUE, method = "Jaccard")
+jaccard_matrix <- as.matrix(jaccard_distances)
 ```
 
-### Visualisation
-
-Heatmap
-```{r}
-heatmap(jaccard_matrix, symm = TRUE)
-```
 Classical multidimensional scaling
 ```{r}
 mds <- as.data.frame(cmdscale(jaccard_matrix))
@@ -66,7 +84,7 @@ ggplot(mds,aes(x=dim_1,y=dim_2))+
 
 Add metadata
 ```{r}
-metadata <- read.csv("../../rgnosis_metadata/results/selected_ST131_metadata.csv") %>% rename(strain=run_ID)
+metadata <- read.csv("../../rgnosis_metadata/results/Ecoli_metadata_selected.csv") %>% rename(strain=id)
 mds %<>% tibble::rownames_to_column("strain") %>% mutate(strain=str_replace_all(strain,fixed('.'),'-'))
 mds_metadata <- full_join(mds,metadata)
 ```
@@ -76,11 +94,6 @@ ST131_strains <- read.delim("../results/sample_summaries_ST131.csv",sep = ';') %
 mds_metadata <- full_join(mds_metadata,ST131_strains %>% select(strain,Total.length))
 ```
 ```{r}
-ggplot(mds_metadata,aes(x=dim_1,y=dim_2))+
-  geom_point(aes(colour=Total.length))+
-  scale_colour_gradient(low ="#ffff00", high = "#cc0099")
-```
-```{r}
 ggplot(mds_metadata,aes(x=Total.length,y=total_genes))+
   geom_point()+
   geom_smooth(method = 'lm', se=FALSE, colour='darkred', size =0.5)
@@ -88,7 +101,7 @@ ggplot(mds_metadata,aes(x=Total.length,y=total_genes))+
 
 ```{r}
 ggplot(mds_metadata,aes(x=dim_1,y=dim_2))+
-  geom_point(aes(colour=SITE_N))
+  geom_point(aes(colour=ST))
 ```
 ```{r}
 ggplot(mds_metadata,aes(x=dim_1,y=dim_2))+
@@ -100,88 +113,47 @@ ggplot(mds_metadata,aes(x=dim_1,y=dim_2))+
   geom_point(aes(colour=tracti))
 ```
 
-We can also do a t-SNE
-```{r}
-tsne_out <- Rtsne(jaccard_matrix,is_distance = TRUE)
-plot(tsne_out$Y)
-```
-Build a phylogenetic tree based on core genome snp distances
-
-Load distance matrix and use first column as row names
-```{r}
-snp_dists <- read.delim("../results/panaroo_output_ST131/all_snp_dists.tsv")
-row.names(snp_dists) <- snp_dists$snp.dists.0.8.2
-snp_dists %<>% select(-snp.dists.0.8.2)
-```
-
-Microreact for tree visualisation
-
-Perform neighbour joining
-```{r}
-tree <- nj(as.matrix(snp_dists))
-#export in newick format
-write.tree(tree, file = "../results/panaroo_output_ST131/ST131_tree.newick")
-plot(tree)
-```
-There are 1484 snps in total
-
-### And now for the plasmidome!
-
-Import gene presence absence matrix.
-```{r}
-presence_absence_plasmid <- read.table("../results/plasmidome_ST131/panaroo_output/gene_presence_absence.Rtab", header = TRUE, row.names = 1)
-presence_absence_plasmid %<>% t(.)   #transpose the data
-presence_absence_plasmid %<>% as.data.frame()
-```
-
-Calculate Jaccard distances
-```{r}
-jaccard_matrix_plasmid <- as.matrix(proxy::dist(presence_absence_plasmid, by_rows = TRUE, method = "Jaccard"))
-```
-
 ### Visualisation
 
-Heatmap
+Get the MLST
 ```{r}
-heatmap(jaccard_matrix_plasmid, symm = TRUE)
-```
-Classical multidimensional scaling
-```{r}
-mds_plasmid <- as.data.frame(cmdscale(jaccard_matrix_plasmid))
-colnames(mds_plasmid) <- c("dim_1","dim_2")
-```
-
-Add number of genes as variable to mds data.
-```{r}
-total_genes <- rowSums(presence_absence_plasmid)
-mds_plasmid %<>% mutate(total_genes=total_genes)
+MLST <- read.delim("../results/bactofidia_output_all/stats/MLST.tsv",header = FALSE)
+colnames(MLST) <- c("strain","species","ST","adk","fumC","gyrB","icd","mdh","purA","recA")
+#It also contains some non-Ecoli strains that we are not interested in, let's filter them out
+all_ecoli <- read.delim("../results/all_ecoli_rgnosis.txt",header = FALSE)
+MLST %<>% filter(sub(".fna","",strain) %in% all_strains$V1)
 ```
 
 ```{r}
-ggplot(mds_plasmid,aes(x=dim_1,y=dim_2))+
-  geom_point(aes(colour=total_genes))+
-  scale_colour_gradient(low ="#ffff00", high = "#cc0099")
-```
-
-Add metadata
-```{r}
-metadata <- read.csv("../../rgnosis_metadata/results/selected_ST131_metadata.csv") %>% rename(strain=run_ID)
-mds_plasmid %<>% tibble::rownames_to_column("strain") %>% mutate(strain=str_replace_all(strain,fixed('.'),'-'))
-mds_plasmid_metadata <- full_join(mds_plasmid,metadata)
-```
-
-```{r}
-ggplot(mds_plasmid_metadata,aes(x=dim_1,y=dim_2))+
-  geom_point(aes(colour=SITE_N))
-```
-```{r}
-ggplot(mds_plasmid_metadata,aes(x=dim_1,y=dim_2))+
-  geom_point(aes(colour=treatment))+
-  stat_ellipse(aes(colour=treatment))
+#annotation
+ST <- MLST %>% select(strain,ST) %>% mutate(strain=gsub("-",".",sub(".fna","",strain)))
+ST$ST %<>% as.factor()
+colourconverter <- data.frame(
+  ST= rev(tail(names(sort(table(ST$ST))),10)),
+  colour = c("#ffd618","#3587bb","#46d08d","#ff7252","#c471be","#7d81cd","#f56490","#43a5bb","#00bdb4","#a0da53"))
+ST <- merge(ST,colourconverter,by="ST",all.x = TRUE)
+ST %<>% mutate(colour=ifelse(is.na(colour),"#979797",colour),colour=ifelse(ST=='-',NA,colour))
 ```
 
 ```{r}
-ggplot(mds_plasmid_metadata,aes(x=dim_1,y=dim_2))+
-  geom_point(aes(colour=tracti))+
-  stat_ellipse(aes(colour=tracti))
+hclust_out <- hclust(jaccard_distances,method = "ward.D2")
+label_order <- hclust_out$labels
+#reorder ST annotation file
+ST_reordered <- ST %>% slice(match(label_order,strain))
 ```
+
+We can also add the phylogeny instead of the hierarchical clustering
+```{r}
+phylogeny <- ape::read.tree("../results/final_ml_tree.newick")
+dendro <- as.dendrogram(phylogeny)
+plot(dendro)
+```
+
+```{r}
+heatmap(jaccard_matrix,symm = TRUE,Rowv = dendro,labCol = NA,labRow = NA)#,RowSideColors = ST_reordered$colour)
+```
+
+If you just do Jaccard, you compare the accessory genome of one strain to the accessory genome of another strain.
+If you then calculate Euclidian distance on the Jaccard matrix, you compare all Jaccard distances of one 
+strain to all Jaccard distances of another strain. 
+
