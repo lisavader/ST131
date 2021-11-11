@@ -44,6 +44,31 @@ We already see the trees produced by the different methods are quite different.
 There is one sample that has an extremely long edge length, it seems to be a species other than E. coli entirely.
 We can exclude it.
 ```{r}
+<<<<<<< HEAD
+nj_tree_dropped <- ape::drop.tip(nj_tree,"ECO-JSC-RGN-103823")
+ml_tree_dropped <- ape::drop.tip(ml_tree,"ECO-JSC-RGN-103823")
+```
+
+The trees are unrooted. We can use the divergent sample as the root before excluding it.
+```{r}
+nj_tree_rooted <- root(nj_tree,"ECO-JSC-RGN-103823") %>% ape::drop.tip("ECO-JSC-RGN-103823")
+ml_tree_rooted <- root(ml_tree,"ECO-JSC-RGN-103823") %>% ape::drop.tip("ECO-JSC-RGN-103823")
+```
+Let's look at the rooted trees
+For better visualisation we
+```{r}
+ggtree(nj_tree_rooted,layout = "circular")
+ggtree(ml_tree_rooted, layout = "circular")
+```
+
+Save trees
+```{r}
+write.tree(nj_tree_rooted,"../results/final_nj_tree.newick")
+write.tree(ml_tree_rooted,"../results/final_ml_tree.newick")
+```
+
+
+=======
 nj_tree %<>% ape::drop.tip("ECO-JSC-RGN-103823")
 ml_tree %<>% ape::drop.tip("ECO-JSC-RGN-103823")
 ```
