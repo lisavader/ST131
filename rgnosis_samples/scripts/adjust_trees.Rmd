@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-packages <- c("ape","magrittr")
+packages <- c("ape","magrittr","TreeTools")
 for (package in packages){
   if (!require(package, character.only = TRUE)) install.packages(package)
   require(package, character.only = TRUE)
@@ -64,3 +64,17 @@ Save trees
 write.tree(nj_tree_rooted,"../results/final_nj_tree.newick")
 write.tree(ml_tree_rooted,"../results/final_ml_tree.newick")
 ```
+
+### Make ST131 tree
+Cut the tree
+```{r}
+ST131_strains <- read.delim("../results/all_ST131_rgnosis.txt",header = FALSE)
+ST131_labels <- ST131_strains$V1
+ml_ST131 <- ape::keep.tip(ml_tree_rooted,ST131_labels)
+ggtree(ml_ST131, layout = "circular")
+```
+Write out
+```{r}
+write.tree(ml_ST131,"../results/ST131_ml_tree.newick")
+```
+
