@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Import/install packages
 ```{r, warning=FALSE, message=FALSE}
-packages <- c("proxy","magrittr","dplyr","stats","ggplot2","stringr","Rtsne","ape","circlize","RColorBrewer","gplots","pheatmap","phylogram")
+packages <- c("proxy","magrittr","dplyr","stats","ggplot2","stringr","Rtsne","ape","circlize","RColorBrewer","gplots","ComplexHeatmap","phylogram")
 for (package in packages){
   if (!require(package, character.only = TRUE)) install.packages(package)
   require(package, character.only = TRUE)
@@ -34,7 +34,7 @@ theme_set(theme_bw())
 
 Define dataset to analyse: Accessory genome or plasmidome
 ```{r}
-dataset <- "A"
+dataset <- "P"
 if (dataset == "A") {
   input = "../results/panaroo_output_all/gene_presence_absence.Rtab"
 } else if (dataset =="P") {
@@ -49,18 +49,26 @@ presence_absence <- read.table(input, header = TRUE, row.names = 1)
 presence_absence %<>% t(.)   #transpose the data
 presence_absence %<>% as.data.frame()
 #remove non.Ecoli sample
-presence_absence <- presence_absence[row.names(presence_absence) != "ECO.JSC.RGN.103823",]
+presence_absence <- presence_absence[row.names(presence_absence) != "ECO.JSC.RGN.103823"]
 ```
 
 For comparing the strains we are only interested in the accessory genome.
 Therefore we delete all core genes, e.g. genes with a 100% presence in the strains (all rows are 1).
+Not necessary if doing this analysis for the plasmidome, none of the plasmid genes are core.
 ```{r}
-accessory_presence_absence <- presence_absence %>% select_if(~min(.) == 0)
+if (dataset == "A") {
+  accessory_presence_absence <- presence_absence %>% select_if(~min(.) == 0)
+} 
 ```
 
 Calculate Jaccard distances
 ```{r}
-jaccard_distances <- proxy::dist(accessory_presence_absence, by_rows = TRUE, method = "Jaccard")
+if (dataset == "A") {
+  pres_abs <- accessory_presence_absence
+} else if (dataset == "P") {
+  pres_abs <- presence_absence
+}
+jaccard_distances <- proxy::dist(pres_abs, by_rows = TRUE, method = "Jaccard")
 jaccard_matrix <- as.matrix(jaccard_distances)
 ```
 
@@ -142,16 +150,41 @@ label_order <- hclust_out$labels
 ST_reordered <- ST %>% slice(match(label_order,strain))
 ```
 
+All metadata as annotation
+```{r}
+metadata_anno <- metadata %>% mutate(strain=gsub("-",".",sub(".fna","",strain)))
+#There is one strain for which metadata is missing, let's add it manually
+row_i <- nrow(metadata_anno)+1
+metadata_anno[row_i,] <- NA
+metadata_anno[row_i,1] <- "ECO.MSA.BAC.105531"
+metadata_anno[row_i,41] <- 224
+metadata_anno %<>% slice(match(label_order,strain))
+```
+
+Custom colours for the ST's
+```{r}
+main_STs <- data.frame(
+  ST=c("10","1193","131","38","410","648","69","88"),
+  colour=c("#f8766d","#d39200","#96ac07","#00ba38","#00c19f","#00b9e3","#619cff","#db72fb"))
+colourconverter <- data.frame(ST=setdiff(unique(ST_reordered$ST),main_STs$ST),colour="#979797")
+colourconverter %<>% rbind(main_STs) %>% mutate(colour=ifelse(ST=='-',"#ffffff",colour))
+colour_vector <- setNames(colourconverter$colour,colourconverter$ST)
+```
+
 We can also add the phylogeny instead of the hierarchical clustering
 ```{r}
 phylogeny <- ape::read.tree("../results/final_ml_tree.newick")
+phylogeny$tip.label <- gsub("-",".",phylogeny$tip.label)
 dendro <- as.dendrogram(phylogeny)
 plot(dendro)
 ```
 
 ```{r}
-heatmap(jaccard_matrix,symm = TRUE,Rowv = dendro,labCol = NA,labRow = NA)#,RowSideColors = ST_reordered$colour)
+col_fun = colorRamp2(c(0,1), c("#fff7d9", "#d12110"))
+anno =HeatmapAnnotation(ST = metadata_anno$ST, col=list(ST=colour_vector))
+Heatmap(jaccard_matrix, heatmap_width = unit(20, "cm"), heatmap_height = unit(20, "cm"),show_row_names = FALSE, show_column_names = FALSE,col = col_fun, cluster_rows = as.dendrogram(hclust_out), cluster_columns = as.dendrogram(hclust_out), top_annotation = anno)
 ```
+
 
 If you just do Jaccard, you compare the accessory genome of one strain to the accessory genome of another strain.
 If you then calculate Euclidian distance on the Jaccard matrix, you compare all Jaccard distances of one 
