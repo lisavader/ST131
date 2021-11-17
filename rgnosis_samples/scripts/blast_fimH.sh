@@ -20,6 +20,9 @@ gather_results(){
 cd ../results/blast_fimH
 rm all_fimH_types.csv
 
+#build header
+echo "strain,fimH_allele" > all_fimH_types.csv
+
 for result in *.out; do
 strain=$(basename $result .out)
 #only keep perfect matches (the fimH gene is 904 bp long)
