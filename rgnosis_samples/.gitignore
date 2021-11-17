@@ -32,3 +32,7 @@ results/panaroo_output_all/*
 !results/panaroo_output_all/gene_presence_absence.Rtab
 !results/panaroo_output_all/nj_snp_tree.newick
 !results/panaroo_output_all/RAxML_bestTree.ml_tree
+!results/panaroo_output_all/RAxML_bipartitions.bootstrap_tree
+
+results/blast_fimH/*
+!results/blast_fimH/all_fimH_types.csv
