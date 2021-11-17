@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Import/install packages
 ```{r, warning=FALSE, message=FALSE}
-packages <- c("magrittr","dplyr","ggplot2","stringr","cooccur","visNetwork","igraph")
+packages <- c("magrittr","dplyr","ggplot2","stringr","cooccur","visNetwork","igraph","tidyr","ComplexHeatmap","phylogram","proxy")
 for (package in packages){
   if (!require(package, character.only = TRUE)) install.packages(package)
   require(package, character.only = TRUE)
@@ -48,8 +48,22 @@ Count AMR genes per sample
 count_AMR <- resfinder %>% group_by(X.FILE) %>% summarise(count=n())
 ```
 
+Get the MLST
 ```{r}
-ggplot(count_AMR,aes(x=count))+
+MLST <- read.delim("../results/bactofidia_output_all/stats/MLST.tsv",header = FALSE)
+colnames(MLST) <- c("strain","species","ST","adk","fumC","gyrB","icd","mdh","purA","recA")
+#It also contains some non-Ecoli strains that we are not interested in, let's filter them out
+all_ecoli <- read.delim("../results/all_ecoli_rgnosis.txt",header = FALSE)
+MLST %<>% filter(sub(".fna","",strain) %in% all_strains$V1)
+```
+
+```{r}
+count_AMR <- merge(count_AMR,MLST %>% select(strain,ST),by.x = "X.FILE", by.y = "strain")
+count_AMR %<>% mutate(ST131=ifelse(ST=="131","ST131","Other"))
+```
+
+```{r}
+ggplot(count_AMR,aes(x=count,fill=ST131))+
   geom_histogram(binwidth=1,stat = 'count')+
   xlim(0,NA)+
   #scale_x_continuous(breaks = seq(0,40,1))+
@@ -83,14 +97,24 @@ cooccur_data <- resfinder_ST131 %>% select(X.FILE,GENE)
 pres_abs <- as.data.frame.matrix(table(cooccur_data[2:1]))
 ```
 
+Some samples contain multiple copies of the same AMR gene. For this analysis, we are just interested in whether a gene is present at all (1) or not (0), so presences > 1 we'll set to 1.
+```{r}
+pres_abs %<>% mutate_all(funs(ifelse(. > 1,1,.)))
+```
+
 Use cooccur package to perform co-occurrence analysis
 ```{r}
-cooccurrence <- cooccur(pres_abs, spp_names = TRUE)
-cooccur_results <- cooccurrence$results
+cooccurrence_ST131 <- cooccur(pres_abs, spp_names = TRUE)
+cooccur_results <- cooccurrence_ST131$results
 ```
+Because we test a lot of hypotheses at once, we should correct for multiple testing. We use the Benjamini Hochberg method which controls the false discovery rate (FDR) instead of the family-wise error rate.
+```{r}
+cooccur_results %<>% mutate(p_lt_adj=p.adjust(p_lt,method = "BH"),p_gt_adj=p.adjust(p_gt,method = "BH"))
+```
+
 Filter to keep only significant values
 ```{r}
-cooccur_sign <- cooccur_results %>% filter(p_lt <= 0.05 | p_gt <= 0.05)
+cooccur_sign <- cooccur_results %>% filter(p_lt_adj <= 0.05 | p_gt_adj <= 0.05)
 ```
 
 ### Visualisation with visNetwork
@@ -107,8 +131,10 @@ plasmid_fractions <- count_samples %>% select(-total_count) %>% spread(classific
 nodes <- data.frame(
   label=rownames(pres_abs),
   id=1:nrow(pres_abs),
-  value=rowSums(pres_abs),
-  plasmid_fraction=plasmid_fractions$plasmid_fraction) %>% filter(label %in% sign_genes) 
+  value=rowSums(pres_abs)) %>% filter(label %in% sign_genes)
+
+#Add plasmid fractions
+nodes %<>% left_join(.,plasmid_fractions,by=c("label"="GENE"))
 
 #Convert plasmid fraction to colour
 values <- nodes$plasmid_fraction
@@ -152,50 +178,65 @@ cooccur_data <- resfinder_other %>% select(X.FILE,GENE)
 pres_abs <- as.data.frame.matrix(table(cooccur_data[2:1]))
 ```
 
+Some samples contain multiple copies of the same AMR gene. For this analysis, we are just interested in whether a gene is present at all (1) or not (0), so presences > 1 we'll set to 1.
+```{r}
+pres_abs %<>% mutate_all(funs(ifelse(. > 1,1,.)))
+```
+
 Use cooccur package to perform co-occurrence analysis
 ```{r}
-cooccurrence <- cooccur(pres_abs, spp_names = TRUE)
-cooccur_results <- cooccurrence$results
+cooccurrence_other<- cooccur(pres_abs, spp_names = TRUE)
+cooccur_results <- cooccurrence_other$results
 ```
+Because we test a lot of hypotheses at once, we should correct for multiple testing
+```{r}
+cooccur_results %<>% mutate(p_lt_adj=p.adjust(p_lt,method = "BH"),p_gt_adj=p.adjust(p_gt,method = "BH"))
+```
+
 Filter to keep only significant values
 ```{r}
-cooccur_sign <- cooccur_results %>% filter(p_lt <= 0.01 | p_gt <= 0.01)
+cooccur_sign <- cooccur_results %>% filter(p_lt_adj <= 0.05 | p_gt_adj <= 0.05)
+```
+
+Or we can only focus only on the bla (beta lactamase) genes
+```{r}
+cooccur_bla <- cooccur_sign %>% filter(grepl('bla',sp1_name) | grepl('bla',sp2_name))
 ```
 
 ### Visualisation with visNetwork
 
 Build nodes
 ```{r}
+dataset <- cooccur_sign
 #Find the genes that have significant results (so that are either in s1 or s2 of cooccur_sign)
-sign_genes <- (unique(c(cooccur_sign$sp1_name,cooccur_sign$sp2_name)))
-
-#Calculate per gene how often it is found on plasmids
-#plasmid_fractions <- count_samples %>% select(-total_count) %>% spread(classification,count) %>% replace(is.na(.),0) %>% mutate(plasmid_fraction=plasmid/(chromosome+plasmid))
+sign_genes <- (unique(c(dataset$sp1_name,dataset$sp2_name)))
 
 #Build node file with significant genes and their id's (row numbers)
 nodes <- data.frame(
   label=rownames(pres_abs),
   id=1:nrow(pres_abs),
-  value=rowSums(pres_abs)) %>% filter(label %in% sign_genes) #,plasmid_fraction=plasmid_fractions$plasmid_fraction) 
+  value=rowSums(pres_abs)) %>% filter(label %in% sign_genes)
+
+#Add plasmid fractions
+nodes %<>% left_join(.,plasmid_fractions,by=c("label"="GENE"))
 
 #Convert plasmid fraction to colour
-#values <- nodes$plasmid_fraction
-#ii <- cut(values, breaks = seq(0,1, len = 100), 
-          #include.lowest = TRUE)
-#nodes$color <- colorRampPalette(c("#21d4ff", "#0fa34a"))(99)[ii]
-
+values <- nodes$plasmid_fraction
+ii <- cut(values, breaks = seq(0,1, len = 100), 
+          include.lowest = TRUE)
+nodes$color <- colorRampPalette(c("#de6909","#cfcfcf","#218f61"))(99)[ii]
 ```
 
 
 Build edges
 ```{r}
 edges <- data.frame(
-  from=cooccur_sign$sp1,
-  to=cooccur_sign$sp2,
+  from=dataset$sp1,
+  to=dataset$sp2,
   #Colour according to positive / negative interaction
-  color=list(color=ifelse(cooccur_sign$p_lt <= 0.05,'#D5232F','#4CB942'),opacity=0.5),
+  color=list(color=ifelse(dataset$p_lt <= 0.05,'#D5232F','#4CB942'),opacity=0.5),
   #The smaller the p value, the thicker the edge
-  value=0.05-apply(cooccur_sign[,c('p_lt','p_gt')],1,FUN = min),
+  value=0.05-apply(dataset[,c('p_lt','p_gt')],1,FUN = min),
   length=1
   )
 ```
@@ -205,3 +246,170 @@ Plot the network
 visNetwork(nodes, edges) %>%
     visIgraphLayout(layout="layout_with_kk")
 ```
+### And for the full dataset?
+
+Transform the resfinder data to get a presence absence matrix for each gene / sample
+```{r}
+cooccur_data <- resfinder %>% select(X.FILE,GENE)
+pres_abs <- as.data.frame.matrix(table(cooccur_data[2:1]))
+```
+
+Some samples contain multiple copies of the same AMR gene. For this analysis, we are just interested in whether a gene is present at all (1) or not (0), so presences > 1 we'll set to 1.
+```{r}
+pres_abs %<>% mutate_all(funs(ifelse(. > 1,1,.)))
+```
+
+Use cooccur package to perform co-occurrence analysis
+```{r}
+cooccurrence_all <- cooccur(pres_abs, spp_names = TRUE)
+cooccur_results <- cooccurrence_all$results
+```
+Because we test a lot of hypotheses at once, we should correct for multiple testing
+```{r}
+cooccur_results %<>% mutate(p_lt_adj=p.adjust(p_lt,method = "BH"),p_gt_adj=p.adjust(p_gt,method = "BH"))
+```
+
+Filter to keep only significant values
+```{r}
+cooccur_sign <- cooccur_results %>% filter(p_lt_adj <= 0.05 | p_gt_adj <= 0.05)
+```
+
+Or we can only focus only on the bla (beta lactamase) genes
+```{r}
+cooccur_bla <- cooccur_sign %>% filter(grepl('bla',sp1_name) | grepl('bla',sp2_name))
+```
+
+### Visualisation with visNetwork
+
+Build nodes
+```{r}
+dataset <- cooccur_sign
+#Find the genes that have significant results (so that are either in s1 or s2 of cooccur_sign)
+sign_genes <- (unique(c(dataset$sp1_name,dataset$sp2_name)))
+
+#Build node file with significant genes and their id's (row numbers)
+nodes <- data.frame(
+  label=rownames(pres_abs),
+  id=1:nrow(pres_abs),
+  value=rowSums(pres_abs)) %>% filter(label %in% sign_genes)
+
+#Add plasmid fractions
+nodes %<>% left_join(.,plasmid_fractions,by=c("label"="GENE"))
+
+#Convert plasmid fraction to colour
+values <- nodes$plasmid_fraction
+ii <- cut(values, breaks = seq(0,1, len = 100), 
+          include.lowest = TRUE)
+nodes$color <- colorRampPalette(c("#de6909","#cfcfcf","#218f61"))(99)[ii]
+```
+
+
+Build edges
+```{r}
+edges <- data.frame(
+  from=dataset$sp1,
+  to=dataset$sp2,
+  #Colour according to positive / negative interaction
+  color=list(color=ifelse(dataset$p_lt <= 0.05,'#D5232F','#4CB942'),opacity=0.5),
+  #The smaller the p value, the thicker the edge
+  value=0.05-apply(dataset[,c('p_lt','p_gt')],1,FUN = min),
+  length=1
+  )
+```
+
+Plot the network
+```{r}
+visNetwork(nodes, edges) %>%
+    visIgraphLayout(layout="layout_with_kk")
+```
+
+### Heatmaps
+
+I wanna try a heatmap for visualisation
+
+```{r}
+pres_abs_general <- as.data.frame.matrix(table(resfinder %>% select(GENE,X.FILE))) %>% mutate_all(funs(ifelse(. > 1,1,.)))
+```
+
+If we want to distinguish between genes on chromosome and genes on plasmid:
+```{r}
+#we'll code plasmid genes as a '1'
+pres_abs_plasmid <- as.data.frame.matrix(table(resfinder %>% filter(classification=="plasmid") %>% select(GENE,X.FILE))) %>% mutate_all(funs(ifelse(.>=1,1,.)))
+#we'll code chromosome genes as a  2'
+pres_abs_chromo <- as.data.frame.matrix(table(resfinder %>% filter(classification=="chromosome") %>% select(GENE,X.FILE))) %>% mutate_all(funs(ifelse(.>=1,2,.)))
+#but the number of rows and columns don't match yet!
+columns2plasmid <- setdiff(colnames(pres_abs_general),colnames(pres_abs_plasmid))
+for(i in columns2plasmid) {
+    pres_abs_plasmid[,i] <- 0
+}
+rows2plasmid <- setdiff(rownames(pres_abs_general),rownames(pres_abs_plasmid))
+for(i in rows2plasmid) {
+    pres_abs_plasmid[i,] <- 0
+}
+rows2chromo <- setdiff(rownames(pres_abs_general),rownames(pres_abs_chromo))
+for(i in rows2chromo) {
+    pres_abs_chromo[i,] <- 0
+}
+#sort alphabetically
+pres_abs_chromo <- pres_abs_chromo[order(row.names(pres_abs_chromo)), ]
+pres_abs_plasmid <- pres_abs_plasmid[order(row.names(pres_abs_plasmid)), ]
+
+#add the two matrices, if there is a '3' it has both
+pres_abs_class <- pres_abs_plasmid + pres_abs_chromo
+```
+
+Select AMR genes that have a substantial presence in the dataset (n >= 5).
+```{r}
+pres_abs_top <- pres_abs_general %>% filter(rowSums(.) >= 8)
+```
+
+Select the same AMR genes in the matrix with classifications
+```{r}
+pres_abs_class <- pres_abs_class[rownames(pres_abs_top),]
+```
+
+```{r}
+phylogeny <- ape::read.tree("../results/final_ml_tree.newick")
+phylogeny$tip.label <- paste0(phylogeny$tip.label,'.fna')
+```
+
+Reorder the input pres abs
+```{r}
+label_order <- phylogeny$tip.label
+pres_abs_class <- pres_abs_class[,label_order]
+```
+
+```{r}
+#annotation
+ST <- MLST %>% select(strain,ST)
+label_order <- phylogeny$tip.label
+#reorder ST annotation file
+ST_reordered <- ST %>% slice(match(label_order,strain))
+```
+
+Custom colours for the ST's
+```{r}
+main_STs <- data.frame(
+  ST=c("10","1193","131","38","410","648","69","88"),
+  colour=c("#f8766d","#d39200","#96ac07","#00ba38","#00c19f","#00b9e3","#619cff","#db72fb"))
+colourconverter <- data.frame(ST=setdiff(unique(ST_reordered$ST),main_STs$ST),colour="#979797")
+colourconverter %<>% rbind(main_STs) %>% mutate(colour=ifelse(ST=='-',"#ffffff",colour))
+colour_vector <- setNames(colourconverter$colour,colourconverter$ST)
+```
+
+```{r}
+colour_class <- c("white","#218f61","#de6909","yellow")
+names(colour_class) <- c(0,1,2,3)
+```
+
+Cluster rows based on presence / absence of AMR genes (not on whether they were found on the plasmid/chromosome)
+```{r}
+dist_rows <- proxy::dist(pres_abs_top, by_rows = TRUE, method = "Euclidean")
+hclust_rows <- hclust(dist_rows,method = "average")
+```
+
+```{r}
+ST_anno =HeatmapAnnotation(ST = ST_reordered$ST,col=list(ST=colour_vector))
+Heatmap(pres_abs_class,show_column_names = FALSE,top_annotation = ST_anno, cluster_columns = as.dendrogram(phylogeny), cluster_rows = as.dendrogram(hclust_rows), row_dend_reorder = FALSE, col = colour_class, show_row_dend = TRUE)
+```
+
