@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Import/install packages
 ```{r, warning=FALSE, message=FALSE}
-packages <- c("magrittr","dplyr","ggplot2","stringr","cooccur","visNetwork","igraph","tidyr")
+packages <- c("magrittr","dplyr","ggplot2","stringr","cooccur","visNetwork","igraph","tidyr","ComplexHeatmap","phylogram","proxy")
 for (package in packages){
   if (!require(package, character.only = TRUE)) install.packages(package)
   require(package, character.only = TRUE)
@@ -360,7 +360,7 @@ pres_abs_class <- pres_abs_plasmid + pres_abs_chromo
 
 Select AMR genes that have a substantial presence in the dataset (n >= 5).
 ```{r}
-pres_abs_top <- pres_abs_general %>% filter(rowSums(.) >= 5)
+pres_abs_top <- pres_abs_general %>% filter(rowSums(.) >= 8)
 ```
 
 Select the same AMR genes in the matrix with classifications
@@ -371,7 +371,6 @@ pres_abs_class <- pres_abs_class[rownames(pres_abs_top),]
 ```{r}
 phylogeny <- ape::read.tree("../results/final_ml_tree.newick")
 phylogeny$tip.label <- paste0(phylogeny$tip.label,'.fna')
-dendro <- as.dendrogram(phylogeny)
 ```
 
 Reorder the input pres abs
@@ -399,12 +398,18 @@ colour_vector <- setNames(colourconverter$colour,colourconverter$ST)
 ```
 
 ```{r}
-colour_class <- c("white","green","blue","orange")
+colour_class <- c("white","#218f61","#de6909","yellow")
 names(colour_class) <- c(0,1,2,3)
+```
+
+Cluster rows based on presence / absence of AMR genes (not on whether they were found on the plasmid/chromosome)
+```{r}
+dist_rows <- proxy::dist(pres_abs_top, by_rows = TRUE, method = "Euclidean")
+hclust_rows <- hclust(dist_rows,method = "average")
 ```
 
 ```{r}
 ST_anno =HeatmapAnnotation(ST = ST_reordered$ST,col=list(ST=colour_vector))
-Heatmap(pres_abs_class,show_column_names = FALSE,top_annotation = ST_anno, cluster_columns = as.dendrogram(phylogeny),col = colour_class)
+Heatmap(pres_abs_class,show_column_names = FALSE,top_annotation = ST_anno, cluster_columns = as.dendrogram(phylogeny), cluster_rows = as.dendrogram(hclust_rows), row_dend_reorder = FALSE, col = colour_class, show_row_dend = TRUE)
 ```
 
