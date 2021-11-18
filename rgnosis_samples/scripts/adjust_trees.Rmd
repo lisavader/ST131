@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-packages <- c("ape","magrittr","TreeTools")
+packages <- c("ape","magrittr","TreeTools","tibble")
 for (package in packages){
   if (!require(package, character.only = TRUE)) install.packages(package)
   require(package, character.only = TRUE)
@@ -30,7 +30,7 @@ for (package in packages){
 ### Import phylogenetic trees
 ```{r}
 nj_tree <- ape::read.tree("../results/panaroo_output_all/nj_snp_tree.newick")
-ml_tree <- ape::read.tree("../results/panaroo_output_all/RAxML_bestTree.ml_tree")
+ml_tree <- ape::read.tree("../results/panaroo_output_all/RAxML_bipartitions.bootstrap_tree")
 ```
 
 Let's take a look
@@ -58,6 +58,30 @@ Let's look at the rooted trees
 ggtree(nj_tree_rooted,layout = "circular")
 ggtree(ml_tree_rooted, layout = "circular")
 ```
+
+I want to see the bootstrap support values
+Code adjusted from: https://gist.github.com/joelnitta/97a03ab1f32af99cc0d80ade4e4a444b
+
+Make a tibble with the nodes and bootstrap values:
+```{r}
+bs_tibble <- tibble(
+  node=1:Nnode(ml_tree_rooted) + Ntip(ml_tree_rooted),
+  bootstrap = ml_tree_rooted$node.label
+)
+```
+
+Plot them in the tree:
+```{r}
+ggtree(ml_tree_rooted) %<+% bs_tibble +
+  geom_text(aes(label=bootstrap), hjust=-.25, size = 3)
+```
+The bootstrap values of the first two splits are 0, probably because of rooting the tree ourselves.
+Compared the original tree:
+```{r}
+ggtree(ml_tree) %<+% bs_tibble +
+  geom_text(aes(label=bootstrap), hjust=-.25, size = 3)
+```
+The first 0 is due to rooting, the second 0 was already there in the original tree. It is good to know that there is absolutely no basis for this split.
 
 Save trees
 ```{r}
