@@ -86,6 +86,9 @@ ggplot(ST131_metadata[-76,],aes(x=ICU_LOS,y=LOS_sampled))+
 ##E.coli
 #Get E.coli metadata
 Ecoli_IDs <- inner_join(all_IDs,Ecoli_accessions,by="run_ID")
+#Add this one ID that for some reason wasn't present
+Ecoli_IDs %<>% rbind(c(76992,"ECO-MSA-BAC-105531"))
+Ecoli_IDs$sample_ID %<>% as.numeric(.)
 Ecoli_metadata <- inner_join(Ecoli_IDs,rgnosis_metadata) %>% select(sample_ID,run_ID,subject,SITE_N,stud_per,samp_per,INCL,tracti,ICU_LOS,sample_date,adm_date_icu,everything())
 
 #Find samples for which study_per and samp_per do not match
@@ -133,4 +136,6 @@ colnames(MLST) <- c("id","species","ST","adk","fumC","gyrB","icd","mdh","purA","
 MLST %<>% select(id,ST) %>% mutate(id=sub(".fna","",id))
 
 Ecoli_metadata_selected %<>% left_join(.,MLST,by="id")
+
+#cross with 
 write.csv(Ecoli_metadata_selected,"../results/Ecoli_metadata_selected.csv",row.names = FALSE)
