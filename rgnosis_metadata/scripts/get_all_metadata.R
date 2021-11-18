@@ -152,6 +152,6 @@ Ecoli_metadata_selected %<>% left_join(.,resfinder_table, by=c("id" = "Var1"))
 #add total bla column
 bla_columns <- colnames(Ecoli_metadata_selected %>% select(contains('bla')))
 total_bla <- Ecoli_metadata_selected %>% select(bla_columns) %>% summarise(rowSums(.))
-Ecoli_metadata_selected %<>% mutate(total_bla=total_bla)
+Ecoli_metadata_selected %<>% mutate(total_bla=total_bla$`rowSums(.)`)
 
 write.csv(Ecoli_metadata_selected,"../results/Ecoli_metadata_selected.csv",row.names = FALSE)
