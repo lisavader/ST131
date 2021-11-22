@@ -12,9 +12,15 @@ mode=str(sys.argv[2])
 if "uni" in mode:
 	assemblies_dir='../../../'+dataset+'_ncbi_download/results/shortread_assemblies_unicycler/'
 	EC_prediction_path='../../../benchmarking/binary_classifiers/results/EC_uni_PS-PT-RF.csv'
+	if "ST131" in dataset:
+		assembly_wildcard="?RR*"
+	elif "Ecoli" in dataset:
+		assembly_wildcard="GCA*"
+
 elif "bac" in mode:
 	assemblies_dir='../../../'+dataset+'_ncbi_download/results/shortread_assemblies_bactofidia/scaffolds/'
 	EC_prediction_path='../../../../benchmarking/binary_classifiers/results/EC_bac_PS-PT-RF.csv'
+	assembly_wildcard='*.fasta'
 
 #Select plasmid contigs
 #INPUT: name of assembly file
@@ -57,7 +63,7 @@ if os.path.exists("predicted_plasmid_contigs/"):
 os.makedirs("predicted_plasmid_contigs/")
 
 #extract and save plasmid contigs for each assembly file
-strains=glob.glob('*.fasta')
+strains=glob.glob(assembly_wildcard)
 for strain in strains:
 	with open("predicted_plasmid_contigs/"+strain,'w') as output:
 		pass
