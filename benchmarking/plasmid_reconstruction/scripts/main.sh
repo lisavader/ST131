@@ -47,7 +47,7 @@ elif [[ $mode = spades ]]; then
 elif [[ $mode = mob* ]]; then
 	echo "Running mobsuite..."
 	bash run_mobsuite.sh -d $dataset -m $mode
-	sleep 30m
+	sleep 1h
 fi
 
 #In case of the EC 'cleaned' approach, remove predicted chromosomal contigs from bins
@@ -59,7 +59,7 @@ fi
 #Run quast
 echo "Running quast..."
 bash run_quast.sh -d $dataset -m $mode
-sleep 20m
+sleep 30m
 
 #Gather quast results
 echo "Gathering quast results..."
