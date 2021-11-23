@@ -640,7 +640,7 @@ if "mob_bac" in mode:
 	if "ST131" in dataset:
 		splitpoint = 3
 	elif "Ecoli" in dataset:
-		splitpoint = 4
+		splitpoint = 10
 
 elif "mob_uni" in mode:
 	splitpoint = 1
