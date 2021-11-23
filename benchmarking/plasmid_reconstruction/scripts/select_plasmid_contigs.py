@@ -30,19 +30,22 @@ def select_plasmid_contigs(strain):
 		assembly_file=strain+'/assembly.fasta'
 	elif "bac" in mode:
 		assembly_file=strain
-	with open(assembly_file,'r') as fasta:
-		assembly = fastaparser.Reader(fasta)
-		for contig in assembly:
-			#for unicycler, merge strain with contig id to obtain contig name
-			if "uni" in mode:
-				contig_name=strain+'_'+contig.id
-			elif "bac" in mode:
-				contig_name=contig.id
-			if contig_name in plasmids:
-				with open("predicted_plasmid_contigs/"+strain,'a') as output:
-					writer = fastaparser.Writer(output)
-					writer.writefasta(contig)
-
+	try:
+		with open(assembly_file,'r') as fasta:
+			print("Processing "+strain+"...")
+			assembly = fastaparser.Reader(fasta)
+			for contig in assembly:
+				#for unicycler, merge strain with contig id to obtain contig name
+				if "uni" in mode:
+					contig_name=strain+'_'+contig.id
+				elif "bac" in mode:
+					contig_name=contig.id
+				if contig_name in plasmids:
+					with open("predicted_plasmid_contigs/"+strain,'a') as output:
+						writer = fastaparser.Writer(output)
+						writer.writefasta(contig)
+	except FileNotFoundError:
+		print("No file found for "+assembly_file)
 
 #go to assemblies directory
 os.chdir(assemblies_dir)
