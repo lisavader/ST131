@@ -137,5 +137,21 @@ MLST %<>% select(id,ST) %>% mutate(id=sub(".fna","",id))
 
 Ecoli_metadata_selected %<>% left_join(.,MLST,by="id")
 
-#cross with 
+#cross with fimH data
+fimH <- read.csv("../../rgnosis_samples/results/blast_fimH/all_fimH_types.csv")
+Ecoli_metadata_selected %<>% left_join(.,fimH, by=c("id" = "strain"))
+
+#cross with Resfinder data
+resfinder <- read.delim("../../rgnosis_samples/results/bactofidia_output_all/stats/ResFinder.tsv")
+coverage_threshold <- 95
+resfinder %<>% filter(X.COVERAGE >= coverage_threshold) %>% mutate(id=sub(".fna","",X.FILE)) %>% select(id,GENE)
+resfinder_table <- as.data.frame(table(resfinder$id,resfinder$GENE))
+resfinder_table %<>% spread(Var2,Freq)
+Ecoli_metadata_selected %<>% left_join(.,resfinder_table, by=c("id" = "Var1"))
+
+#add total bla column
+bla_columns <- colnames(Ecoli_metadata_selected %>% select(contains('bla')))
+total_bla <- Ecoli_metadata_selected %>% select(bla_columns) %>% summarise(rowSums(.))
+Ecoli_metadata_selected %<>% mutate(total_bla=total_bla$`rowSums(.)`)
+
 write.csv(Ecoli_metadata_selected,"../results/Ecoli_metadata_selected.csv",row.names = FALSE)
