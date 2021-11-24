@@ -168,11 +168,11 @@ quast_output_plasmids_chromosomes$total_ambiguous_length[is.na(quast_output_plas
 #I noticed that sometimes the non-ambiguous length is negative, which shouldn't happen. The ambiguous alignments don't overlap completely with the alignment length in the alignment statistics file, probably a bug in the gather_quast_results script. In one case there was a contig included in the ambiguous file but not in the alignment statistics file.
 #Because it was very infrequent, I removed alignments with non-ambiguous length >= 0.
 quast_output_plasmids_chromosomes %<>% mutate(non_ambiguous_length=alignment_length-total_ambiguous_length)
+#Substract 'full alignment length' with 'multiple alignment length' to get the 'alignment length' that will be used for precision calculation
+quast_output_plasmids_chromosomes$alignment_length_precision<-(quast_output_plasmids_chromosomes$alignment_length-quast_output_plasmids_chromosomes$total_substraction_length)
+
 #Remove fully ambiguous bin-replicon associations
 quast_output_plasmids_chromosomes %<>% filter(non_ambiguous_length > 0 | alignment_length == 0)
-
-#2.1 Substract 'full alignment length' with 'multiple alignment length' to get the 'alignment length' that will be used for precision calculation
-quast_output_plasmids_chromosomes$alignment_length_precision<-(quast_output_plasmids_chromosomes$alignment_length-quast_output_plasmids_chromosomes$total_substraction_length)
 
 ```
 
@@ -235,7 +235,9 @@ count_bin_types <- bin_analysis %>% select(bin_name,software,bin_type) %>% uniqu
 
 
 ```{r}
-ggplot(count_bin_types %>% filter(software %in% c("MOB-suite (unicycler, trimmed)","MOB-suite (unicycler)","MOB-suite (bactofidia)","PlasmidSPAdes")),aes(y=software,fill=factor(bin_type,level = rev(level_order_types))))+
+level_order_softwares <- c("spades","mob_bac","mob_bac_filtered","mob_bac_cleaned","mob_uni","mob_unitrim","mob_uni_filtered","mob_uni_cleaned")
+level_order_types <- c("one_plasmid","multiple_plasmids","plasmid_and_chromosome","multiple_plasmids_and_chromosome","chromosome","no_correct_alignments")
+ggplot(count_bin_types, aes(y=factor(software,level=rev(level_order_softwares)),fill=factor(bin_type,level = rev(level_order_types))))+
   geom_bar(position = 'stack')+
   labs(x = "Number of bins",fill="Legend")+
   scale_fill_manual(values=rev(c("#75C24B","#47954D","#fc8e13","#ec6b3b","#e84141","#5c5d5f")),labels=rev(c("One plasmid","Multiple plasmids","Plasmid and chromosome","Multiple plasmids and chromosome","Chromosome","No correct alignments")),guide = guide_legend(reverse = TRUE))+
@@ -245,13 +247,6 @@ ggplot(count_bin_types %>% filter(software %in% c("MOB-suite (unicycler, trimmed
 
 ```{r}
 ggsave("binnumber_initial.png",width = 8,height = 4)
-```
-
-
-What's up with the increase in plasmid/chromosome mixed bins when using the ensemble classifier?
-```{r}
-multiple_plasmids <- count_bin_types %>% filter(software=="MOB-suite (bactofidia, cleaned)" | software=="MOB-suite (bactofidia, plasmid contigs)") %>% filter(bin_type=="multiple_plasmids" )
-write.csv(multiple_plasmids,"../results/multiple_plasmids.csv",row.names = FALSE)
 ```
 
 Composition of mixed bins
@@ -275,13 +270,14 @@ ggplot(mixed_bin_analysis,aes(x=chromosomal_content,fill=bin_type))+
 Find out whether a reference plasmid was predicted by the four methods, and whether it was split over bins.
 
 ```{r}
+n_software <- length(level_order_softwares)
 bin_number_plotting<-quast_output_plasmids %>% group_by(reference_id) %>% count(software)
-not_detected<-quast_output_plasmids %>% filter(software=='not_applicable') %>% select(reference_id) %>% uncount(4)
-not_detected %<>% mutate(software = rep(c("MOB-suite (bactofidia)","MOB-suite (unicycler, trimmed)","MOB-suite (unicycler)","PlasmidSPAdes"),times=nrow(not_detected)/4)) %>% mutate(n = 0)
+not_detected<-quast_output_plasmids %>% filter(software=='not_applicable') %>% select(reference_id) %>% uncount(n_software)
+not_detected %<>% mutate(software = rep(level_order_softwares,times=nrow(not_detected)/n_software)) %>% mutate(n = 0)
 bin_number_plotting<-rbind(bin_number_plotting,not_detected)
-bin_number_plotting %<>% spread(software,n) %>% select(!not_applicable)
+bin_number_plotting %<>% spread(software,n) #%>% select(!not_applicable)
 bin_number_plotting[is.na(bin_number_plotting)]<-0
-bin_number_plotting %<>% gather('software','n',2:5)
+bin_number_plotting %<>% gather('software','n',2:(n_software+1))
 bin_number_plotting %<>% mutate(correct=n==1)
 ```
 
