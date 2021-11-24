@@ -246,7 +246,7 @@ ggplot(count_bin_types, aes(y=factor(software,level=rev(level_order_softwares)),
 ```
 
 ```{r}
-ggsave("binnumber_initial.png",width = 8,height = 4)
+ggsave("../results/figures/bin_analysis.svg",width = 8,height = 4)
 ```
 
 Composition of mixed bins
@@ -303,8 +303,9 @@ plotting_data$software = str_wrap(plotting_data$software, width=18)
 ggplot(plotting_data,aes(x=software,y=f1_score)) +geom_boxplot() +geom_jitter(shape=16, position=position_jitter(0.2), alpha=0.5)+
 labs(title = "F1 score per plasmid containing bin")
 ```
+
 ```{r}
-ggsave("f1_final.png",width = 7, height = 4)
+ggsave("../results/figures/f1_bins.svg",width = 7, height = 4)
 ```
 
 
@@ -313,15 +314,57 @@ ggplot(plotting_data,aes(x=software,y=precision_bp)) +geom_boxplot(outlier.shape
 labs(title = "Precision per plasmid containing bin")
 ```
 ```{r}
-ggsave("precision_final.png",width = 7, height = 4)
+ggsave("../results/figures/precision_bins.svg",width = 7, height = 4)
 ```
 ```{r}
 ggplot(plotting_data,aes(x=software,y=recall_bp)) +geom_boxplot(outlier.shape = NA) +geom_jitter(alpha=0.5,shape=16, position=position_jitter(0.2))+
 labs(title = "Recall per plasmid containing bin")
 ```
 ```{r}
-ggsave("recall_final.png",width = 7, height = 4)
+ggsave("../results/figures/recall_bins.svg",width = 7, height = 4)
 ```
+```{r}
+ggplot(plotting_data,aes(x=recall_bp,y=precision_bp)) +
+  geom_count(alpha=0.3) +
+  scale_size_continuous(range = c(1.5,5)) +
+  facet_wrap(~software)
+```
+
+### ARG specific!
+
+```{r}
+AMR_replicons <- read.csv("../../binary_classifiers/results/arg_plasmids.csv", header = TRUE)
+quast_output_AMR_plasmids <- inner_join(quast_output_plasmids,AMR_replicons,by=c("reference_id"="SEQUENCE"))
+```
+
+```{r}
+plotting_data <- filter(quast_output_AMR_plasmids ,!software %in% c("not_applicable"))
+level_order_softwares=c("MOB-suite (bactofidia)","MOB-suite (bactofidia, cleaned)","MOB-suite (bactofidia, plasmid contigs)","MOB-suite (unicycler)","MOB-suite (unicycler, cleaned)","MOB-suite (unicycler, plasmid contigs)")
+plotting_data$software = str_wrap(plotting_data$software, width=18)
+ggplot(plotting_data,aes(x=software,y=f1_score)) +geom_boxplot() +geom_jitter(shape=16, position=position_jitter(0.2), alpha=0.5)+
+labs(title = "F1 score per plasmid containing bin (AMR plasmids)")
+```
+```{r}
+ggsave("../results/figures/F1_bins_AMR.svg",width = 7, height = 4)
+```
+
+```{r}
+ggplot(plotting_data,aes(x=software,y=precision_bp)) +geom_boxplot(outlier.shape = NA) +geom_jitter(shape=16, position=position_jitter(0.2), alpha=0.5)+
+labs(title = "Precision per plasmid containing bin (AMR plasmids)")
+```
+```{r}
+ggsave("../results/figures/precision_bins_AMR.svg",width = 7, height = 4)
+```
+
+```{r}
+ggplot(plotting_data,aes(x=software,y=recall_bp)) +geom_boxplot(outlier.shape = NA) +geom_jitter(alpha=0.5,shape=16, position=position_jitter(0.2))+
+labs(title = "Recall per plasmid containing bin (AMR plasmids)")
+```
+
+```{r}
+ggsave("../results/figures/recall_bins_AMR.svg",width = 7, height = 4)
+```
+
 ```{r}
 ggplot(plotting_data,aes(x=recall_bp,y=precision_bp)) +
   geom_count(alpha=0.3) +
