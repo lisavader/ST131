@@ -32,69 +32,47 @@ names(replicon_data)<-c('strain','reference_id','replicon_length','classificatio
 ```
 
 Import and process the results from QUAST
+
+I defined a function for importing the MOB-suite results because I needed to execute the same code many times:
 ```{r}
+import_quast_mob <- function(mode) {
+  path<-paste0('../../plasmid_reconstruction/results/Ecoli/quast_statistics/',mode,'/',mode,'_alignments_statistics.csv')
+  df<-read.csv(path, sep=',', header=FALSE)
+  names(df)<-c('strain','bin_name_temp','reference_id','alignment_length','bin_length')
+  df %<>% mutate(software = mode)
+  #For MOB-suite we will fuse the name of the bin with the name of the strain, to be able to do statistics   properly
+  df<-unite(df,'bin_name',c('strain','bin_name_temp'),remove=FALSE) 
+  #remove old bin name
+  df<-df[,c(2,1,4:7)]
+  return(df)
+}
+```
 
-#MOB_UNI (default = Unicycler)
-quast_output_mob_uni<-read.csv('../../plasmid_reconstruction/results/Ecoli/quast_statistics/mob_uni/mob_uni_alignments_statistics.csv', sep=',', header=FALSE)
-names(quast_output_mob_uni)<-c('strain','bin_name_temp','reference_id','alignment_length','bin_length')
-quast_output_mob_uni %<>% mutate(software = "MOB-suite (unicycler)")
-#For MOB-suite we will fuse the name of the bin with the name of the strain, to be able to do statistics properly
-quast_output_mob_uni<-unite(quast_output_mob_uni,'bin_name',c('strain','bin_name_temp'),remove=FALSE) 
-#remove old bin name
-quast_output_mob_uni<-quast_output_mob_uni[,c(2,1,4:7)]
+Run the function for all mobsuite modes:
+```{r}
+modes <- c("mob_uni","mob_unitrim","mob_bac","mob_uni_cleaned","mob_uni_filtered","mob_bac_cleaned","mob_bac_filtered")
 
-#MOB_BAC
-quast_output_mob_bac<-read.csv('../../plasmid_reconstruction/results/Ecoli/quast_statistics/mob_bac/mob_bac_alignments_statistics.csv', sep=',', header=FALSE)
-names(quast_output_mob_bac)<-c('strain','bin_name_temp','reference_id','alignment_length','bin_length')
-quast_output_mob_bac %<>% mutate(software = "MOB-suite (bactofidia)")
-#For MOB-suite we will fuse the name of the bin with the name of the strain, to be able to do statistics properly
-quast_output_mob_bac<-unite(quast_output_mob_bac,'bin_name',c('strain','bin_name_temp'),remove=FALSE) 
-#remove old bin name
-quast_output_mob_bac<-quast_output_mob_bac[,c(2,1,4:7)]
+for (mode in modes){
+  #import quast results
+  quast_out <- import_quast_mob(mode)
+  #rename the dataframe
+  name <- paste0("quast_output_",mode)
+  assign(name,quast_out)
+}
 
-#MOB_TRIMMED
-quast_output_mob_trimmed<-read.csv('../../plasmid_reconstruction/results/Ecoli/quast_statistics/mob_unitrim/mob_unitrim_alignments_statistics.csv', sep=',', header=FALSE)
-names(quast_output_mob_trimmed)<-c('strain','bin_name_temp','reference_id','alignment_length','bin_length')
-quast_output_mob_trimmed %<>% mutate(software = "MOB-suite (unicycler, trimmed)")
-#For MOB-suite we will fuse the name of the bin with the name of the strain, to be able to do statistics properly
-quast_output_mob_trimmed<-unite(quast_output_mob_trimmed,'bin_name',c('strain','bin_name_temp'),remove=FALSE) 
-#remove old bin name
-quast_output_mob_trimmed<-quast_output_mob_trimmed[,c(2,1,4:7)]
+```
 
-#MOB_TRIMMED
-quast_output_mob_trimmed<-read.csv('../../plasmid_reconstruction/results/Ecoli/quast_statistics/mob_unitrim/mob_unitrim_alignments_statistics.csv', sep=',', header=FALSE)
-names(quast_output_mob_trimmed)<-c('strain','bin_name_temp','reference_id','alignment_length','bin_length')
-quast_output_mob_trimmed %<>% mutate(software = "MOB-suite (unicycler, trimmed)")
-#For MOB-suite we will fuse the name of the bin with the name of the strain, to be able to do statistics properly
-quast_output_mob_trimmed<-unite(quast_output_mob_trimmed,'bin_name',c('strain','bin_name_temp'),remove=FALSE) 
-#remove old bin name
-quast_output_mob_trimmed<-quast_output_mob_trimmed[,c(2,1,4:7)]
-
-#MOB_BAC_FILTERED
-quast_output_mob_ec<-read.csv('../../plasmid_reconstruction/results/Ecoli/quast_statistics/mob_bac_filtered/mob_bac_filtered_alignments_statistics.csv', sep=',', header=FALSE)
-names(quast_output_mob_ec)<-c('assembly_accession','strain','bin_name_temp','reference_id','alignment_length','bin_length')
-quast_output_mob_ec %<>% mutate(software = "MOB-suite (bactofidia, plasmid contigs)")
-quast_output_mob_ec<-unite(quast_output_mob_ec,'bin_name',c('strain','bin_name_temp'),remove=FALSE) 
-#remove old bin name
-quast_output_mob_ec<-quast_output_mob_ec[,c(2,1,3,5:8)]
-
-#MOB_BAC_CLEANED
-quast_output_mob_clean<-read.csv('../../plasmid_reconstruction/results/Ecoli/quast_statistics/mob_bac_cleaned/mob_bac_cleaned_alignments_statistics.csv', sep=',', header=FALSE)
-names(quast_output_mob_clean)<-c('assembly_accession','strain','bin_name_temp','reference_id','alignment_length','bin_length')
-quast_output_mob_clean %<>% mutate(software = "MOB-suite (bactofidia, cleaned)")
-quast_output_mob_clean<-unite(quast_output_mob_clean,'bin_name',c('strain','bin_name_temp'),remove=FALSE) 
-#remove old bin name
-quast_output_mob_clean<-quast_output_mob_clean[,c(2,1,3,5:8)]
-
+Import PlasmidSPAdes results:
+```{r}
 #SPADES
 quast_output_spades<-read.csv('../../plasmid_reconstruction/results/Ecoli/quast_statistics/spades/spades_alignments_statistics.csv', sep = ',', header = FALSE)
 names(quast_output_spades)<-c('strain','bin_name','reference_id','alignment_length','bin_length')
-quast_output_spades %<>% mutate(software = "PlasmidSPAdes")
+quast_output_spades %<>% mutate(software = "spades")
 ```
 
 Combine all quast output and cross with replicon data
 ```{r}
-quast_output_all<-rbind(quast_output_mob_uni,quast_output_mob_bac,quast_output_mob_trimmed,quast_output_spades)
+quast_output_all<-rbind(quast_output_mob_bac,quast_output_mob_bac_cleaned,quast_output_mob_bac_filtered,quast_output_mob_uni,quast_output_mob_uni_cleaned,quast_output_mob_uni_filtered,quast_output_mob_unitrim,quast_output_spades)
 quast_output_plasmids_chromosomes<-full_join(replicon_data,quast_output_all,by=c('strain','reference_id'))
 ```
 
@@ -110,40 +88,41 @@ n, and contig_length can be obtained from the files 'mob_ambiguous_references', 
 
 Import Ambiguous alignment information and wrangle the data
 ```{r}
-#mob
-ambiguous_alignments_mob_uni<-read.csv('../../plasmid_reconstruction/results/Ecoli/quast_statistics/mob_uni/mob_uni_ambiguous_references.csv', sep=',', header=FALSE)
-names(ambiguous_alignments_mob_uni)<-c('strain','bin_name_temp','reference_id','contig_name','contig_length','start','end')
-ambiguous_alignments_mob_uni<-unite(ambiguous_alignments_mob_uni,'bin_name',c('strain','bin_name_temp'),remove=FALSE) 
-#remove old bin name
-ambiguous_alignments_mob_uni<-ambiguous_alignments_mob_uni[,c(1,2,4:8)]
-ambiguous_alignments_mob_uni$software<-'MOB-suite (unicycler)'
+import_ambiguous_alignments_mob <- function(mode){
+  path <- paste0('../../plasmid_reconstruction/results/Ecoli/quast_statistics/',mode,'/',mode,'_ambiguous_references.csv')
+  df<-read.csv(path, sep=',', header=FALSE)
+  names(df)<-c('strain','bin_name_temp','reference_id','contig_name','contig_length','start','end')
+  df<-unite(df,'bin_name',c('strain','bin_name_temp'),remove=FALSE) 
+  #remove old bin name
+  df<-df[,c(1,2,4:8)]
+  df$software<-mode
+  return(df)
+}
+```
 
-#mob_bac
-ambiguous_alignments_mob_bac<-read.csv('../../plasmid_reconstruction/results/Ecoli/quast_statistics/mob_bac/mob_bac_ambiguous_references.csv', sep=',', header=FALSE)
-names(ambiguous_alignments_mob_bac)<-c('strain','bin_name_temp','reference_id','contig_name','contig_length','start','end')
-ambiguous_alignments_mob_bac<-unite(ambiguous_alignments_mob_bac,'bin_name',c('strain','bin_name_temp'),remove=FALSE) 
-#remove old bin name
-ambiguous_alignments_mob_bac<-ambiguous_alignments_mob_bac[,c(1,2,4:8)]
-ambiguous_alignments_mob_bac$software<-'MOB-suite (bactofidia)'
+```{r}
+modes <- c("mob_uni","mob_unitrim","mob_bac","mob_uni_cleaned","mob_uni_filtered","mob_bac_cleaned","mob_bac_filtered")
 
-#mob_trimmed
-ambiguous_alignments_mob_trimmed<-read.csv('../../plasmid_reconstruction/results/Ecoli/quast_statistics/mob_unitrim/mob_unitrim_ambiguous_references.csv', sep=',', header=FALSE)
-names(ambiguous_alignments_mob_trimmed)<-c('strain','bin_name_temp','reference_id','contig_name','contig_length','start','end')
-ambiguous_alignments_mob_trimmed<-unite(ambiguous_alignments_mob_trimmed,'bin_name',c('strain','bin_name_temp'),remove=FALSE) 
-#remove old bin name
-ambiguous_alignments_mob_trimmed<-ambiguous_alignments_mob_trimmed[,c(1,2,4:8)]
-ambiguous_alignments_mob_trimmed$software<-'MOB-suite (unicycler, trimmed)'
+for (mode in modes){
+  #import quast results
+  amb_out <- import_ambiguous_alignments_mob(mode)
+  #rename the dataframe
+  name <- paste0("ambiguous_alignments_",mode)
+  assign(name,amb_out)
+}
+```
 
+```{r}
 #spades
 ambiguous_alignments_spades<-read.csv('../../plasmid_reconstruction/results/Ecoli/quast_statistics/spades/spades_ambiguous_references.csv', sep=',', header=FALSE)
 names(ambiguous_alignments_spades)<-c('strain','bin_name','reference_id','contig_name','contig_length','start','end')
-ambiguous_alignments_spades$software<-'PlasmidSPAdes'
+ambiguous_alignments_spades$software<-'spades'
 ```
 
 
 ```{r, warning=FALSE, fig.width=14, fig.height=18}
 #merge files of different softwares
-ambiguous_alignments_total<-rbind(ambiguous_alignments_mob_uni,ambiguous_alignments_mob_bac,ambiguous_alignments_mob_trimmed,ambiguous_alignments_spades)
+ambiguous_alignments_total<-rbind(ambiguous_alignments_mob_bac,ambiguous_alignments_mob_bac_cleaned,ambiguous_alignments_mob_bac_filtered,ambiguous_alignments_mob_uni,ambiguous_alignments_mob_uni_cleaned,ambiguous_alignments_mob_uni_filtered,ambiguous_alignments_mob_unitrim,ambiguous_alignments_spades)
 
 #remove duplications of the same ambiguous contig being included twice
 ambiguous_alignments_total<-unique(ambiguous_alignments_total)
@@ -175,15 +154,25 @@ all_ambiguous_alignments$ambiguous_substraction_length<-all_ambiguous_alignments
 all_ambiguous_alignments_final_substracion_data<-all_ambiguous_alignments %<>% group_by(strain,bin_name,reference_id,software) %>% summarise(total_substraction_length=sum(ambiguous_substraction_length),total_ambiguous_length=sum(ambiguous_alignment))
 ```
 
+If the ONLY alignment of a bin to a replicon is ambiguous, this alignment does not count!
+A bin which includes a repeated element might map to a replicon by only this repeated element. This makes it seems like it merges replicons together, while this isn't the case!
 
 ```{r, warning=FALSE, fig.width=14, fig.height=18}
 #2.---- Cross information with the 'quast_output_plasmids_chromosomes' from previous section (this will allow us to calculate precision) ------
 quast_output_plasmids_chromosomes<-left_join(quast_output_plasmids_chromosomes,all_ambiguous_alignments_final_substracion_data,by=c('strain','bin_name','reference_id','software'))
 #replace NA values with 0 in the total_substraction_length (for cases in which there are no multiple alignments)
 quast_output_plasmids_chromosomes$total_substraction_length[is.na(quast_output_plasmids_chromosomes$total_substraction_length)]<-0
+quast_output_plasmids_chromosomes$total_ambiguous_length[is.na(quast_output_plasmids_chromosomes$total_ambiguous_length)]<-0
 
-#2.1 Substract 'full alignment length' with 'multiple alignment length' to get the 'alignment length' that will be used for precision calculation
+#Calculate the non-ambiguous length.
+#I noticed that sometimes the non-ambiguous length is negative, which shouldn't happen. The ambiguous alignments don't overlap completely with the alignment length in the alignment statistics file, probably a bug in the gather_quast_results script. In one case there was a contig included in the ambiguous file but not in the alignment statistics file.
+#Because it was very infrequent, I removed alignments with non-ambiguous length >= 0.
+quast_output_plasmids_chromosomes %<>% mutate(non_ambiguous_length=alignment_length-total_ambiguous_length)
+#Substract 'full alignment length' with 'multiple alignment length' to get the 'alignment length' that will be used for precision calculation
 quast_output_plasmids_chromosomes$alignment_length_precision<-(quast_output_plasmids_chromosomes$alignment_length-quast_output_plasmids_chromosomes$total_substraction_length)
+
+#Remove fully ambiguous bin-replicon associations
+quast_output_plasmids_chromosomes %<>% filter(non_ambiguous_length > 0 | alignment_length == 0)
 
 ```
 
@@ -246,7 +235,9 @@ count_bin_types <- bin_analysis %>% select(bin_name,software,bin_type) %>% uniqu
 
 
 ```{r}
-ggplot(count_bin_types %>% filter(software %in% c("MOB-suite (unicycler, trimmed)","MOB-suite (unicycler)","MOB-suite (bactofidia)","PlasmidSPAdes")),aes(y=software,fill=factor(bin_type,level = rev(level_order_types))))+
+level_order_softwares <- c("spades","mob_bac","mob_bac_filtered","mob_bac_cleaned","mob_uni","mob_unitrim","mob_uni_filtered","mob_uni_cleaned")
+level_order_types <- c("one_plasmid","multiple_plasmids","plasmid_and_chromosome","multiple_plasmids_and_chromosome","chromosome","no_correct_alignments")
+ggplot(count_bin_types, aes(y=factor(software,level=rev(level_order_softwares)),fill=factor(bin_type,level = rev(level_order_types))))+
   geom_bar(position = 'stack')+
   labs(x = "Number of bins",fill="Legend")+
   scale_fill_manual(values=rev(c("#75C24B","#47954D","#fc8e13","#ec6b3b","#e84141","#5c5d5f")),labels=rev(c("One plasmid","Multiple plasmids","Plasmid and chromosome","Multiple plasmids and chromosome","Chromosome","No correct alignments")),guide = guide_legend(reverse = TRUE))+
@@ -256,13 +247,6 @@ ggplot(count_bin_types %>% filter(software %in% c("MOB-suite (unicycler, trimmed
 
 ```{r}
 ggsave("binnumber_initial.png",width = 8,height = 4)
-```
-
-
-What's up with the increase in plasmid/chromosome mixed bins when using the ensemble classifier?
-```{r}
-multiple_plasmids <- count_bin_types %>% filter(software=="MOB-suite (bactofidia, cleaned)" | software=="MOB-suite (bactofidia, plasmid contigs)") %>% filter(bin_type=="multiple_plasmids" )
-write.csv(multiple_plasmids,"../results/multiple_plasmids.csv",row.names = FALSE)
 ```
 
 Composition of mixed bins
@@ -286,13 +270,14 @@ ggplot(mixed_bin_analysis,aes(x=chromosomal_content,fill=bin_type))+
 Find out whether a reference plasmid was predicted by the four methods, and whether it was split over bins.
 
 ```{r}
+n_software <- length(level_order_softwares)
 bin_number_plotting<-quast_output_plasmids %>% group_by(reference_id) %>% count(software)
-not_detected<-quast_output_plasmids %>% filter(software=='not_applicable') %>% select(reference_id) %>% uncount(4)
-not_detected %<>% mutate(software = rep(c("MOB-suite (bactofidia)","MOB-suite (unicycler, trimmed)","MOB-suite (unicycler)","PlasmidSPAdes"),times=nrow(not_detected)/4)) %>% mutate(n = 0)
+not_detected<-quast_output_plasmids %>% filter(software=='not_applicable') %>% select(reference_id) %>% uncount(n_software)
+not_detected %<>% mutate(software = rep(level_order_softwares,times=nrow(not_detected)/n_software)) %>% mutate(n = 0)
 bin_number_plotting<-rbind(bin_number_plotting,not_detected)
-bin_number_plotting %<>% spread(software,n) %>% select(!not_applicable)
+bin_number_plotting %<>% spread(software,n) #%>% select(!not_applicable)
 bin_number_plotting[is.na(bin_number_plotting)]<-0
-bin_number_plotting %<>% gather('software','n',2:5)
+bin_number_plotting %<>% gather('software','n',2:(n_software+1))
 bin_number_plotting %<>% mutate(correct=n==1)
 ```
 
