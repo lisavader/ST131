@@ -134,8 +134,11 @@ Ecoli_metadata_selected %<>% select(!query) %>% rename(latitude=lat,longitude=lo
 MLST <- read.delim("../../rgnosis_samples/results/bactofidia_output_all/stats/MLST.tsv",header = FALSE)
 colnames(MLST) <- c("id","species","ST","adk","fumC","gyrB","icd","mdh","purA","recA")
 MLST %<>% select(id,ST) %>% mutate(id=sub(".fna","",id))
-
 Ecoli_metadata_selected %<>% left_join(.,MLST,by="id")
+
+#only specify most common STs (at least 10 samples), label the rest as 'other' (optional)
+main_STs <- c("10","131","38","410","648","69","88")
+Ecoli_metadata_selected %<>% mutate(ST=ifelse(ST %in% main_STs,ST,'other'))
 
 #cross with fimH data
 fimH <- read.csv("../../rgnosis_samples/results/blast_fimH/all_fimH_types.csv")
@@ -167,5 +170,9 @@ for (column in ctx_columns){
 clermontyping <- read.delim("../../rgnosis_samples/results/clermontyping_output/clermontyping_output_phylogroups.txt",header = FALSE)
 clermontyping %<>% mutate(strain=sub(".fasta","",V1),phylogroup=V5) %>% select(strain,phylogroup)
 Ecoli_metadata_selected %<>% left_join(.,clermontyping, by=c("id" = "strain"))
-                                      
+
+#remove non-E.coli sample
+Ecoli_metadata_selected %<>% filter(!id=="ECO-JSC-RGN-103823")
+
+#write out                                    
 write.csv(Ecoli_metadata_selected,"../results/Ecoli_metadata_selected.csv",row.names = FALSE)
