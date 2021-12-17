@@ -18,8 +18,8 @@ git clone https://github.com/A-BN/ClermonTyping clermontyping
 
 run_clermontyping(){
 cd ../tools/clermontyping
-#soft link fasta files
-#ln -s ../../results/bactofidia_output_all/scaffolds/*.fasta .
+#soft link fasta fils
+ln -s ../../results/bactofidia_output_all/scaffolds/*.fasta .
 #build input string of fasta files separated by a @ character
 fasta_files=$(ls -1 *.fasta | tr '\n' '@')
 fasta_files=${fasta_files%?}

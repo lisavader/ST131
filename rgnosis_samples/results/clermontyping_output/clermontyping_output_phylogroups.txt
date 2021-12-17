@@ -204,3 +204,160 @@ ECO-JSC-RGN-103895.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC'
 ECO-JSC-RGN-103896.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-103896.fasta_mash_screen.tab
 ECO-JSC-RGN-103897.fasta	['trpA', 'trpBA', 'chuA', 'trpAgpC']	['-', '+', '-', '-']	['trpAgpC']	F	ECO-JSC-RGN-103897.fasta_mash_screen.tab
 ECO-JSC-RGN-103898.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-JSC-RGN-103898.fasta_mash_screen.tab
+ECO-JSC-RGN-103899.fasta	['ybgD', 'trpA', 'trpBA', 'yjaA', 'arpA', 'trpAgpC']	['+', '-', '+', '-']	['trpAgpC']	C	ECO-JSC-RGN-103899.fasta_mash_screen.tab
+ECO-JSC-RGN-103900.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-103900.fasta_mash_screen.tab
+ECO-JSC-RGN-103901.fasta	['ybgD', 'trpA', 'trpBA', 'yjaA', 'arpA']	['+', '-', '+', '-']	[]	A	ECO-JSC-RGN-103901.fasta_mash_screen.tab
+ECO-JSC-RGN-103902.fasta	['trpA', 'trpBA', 'chuA', 'trpAgpC']	['-', '+', '-', '-']	['trpAgpC']	F	ECO-JSC-RGN-103902.fasta_mash_screen.tab
+ECO-JSC-RGN-103903.fasta	['ybgD', 'trpA', 'trpBA', 'yjaA', 'arpA']	['+', '-', '+', '-']	[]	A	ECO-JSC-RGN-103903.fasta_mash_screen.tab
+ECO-JSC-RGN-103904.fasta	['ybgD', 'trpA', 'trpBA', 'arpA']	['+', '-', '-', '-']	[]	A	ECO-JSC-RGN-103904.fasta_mash_screen.tab
+ECO-JSC-RGN-103905.fasta	['ybgD', 'trpA', 'trpBA', 'chuA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '+', '-', '+']	['trpAgpC']	D	ECO-JSC-RGN-103905.fasta_mash_screen.tab
+ECO-JSC-RGN-103906.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-JSC-RGN-103906.fasta_mash_screen.tab
+ECO-JSC-RGN-103907.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-JSC-RGN-103907.fasta_mash_screen.tab
+ECO-JSC-RGN-103908.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-103908.fasta_mash_screen.tab
+ECO-JSC-RGN-103909.fasta	['trpA', 'trpBA', 'chuA', 'trpAgpC']	['-', '+', '-', '-']	['trpAgpC']	F	ECO-JSC-RGN-103909.fasta_mash_screen.tab
+ECO-JSC-RGN-103910.fasta	['trpA', 'trpBA', 'yjaA', 'arpA']	['+', '-', '+', '-']	[]	A	ECO-JSC-RGN-103910.fasta_mash_screen.tab
+ECO-JSC-RGN-103911.fasta	['ybgD', 'trpA', 'trpBA', 'chuA', 'trpAgpC']	['-', '+', '-', '-']	['trpAgpC']	G	ECO-JSC-RGN-103911.fasta_mash_screen.tab
+ECO-JSC-RGN-103912.fasta	['trpA', 'trpBA', 'yjaA', 'arpA']	['+', '-', '+', '-']	[]	A	ECO-JSC-RGN-103912.fasta_mash_screen.tab
+ECO-JSC-RGN-103913.fasta	['ybgD', 'trpA', 'trpBA', 'chuA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '+', '-', '+']	['trpAgpC']	D	ECO-JSC-RGN-103913.fasta_mash_screen.tab
+ECO-JSC-RGN-103914.fasta	['ybgD', 'trpA', 'trpBA', 'chuA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '+', '-', '+']	['trpAgpC']	D	ECO-JSC-RGN-103914.fasta_mash_screen.tab
+ECO-JSC-RGN-103931.fasta	['ybgD', 'trpA', 'trpBA', 'arpA']	['+', '-', '-', '-']	[]	A	ECO-JSC-RGN-103931.fasta_mash_screen.tab
+ECO-JSC-RGN-103932.fasta	['ybgD', 'trpA', 'trpBA', 'yjaA', 'arpA']	['+', '-', '+', '-']	[]	A	ECO-JSC-RGN-103932.fasta_mash_screen.tab
+ECO-JSC-RGN-103933.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-JSC-RGN-103933.fasta_mash_screen.tab
+ECO-JSC-RGN-103934.fasta	['ybgD', 'trpA', 'trpBA', 'arpA']	['+', '-', '-', '-']	[]	A	ECO-JSC-RGN-103934.fasta_mash_screen.tab
+ECO-JSC-RGN-103935.fasta	['ybgD', 'trpA', 'trpBA', 'chuA', 'arpA', 'trpAgpC']	['+', '+', '-', '-']	['trpAgpC']	D	ECO-JSC-RGN-103935.fasta_mash_screen.tab
+ECO-JSC-RGN-103936.fasta	['trpA', 'trpBA', 'yjaA', 'arpA']	['+', '-', '+', '-']	[]	A	ECO-JSC-RGN-103936.fasta_mash_screen.tab
+ECO-JSC-RGN-103937.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA']	['+', '-', '-', '+']	[]	B1	ECO-JSC-RGN-103937.fasta_mash_screen.tab
+ECO-JSC-RGN-103938.fasta	['trpA', 'trpBA', 'yjaA', 'arpA']	['+', '-', '+', '-']	[]	A	ECO-JSC-RGN-103938.fasta_mash_screen.tab
+ECO-JSC-RGN-104196.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-104196.fasta_mash_screen.tab
+ECO-JSC-RGN-104197.fasta	['trpBA', 'chuA', 'yjaA', 'trpAgpC']	['-', '+', '+', '-']	['trpAgpC']	B2	ECO-JSC-RGN-104197.fasta_mash_screen.tab
+ECO-JSC-RGN-104198.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-JSC-RGN-104198.fasta_mash_screen.tab
+ECO-JSC-RGN-104199.fasta	['trpA', 'trpBA', 'yjaA', 'arpA']	['+', '-', '+', '-']	[]	A	ECO-JSC-RGN-104199.fasta_mash_screen.tab
+ECO-JSC-RGN-104200.fasta	['trpBA', 'chuA', 'yjaA', 'trpAgpC']	['-', '+', '+', '-']	['trpAgpC']	B2	ECO-JSC-RGN-104200.fasta_mash_screen.tab
+ECO-JSC-RGN-104201.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-JSC-RGN-104201.fasta_mash_screen.tab
+ECO-JSC-RGN-104202.fasta	['trpA', 'trpBA', 'yjaA', 'arpA']	['+', '-', '+', '-']	[]	A	ECO-JSC-RGN-104202.fasta_mash_screen.tab
+ECO-JSC-RGN-104203.fasta	['trpA', 'trpBA', 'chuA', 'trpAgpC']	['-', '+', '-', '-']	['trpAgpC']	F	ECO-JSC-RGN-104203.fasta_mash_screen.tab
+ECO-JSC-RGN-104205.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-104205.fasta_mash_screen.tab
+ECO-JSC-RGN-104206.fasta	['ybgD', 'trpA', 'trpBA', 'chuA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '+', '-', '+']	['trpAgpC']	D	ECO-JSC-RGN-104206.fasta_mash_screen.tab
+ECO-JSC-RGN-104207.fasta	['ybgD', 'trpA', 'trpBA', 'arpA', 'trpAgpC']	['+', '-', '-', '-']	['trpAgpC']	A	ECO-JSC-RGN-104207.fasta_mash_screen.tab
+ECO-JSC-RGN-104208.fasta	['ybgD', 'trpA', 'trpBA', 'chuA', 'arpA', 'trpAgpC']	['+', '+', '-', '-']	['trpAgpC']	D	ECO-JSC-RGN-104208.fasta_mash_screen.tab
+ECO-JSC-RGN-104209.fasta	['trpA', 'trpBA', 'yjaA', 'arpA']	['+', '-', '+', '-']	[]	A	ECO-JSC-RGN-104209.fasta_mash_screen.tab
+ECO-JSC-RGN-104210.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-104210.fasta_mash_screen.tab
+ECO-JSC-RGN-104211.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-104211.fasta_mash_screen.tab
+ECO-JSC-RGN-104212.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-104212.fasta_mash_screen.tab
+ECO-JSC-RGN-104213.fasta	['ybgD', 'trpA', 'trpBA', 'chuA', 'arpA', 'trpAgpC']	['+', '+', '-', '-']	['trpAgpC']	D	ECO-JSC-RGN-104213.fasta_mash_screen.tab
+ECO-JSC-RGN-104214.fasta	['ybgD', 'trpA', 'trpBA', 'chuA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '+', '-', '+']	['trpAgpC']	D	ECO-JSC-RGN-104214.fasta_mash_screen.tab
+ECO-JSC-RGN-104215.fasta	['ybgD', 'trpA', 'trpBA', 'yjaA', 'arpA']	['+', '-', '+', '-']	[]	A	ECO-JSC-RGN-104215.fasta_mash_screen.tab
+ECO-JSC-RGN-104216.fasta	['ybgD', 'trpA', 'trpBA', 'chuA', 'arpA', 'trpAgpC']	['+', '+', '-', '-']	['trpAgpC']	D	ECO-JSC-RGN-104216.fasta_mash_screen.tab
+ECO-JSC-RGN-104217.fasta	['ybgD', 'trpA', 'trpBA', 'chuA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '+', '-', '+']	['trpAgpC']	D	ECO-JSC-RGN-104217.fasta_mash_screen.tab
+ECO-JSC-RGN-104218.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-JSC-RGN-104218.fasta_mash_screen.tab
+ECO-JSC-RGN-104219.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-104219.fasta_mash_screen.tab
+ECO-JSC-RGN-104220.fasta	['ybgD', 'trpA', 'trpBA', 'yjaA', 'arpA', 'ArpAgpE', 'trpAgpC']	['+', '-', '+', '-']	['ArpAgpE', 'trpAgpC']	C	ECO-JSC-RGN-104220.fasta_mash_screen.tab
+ECO-JSC-RGN-104221.fasta	['trpA', 'trpBA', 'yjaA', 'arpA']	['+', '-', '+', '-']	[]	A	ECO-JSC-RGN-104221.fasta_mash_screen.tab
+ECO-JSC-RGN-104222.fasta	['trpA', 'trpBA', 'yjaA', 'arpA']	['+', '-', '+', '-']	[]	A	ECO-JSC-RGN-104222.fasta_mash_screen.tab
+ECO-JSC-RGN-104223.fasta	['trpA', 'trpBA', 'yjaA', 'arpA']	['+', '-', '+', '-']	[]	A	ECO-JSC-RGN-104223.fasta_mash_screen.tab
+ECO-JSC-RGN-104224.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-104224.fasta_mash_screen.tab
+ECO-JSC-RGN-104225.fasta	['ybgD', 'trpA', 'trpBA', 'chuA', 'trpAgpC']	['-', '+', '-', '-']	['trpAgpC']	G	ECO-JSC-RGN-104225.fasta_mash_screen.tab
+ECO-JSC-RGN-104226.fasta	['ybgD', 'trpA', 'trpBA', 'chuA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '+', '-', '+']	['trpAgpC']	D	ECO-JSC-RGN-104226.fasta_mash_screen.tab
+ECO-JSC-RGN-104227.fasta	['trpA', 'trpBA', 'chuA', 'TspE4.C2', 'arpA']	['+', '+', '-', '+']	[]	D	ECO-JSC-RGN-104227.fasta_mash_screen.tab
+ECO-JSC-RGN-104228.fasta	['ybgD', 'trpA', 'trpBA', 'yjaA', 'arpA', 'trpAgpC']	['+', '-', '+', '-']	['trpAgpC']	C	ECO-JSC-RGN-104228.fasta_mash_screen.tab
+ECO-JSC-RGN-104229.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-104229.fasta_mash_screen.tab
+ECO-JSC-RGN-104230.fasta	['trpA', 'trpBA', 'chuA']	['-', '+', '-', '-']	[]	F	ECO-JSC-RGN-104230.fasta_mash_screen.tab
+ECO-JSC-RGN-104231.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-104231.fasta_mash_screen.tab
+ECO-JSC-RGN-104232.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-104232.fasta_mash_screen.tab
+ECO-JSC-RGN-104233.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-JSC-RGN-104233.fasta_mash_screen.tab
+ECO-JSC-RGN-104234.fasta	['trpA', 'trpBA', 'yjaA', 'arpA']	['+', '-', '+', '-']	[]	A	ECO-JSC-RGN-104234.fasta_mash_screen.tab
+ECO-JSC-RGN-104235.fasta	['trpA', 'trpBA', 'yjaA', 'arpA']	['+', '-', '+', '-']	[]	A	ECO-JSC-RGN-104235.fasta_mash_screen.tab
+ECO-JSC-RGN-104236.fasta	['trpA', 'trpBA', 'yjaA', 'arpA']	['+', '-', '+', '-']	[]	A	ECO-JSC-RGN-104236.fasta_mash_screen.tab
+ECO-JSC-RGN-104237.fasta	['ybgD', 'trpA', 'trpBA', 'chuA', 'trpAgpC']	['-', '+', '-', '-']	['trpAgpC']	G	ECO-JSC-RGN-104237.fasta_mash_screen.tab
+ECO-JSC-RGN-104238.fasta	['ybgD', 'trpA', 'trpBA', 'chuA', 'trpAgpC']	['-', '+', '-', '-']	['trpAgpC']	G	ECO-JSC-RGN-104238.fasta_mash_screen.tab
+ECO-JSC-RGN-104239.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-JSC-RGN-104239.fasta_mash_screen.tab
+ECO-JSC-RGN-104241.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-JSC-RGN-104241.fasta_mash_screen.tab
+ECO-JSC-RGN-104242.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-104242.fasta_mash_screen.tab
+ECO-JSC-RGN-104243.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-104243.fasta_mash_screen.tab
+ECO-JSC-RGN-104244.fasta	['ybgD', 'trpA', 'trpBA', 'arpA']	['+', '-', '-', '-']	[]	A	ECO-JSC-RGN-104244.fasta_mash_screen.tab
+ECO-JSC-RGN-104245.fasta	['ybgD', 'trpA', 'trpBA', 'yjaA', 'arpA', 'trpAgpC']	['+', '-', '+', '-']	['trpAgpC']	C	ECO-JSC-RGN-104245.fasta_mash_screen.tab
+ECO-JSC-RGN-104247.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-JSC-RGN-104247.fasta_mash_screen.tab
+ECO-JSC-RGN-104248.fasta	['ybgD', 'trpA', 'trpBA', 'arpA']	['+', '-', '-', '-']	[]	A	ECO-JSC-RGN-104248.fasta_mash_screen.tab
+ECO-JSC-RGN-104249.fasta	['trpBA', 'chuA', 'yjaA', 'trpAgpC']	['-', '+', '+', '-']	['trpAgpC']	B2	ECO-JSC-RGN-104249.fasta_mash_screen.tab
+ECO-JSC-RGN-104534.fasta	['trpA', 'trpBA', 'yjaA', 'arpA']	['+', '-', '+', '-']	[]	A	ECO-JSC-RGN-104534.fasta_mash_screen.tab
+ECO-JSC-RGN-104536.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-104536.fasta_mash_screen.tab
+ECO-JSC-RGN-104537.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-JSC-RGN-104537.fasta_mash_screen.tab
+ECO-JSC-RGN-104538.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-JSC-RGN-104538.fasta_mash_screen.tab
+ECO-JSC-RGN-104539.fasta	['ybgD', 'trpA', 'trpBA', 'chuA', 'arpA', 'trpAgpC']	['+', '+', '-', '-']	['trpAgpC']	D	ECO-JSC-RGN-104539.fasta_mash_screen.tab
+ECO-JSC-RGN-104540.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-104540.fasta_mash_screen.tab
+ECO-JSC-RGN-104541.fasta	['ybgD', 'trpA', 'trpBA', 'chuA', 'arpA', 'trpAgpC']	['+', '+', '-', '-']	['trpAgpC']	D	ECO-JSC-RGN-104541.fasta_mash_screen.tab
+ECO-JSC-RGN-104542.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-104542.fasta_mash_screen.tab
+ECO-JSC-RGN-104543.fasta	['ybgD', 'trpA', 'trpBA', 'yjaA', 'arpA']	['+', '-', '+', '-']	[]	A	ECO-JSC-RGN-104543.fasta_mash_screen.tab
+ECO-JSC-RGN-104544.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-104544.fasta_mash_screen.tab
+ECO-JSC-RGN-104545.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-JSC-RGN-104545.fasta_mash_screen.tab
+ECO-JSC-RGN-104546.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-104546.fasta_mash_screen.tab
+ECO-JSC-RGN-104547.fasta	['ybgD', 'trpA', 'trpBA', 'yjaA', 'arpA']	['+', '-', '+', '-']	[]	A	ECO-JSC-RGN-104547.fasta_mash_screen.tab
+ECO-JSC-RGN-104548.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-JSC-RGN-104548.fasta_mash_screen.tab
+ECO-JSC-RGN-104549.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-104549.fasta_mash_screen.tab
+ECO-JSC-RGN-104550.fasta	['trpA', 'trpBA', 'chuA', 'trpAgpC']	['-', '+', '-', '-']	['trpAgpC']	F	ECO-JSC-RGN-104550.fasta_mash_screen.tab
+ECO-JSC-RGN-104551.fasta	['ybgD', 'trpA', 'trpBA', 'yjaA', 'arpA', 'ArpAgpE', 'trpAgpC']	['+', '-', '+', '-']	['ArpAgpE', 'trpAgpC']	C	ECO-JSC-RGN-104551.fasta_mash_screen.tab
+ECO-JSC-RGN-104552.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-104552.fasta_mash_screen.tab
+ECO-JSC-RGN-104553.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-104553.fasta_mash_screen.tab
+ECO-JSC-RGN-104554.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-104554.fasta_mash_screen.tab
+ECO-JSC-RGN-104555.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-104555.fasta_mash_screen.tab
+ECO-JSC-RGN-104556.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-JSC-RGN-104556.fasta_mash_screen.tab
+ECO-JSC-RGN-104558.fasta	['trpBA', 'chuA', 'yjaA', 'trpAgpC']	['-', '+', '+', '-']	['trpAgpC']	B2	ECO-JSC-RGN-104558.fasta_mash_screen.tab
+ECO-JSC-RGN-104559.fasta	['ybgD', 'trpA', 'trpBA', 'chuA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '+', '-', '+']	['trpAgpC']	D	ECO-JSC-RGN-104559.fasta_mash_screen.tab
+ECO-JSC-RGN-104560.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-JSC-RGN-104560.fasta_mash_screen.tab
+ECO-JSC-RGN-104561.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-104561.fasta_mash_screen.tab
+ECO-JSC-RGN-104562.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-104562.fasta_mash_screen.tab
+ECO-JSC-RGN-104563.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-JSC-RGN-104563.fasta_mash_screen.tab
+ECO-JSC-RGN-104564.fasta	['ybgD', 'trpA', 'trpBA', 'yjaA', 'arpA', 'trpAgpC']	['+', '-', '+', '-']	['trpAgpC']	C	ECO-JSC-RGN-104564.fasta_mash_screen.tab
+ECO-JSC-RGN-104565.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-104565.fasta_mash_screen.tab
+ECO-JSC-RGN-104566.fasta	['ybgD', 'trpA', 'trpBA', 'arpA', 'trpAgpC']	['+', '-', '-', '-']	['trpAgpC']	A	ECO-JSC-RGN-104566.fasta_mash_screen.tab
+ECO-JSC-RGN-104568.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-104568.fasta_mash_screen.tab
+ECO-JSC-RGN-104569.fasta	['trpA', 'trpBA', 'chuA', 'TspE4.C2', 'arpA']	['+', '+', '-', '+']	[]	D	ECO-JSC-RGN-104569.fasta_mash_screen.tab
+ECO-JSC-RGN-104570.fasta	['trpA', 'trpBA', 'yjaA', 'arpA']	['+', '-', '+', '-']	[]	A	ECO-JSC-RGN-104570.fasta_mash_screen.tab
+ECO-JSC-RGN-104571.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-JSC-RGN-104571.fasta_mash_screen.tab
+ECO-JSC-RGN-104572.fasta	['trpA', 'trpBA', 'yjaA', 'arpA']	['+', '-', '+', '-']	[]	A	ECO-JSC-RGN-104572.fasta_mash_screen.tab
+ECO-JSC-RGN-104573.fasta	['ybgD', 'trpA', 'trpBA', 'arpA']	['+', '-', '-', '-']	[]	A	ECO-JSC-RGN-104573.fasta_mash_screen.tab
+ECO-JSC-RGN-104574.fasta	['trpA', 'trpBA', 'chuA', 'trpAgpC']	['-', '+', '-', '-']	['trpAgpC']	F	ECO-JSC-RGN-104574.fasta_mash_screen.tab
+ECO-JSC-RGN-104575.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-JSC-RGN-104575.fasta_mash_screen.tab
+ECO-JSC-RGN-104576.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-JSC-RGN-104576.fasta_mash_screen.tab
+ECO-JSC-RGN-104577.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-104577.fasta_mash_screen.tab
+ECO-JSC-RGN-105230.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-105230.fasta_mash_screen.tab
+ECO-JSC-RGN-105231.fasta	['ybgD', 'trpA', 'trpBA', 'arpA', 'trpAgpC']	['+', '-', '-', '-']	['trpAgpC']	A	ECO-JSC-RGN-105231.fasta_mash_screen.tab
+ECO-JSC-RGN-105232.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-105232.fasta_mash_screen.tab
+ECO-JSC-RGN-105234.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-JSC-RGN-105234.fasta_mash_screen.tab
+ECO-JSC-RGN-105235.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-105235.fasta_mash_screen.tab
+ECO-JSC-RGN-105236.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-JSC-RGN-105236.fasta_mash_screen.tab
+ECO-JSC-RGN-105237.fasta	['ybgD', 'trpA', 'trpBA', 'yjaA', 'arpA']	['+', '-', '+', '-']	[]	A	ECO-JSC-RGN-105237.fasta_mash_screen.tab
+ECO-JSC-RGN-105238.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-105238.fasta_mash_screen.tab
+ECO-JSC-RGN-105239.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-JSC-RGN-105239.fasta_mash_screen.tab
+ECO-JSC-RGN-105240.fasta	['ybgD', 'trpA', 'trpBA', 'yjaA', 'arpA', 'ArpAgpE', 'trpAgpC']	['+', '-', '+', '-']	['ArpAgpE', 'trpAgpC']	C	ECO-JSC-RGN-105240.fasta_mash_screen.tab
+ECO-JSC-RGN-105241.fasta	['ybgD', 'trpA', 'trpBA', 'yjaA', 'arpA', 'ArpAgpE', 'trpAgpC']	['+', '-', '+', '-']	['ArpAgpE', 'trpAgpC']	C	ECO-JSC-RGN-105241.fasta_mash_screen.tab
+ECO-JSC-RGN-105242.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-105242.fasta_mash_screen.tab
+ECO-JSC-RGN-105243.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-105243.fasta_mash_screen.tab
+ECO-JSC-RGN-105244.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-JSC-RGN-105244.fasta_mash_screen.tab
+ECO-JSC-RGN-105245.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-105245.fasta_mash_screen.tab
+ECO-JSC-RGN-105247.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-JSC-RGN-105247.fasta_mash_screen.tab
+ECO-JSC-RGN-105248.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-105248.fasta_mash_screen.tab
+ECO-JSC-RGN-105249.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-105249.fasta_mash_screen.tab
+ECO-JSC-RGN-105250.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-105250.fasta_mash_screen.tab
+ECO-JSC-RGN-105251.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-105251.fasta_mash_screen.tab
+ECO-JSC-RGN-105252.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-105252.fasta_mash_screen.tab
+ECO-JSC-RGN-105253.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-JSC-RGN-105253.fasta_mash_screen.tab
+ECO-JSC-RGN-105441.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-105441.fasta_mash_screen.tab
+ECO-JSC-RGN-105442.fasta	['trpA', 'trpBA', 'yjaA', 'arpA']	['+', '-', '+', '-']	[]	A	ECO-JSC-RGN-105442.fasta_mash_screen.tab
+ECO-JSC-RGN-105443.fasta	['trpA', 'trpBA', 'yjaA', 'arpA']	['+', '-', '+', '-']	[]	A	ECO-JSC-RGN-105443.fasta_mash_screen.tab
+ECO-JSC-RGN-105444.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-105444.fasta_mash_screen.tab
+ECO-JSC-RGN-105445.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-JSC-RGN-105445.fasta_mash_screen.tab
+ECO-JSC-RGN-105446.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-105446.fasta_mash_screen.tab
+ECO-JSC-RGN-105447.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-105447.fasta_mash_screen.tab
+ECO-JSC-RGN-105448.fasta	['trpA', 'trpBA', 'chuA', 'trpAgpC']	['-', '+', '-', '-']	['trpAgpC']	F	ECO-JSC-RGN-105448.fasta_mash_screen.tab
+ECO-JSC-RGN-105449.fasta	['ybgD', 'trpA', 'trpBA', 'yjaA', 'arpA', 'ArpAgpE', 'trpAgpC']	['+', '-', '+', '-']	['ArpAgpE', 'trpAgpC']	C	ECO-JSC-RGN-105449.fasta_mash_screen.tab
+ECO-JSC-RGN-105450.fasta	['ybgD', 'trpA', 'trpBA', 'yjaA', 'arpA']	['+', '-', '+', '-']	[]	A	ECO-JSC-RGN-105450.fasta_mash_screen.tab
+ECO-JSC-RGN-105451.fasta	['ybgD', 'trpA', 'trpBA', 'yjaA', 'arpA', 'trpAgpC']	['+', '-', '+', '-']	['trpAgpC']	C	ECO-JSC-RGN-105451.fasta_mash_screen.tab
+ECO-JSC-RGN-105452.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-105452.fasta_mash_screen.tab
+ECO-JSC-RGN-105454.fasta	['trpA', 'trpBA', 'arpA']	['+', '-', '-', '-']	[]	A	ECO-JSC-RGN-105454.fasta_mash_screen.tab
+ECO-JSC-RGN-105455.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	ECO-JSC-RGN-105455.fasta_mash_screen.tab
+ECO-MSA-BAC-105531.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	ECO-MSA-BAC-105531.fasta_mash_screen.tab
+KLP-JSC-MOD-104895.fasta	['trpA', 'trpBA', 'chuA', 'yjaA', 'TspE4.C2', 'trpAgpC']	['-', '+', '+', '+']	['trpAgpC']	B2	KLP-JSC-MOD-104895.fasta_mash_screen.tab
+KLP-JSC-RGN-105170.fasta	['ybgD', 'trpA', 'trpBA', 'TspE4.C2', 'arpA', 'trpAgpC']	['+', '-', '-', '+']	['trpAgpC']	B1	KLP-JSC-RGN-105170.fasta_mash_screen.tab
+KLP-JSC-RGN-105204.fasta	['trpA', 'trpBA', 'yjaA', 'arpA']	['+', '-', '+', '-']	[]	A	KLP-JSC-RGN-105204.fasta_mash_screen.tab
+KLP-JSC-RGN-105458.fasta	['trpA', 'trpBA', 'chuA', 'TspE4.C2', 'arpA']	['+', '+', '-', '+']	[]	D	KLP-JSC-RGN-105458.fasta_mash_screen.tab

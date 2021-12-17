@@ -36,3 +36,6 @@ results/panaroo_output_all/*
 
 results/blast_fimH/*
 !results/blast_fimH/all_fimH_types.csv
+
+results/clermontyping_output/*
+!results/clermontyping_output/clermontyping_output_phylogroups.txt
