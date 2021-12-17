@@ -154,4 +154,18 @@ bla_columns <- colnames(Ecoli_metadata_selected %>% select(contains('bla')))
 total_bla <- Ecoli_metadata_selected %>% select(bla_columns) %>% summarise(rowSums(.))
 Ecoli_metadata_selected %<>% mutate(total_bla=total_bla$`rowSums(.)`)
 
+#add blaCTX type
+ctx_columns <- colnames(Ecoli_metadata_selected %>% select(contains("CTX")))
+Ecoli_metadata_selected$blaCTX_type <- ""
+for (column in ctx_columns){
+  ctx_nr <- ""
+  ctx_nr <- sub("_.","",sub("blaCTX-M-","",column))
+  Ecoli_metadata_selected %<>% mutate(blaCTX_type=ifelse(select(.,contains(column)) == 1,paste(blaCTX_type,ctx_nr),blaCTX_type))
+}
+
+#add phylogroup
+clermontyping <- read.delim("../../rgnosis_samples/results/clermontyping_output/clermontyping_output_phylogroups.txt",header = FALSE)
+clermontyping %<>% mutate(strain=sub(".fasta","",V1),phylogroup=V5) %>% select(strain,phylogroup)
+Ecoli_metadata_selected %<>% left_join(.,clermontyping, by=c("id" = "strain"))
+                                      
 write.csv(Ecoli_metadata_selected,"../results/Ecoli_metadata_selected.csv",row.names = FALSE)
