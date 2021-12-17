@@ -171,6 +171,15 @@ clermontyping <- read.delim("../../rgnosis_samples/results/clermontyping_output/
 clermontyping %<>% mutate(strain=sub(".fasta","",V1),phylogroup=V5) %>% select(strain,phylogroup)
 Ecoli_metadata_selected %<>% left_join(.,clermontyping, by=c("id" = "strain"))
 
+#assign a clade to the ST131 samples (according to fimH allele)
+Ecoli_metadata_selected$ST131_clade <- ""
+#clade C
+Ecoli_metadata_selected %<>% mutate(ST131_clade=ifelse(fimH_allele=="fimH30" & ST=="131","C",ST131_clade))
+#clade B
+Ecoli_metadata_selected %<>% mutate(ST131_clade=ifelse(fimH_allele %in% c("fimH22","fimH27") & ST=="131","B",ST131_clade))
+#clade A
+Ecoli_metadata_selected %<>% mutate(ST131_clade=ifelse(fimH_allele %in% c("fimH41","fimH412","fimH89") & ST=="131","A",ST131_clade))
+
 #remove non-E.coli sample
 Ecoli_metadata_selected %<>% filter(!id=="ECO-JSC-RGN-103823")
 
