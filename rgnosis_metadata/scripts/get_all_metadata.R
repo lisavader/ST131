@@ -138,7 +138,7 @@ Ecoli_metadata_selected %<>% left_join(.,MLST,by="id")
 
 #only specify most common STs (at least 10 samples), label the rest as 'other' (optional)
 main_STs <- c("10","131","38","410","648","69","88")
-Ecoli_metadata_selected %<>% mutate(ST=ifelse(ST %in% main_STs,ST,'other'))
+Ecoli_metadata_selected %<>% mutate(ST_group=ifelse(ST %in% main_STs,ST,'other'))
 
 #cross with fimH data
 fimH <- read.csv("../../rgnosis_samples/results/blast_fimH/all_fimH_types.csv")
