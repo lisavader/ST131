@@ -136,9 +136,11 @@ colnames(MLST) <- c("id","species","ST","adk","fumC","gyrB","icd","mdh","purA","
 MLST %<>% select(id,ST) %>% mutate(id=sub(".fna","",id))
 Ecoli_metadata_selected %<>% left_join(.,MLST,by="id")
 
-#only specify most common STs (at least 10 samples), label the rest as 'other' (optional)
+#only specify most common STs (at least 10 samples), label the rest as 'other'
 main_STs <- c("10","131","38","410","648","69","88")
 Ecoli_metadata_selected %<>% mutate(ST_group=ifelse(ST %in% main_STs,ST,'other'))
+#add 'no data' category
+Ecoli_metadata_selected %<>% mutate(ST_group=ifelse(ST=='-','no data',ST_group))
 
 #cross with fimH data
 fimH <- read.csv("../../rgnosis_samples/results/blast_fimH/all_fimH_types.csv")
