@@ -180,6 +180,8 @@ Ecoli_metadata_selected %<>% mutate(ST131_clade=ifelse(fimH_allele %in% c("fimH2
 #clade A
 Ecoli_metadata_selected %<>% mutate(ST131_clade=ifelse(fimH_allele %in% c("fimH41","fimH412","fimH89") & ST=="131","A",ST131_clade))
 
+#add column for ESBL selection yes/no (based on whether it was a surveillance or point prevalance isolate)
+Ecoli_metadata_selected %<>% mutate(ESBL_selected=ifelse(grepl("(P)",Culture_type) | grepl("(S)",Culture_type),"yes","no"))
 #remove non-E.coli sample
 Ecoli_metadata_selected %<>% filter(!id=="ECO-JSC-RGN-103823")
 
