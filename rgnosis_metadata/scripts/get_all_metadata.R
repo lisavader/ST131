@@ -134,8 +134,13 @@ Ecoli_metadata_selected %<>% select(!query) %>% rename(latitude=lat,longitude=lo
 MLST <- read.delim("../../rgnosis_samples/results/bactofidia_output_all/stats/MLST.tsv",header = FALSE)
 colnames(MLST) <- c("id","species","ST","adk","fumC","gyrB","icd","mdh","purA","recA")
 MLST %<>% select(id,ST) %>% mutate(id=sub(".fna","",id))
-
 Ecoli_metadata_selected %<>% left_join(.,MLST,by="id")
+
+#only specify most common STs (at least 10 samples), label the rest as 'other'
+main_STs <- c("10","131","38","410","648","69","88")
+Ecoli_metadata_selected %<>% mutate(ST_group=ifelse(ST %in% main_STs,ST,'other'))
+#add 'no data' category
+Ecoli_metadata_selected %<>% mutate(ST_group=ifelse(ST=='-','no data',ST_group))
 
 #cross with fimH data
 fimH <- read.csv("../../rgnosis_samples/results/blast_fimH/all_fimH_types.csv")
@@ -154,4 +159,33 @@ bla_columns <- colnames(Ecoli_metadata_selected %>% select(contains('bla')))
 total_bla <- Ecoli_metadata_selected %>% select(bla_columns) %>% summarise(rowSums(.))
 Ecoli_metadata_selected %<>% mutate(total_bla=total_bla$`rowSums(.)`)
 
+#add blaCTX type
+ctx_columns <- colnames(Ecoli_metadata_selected %>% select(contains("CTX")))
+Ecoli_metadata_selected$blaCTX_type <- ""
+for (column in ctx_columns){
+  ctx_nr <- ""
+  ctx_nr <- sub("_.","",sub("blaCTX-M-","",column))
+  Ecoli_metadata_selected %<>% mutate(blaCTX_type=ifelse(select(.,contains(column)) == 1,paste(blaCTX_type,ctx_nr),blaCTX_type))
+}
+
+#add phylogroup
+clermontyping <- read.delim("../../rgnosis_samples/results/clermontyping_output/clermontyping_output_phylogroups.txt",header = FALSE)
+clermontyping %<>% mutate(strain=sub(".fasta","",V1),phylogroup=V5) %>% select(strain,phylogroup)
+Ecoli_metadata_selected %<>% left_join(.,clermontyping, by=c("id" = "strain"))
+
+#assign a clade to the ST131 samples (according to fimH allele)
+Ecoli_metadata_selected$ST131_clade <- ""
+#clade C
+Ecoli_metadata_selected %<>% mutate(ST131_clade=ifelse(fimH_allele=="fimH30" & ST=="131","C",ST131_clade))
+#clade B
+Ecoli_metadata_selected %<>% mutate(ST131_clade=ifelse(fimH_allele %in% c("fimH22","fimH27") & ST=="131","B",ST131_clade))
+#clade A
+Ecoli_metadata_selected %<>% mutate(ST131_clade=ifelse(fimH_allele %in% c("fimH41","fimH412","fimH89") & ST=="131","A",ST131_clade))
+
+#add column for ESBL selection yes/no (based on whether it was a surveillance or point prevalance isolate)
+Ecoli_metadata_selected %<>% mutate(ESBL_selected=ifelse(grepl("(P)",Culture_type) | grepl("(S)",Culture_type),"yes","no"))
+#remove non-E.coli sample
+Ecoli_metadata_selected %<>% filter(!id=="ECO-JSC-RGN-103823")
+
+#write out                                    
 write.csv(Ecoli_metadata_selected,"../results/Ecoli_metadata_selected.csv",row.names = FALSE)
