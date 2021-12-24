@@ -1,0 +1,44 @@
+---
+title: "ST abundance"
+author: "Lisa"
+date: "23/12/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r, include=FALSE}
+theme_set(theme_bw())
+```
+
+Load packages
+```{r}
+packages<-c("dplyr","magrittr","ggplot2")
+for (package in packages){
+  if (!require(package, character.only = TRUE)) install.packages(package)
+  require(package, character.only = TRUE)
+}
+```
+
+Import metadata.
+```{r}
+metadata <- read.csv("../../rgnosis_metadata/results/Ecoli_metadata_selected.csv")
+```
+
+Get counts
+```{r}
+ST_counts <- metadata %>% group_by(ST_group) %>% summarise(count=n())
+```
+
+Barplot
+```{r}
+ST_levels <- c("131","10","88","38","648","410","69","other","no data")
+ggplot(ST_counts,aes(y=factor(ST_group,level=rev(ST_levels)),x=count,fill=ST_group))+
+  geom_bar(stat = "identity")+
+  scale_fill_manual(values=c("#f8766d","#ffc107","#00ba38","#00c19f","#00b9e3","#619cff","#db72fb","#BCBCBC","#000000"))+
+  labs(y=NULL,fill="ST")
+```
+
