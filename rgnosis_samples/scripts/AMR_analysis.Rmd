@@ -23,8 +23,6 @@ Import resfinder file
 resfinder <- read.delim("../results/bactofidia_output_all/stats/ResFinder.tsv")
 ```
 
-Choose: Full dataset or ST131 dataset
-
 Keep all valid samples
 ```{r}
 all_strains <- read.delim("../results/all_ecoli_rgnosis.txt",header = FALSE)
@@ -43,23 +41,26 @@ contig_classifications <- read.csv("../results/EC_combined_output.csv")
 resfinder <- left_join(resfinder,contig_classifications %>% select(contig_name,classification),by = c("SEQUENCE"="contig_name"))
 ```
 
-Count AMR genes per sample
-```{r}
-count_AMR <- resfinder %>% group_by(X.FILE) %>% summarise(count=n())
-```
-
 Get the MLST
 ```{r}
 MLST <- read.delim("../results/bactofidia_output_all/stats/MLST.tsv",header = FALSE)
 colnames(MLST) <- c("strain","species","ST","adk","fumC","gyrB","icd","mdh","purA","recA")
 #It also contains some non-Ecoli strains that we are not interested in, let's filter them out
 all_ecoli <- read.delim("../results/all_ecoli_rgnosis.txt",header = FALSE)
-MLST %<>% filter(sub(".fna","",strain) %in% all_strains$V1)
+MLST %<>% filter(sub(".fna","",strain) %in% all_ecoli$V1)
 ```
 
+Add ST to resfinder file, and group by ST131/non-ST131
 ```{r}
-count_AMR <- merge(count_AMR,MLST %>% select(strain,ST),by.x = "X.FILE", by.y = "strain")
-count_AMR %<>% mutate(ST131=ifelse(ST=="131","ST131","Other"))
+resfinder %<>% merge(MLST %>% select(strain,ST),by.x = "X.FILE", by.y = "strain")
+resfinder %<>% mutate(ST131=ifelse(ST=="131","ST131","Other"))
+#add sample that is ST131 but not recognised by MLST
+resfinder %<>% mutate(ST131=ifelse(X.FILE=="ECO-JSC-MOD-104871.fna","ST131",ST131))
+```
+
+Count AMR genes per sample
+```{r}
+count_AMR <- resfinder %>% group_by(X.FILE) %>% summarise(count=n())
 ```
 
 ```{r}
@@ -69,16 +70,36 @@ ggplot(count_AMR,aes(x=count,fill=ST131))+
   #scale_x_continuous(breaks = seq(0,40,1))+
   labs(x="Nr. of AMR genes",y="Nr. of samples")
 ```
-
-Count samples per AMR gene
 ```{r}
-count_samples <- resfinder %>% group_by(GENE,classification) %>% summarise(count=n())
+ggplot(count_AMR,aes(y=count,x=factor(ST131,levels = c("ST131","Other")),fill=factor(ST131,levels = c("ST131","Other"))))+
+  geom_boxplot()+
+  theme(legend.position = "none")+
+  stat_compare_means(method = "t.test", label.y=15)+
+  labs(x = NULL, y = "Nr. of ARGs")
+```
+```{r}
+t.test(count_AMR %>% filter(ST131=="ST131") %>% select(count),count_AMR %>% filter(ST131=="Other") %>% select(count))
+```
+
+
+Count samples per ARG
+```{r}
+count_samples <- resfinder %>% group_by(GENE,classification,ST131) %>% summarise(count=n())
 count_samples %<>% group_by(GENE) %>% mutate(total_count=sum(count))
 ```
 
+Only display ARGs present a least 10 times
 ```{r}
-ggplot(count_samples, aes(x=count,y=reorder(GENE,+total_count), fill=classification))+
-  geom_bar(position= 'stack', stat = 'identity')
+count_samples_selected <- count_samples %>% filter(total_count>=10)
+```
+
+```{r}
+ggplot(count_samples_selected, aes(x=count,y=reorder(GENE,+total_count), fill=classification))+
+  geom_bar(position= 'stack', stat = 'identity')+
+  labs(y="ARG")+
+  facet_wrap(~factor(ST131,levels = c("ST131","Other")), scales = "free_x")+
+  labs(fill="Predicted location")+
+  scale_fill_manual(values=c("#de6909","#218f61"))
 ```
 
 
@@ -140,10 +161,9 @@ nodes %<>% left_join(.,plasmid_fractions,by=c("label"="GENE"))
 values <- nodes$plasmid_fraction
 ii <- cut(values, breaks = seq(0,1, len = 100), 
           include.lowest = TRUE)
-nodes$color <- colorRampPalette(c("#21d4ff", "#0fa34a"))(99)[ii]
+nodes$color <- colorRampPalette(c("#de6909","#cfcfcf","#218f61"))(99)[ii]
 
 ```
-
 
 Build edges
 ```{r}
@@ -159,6 +179,7 @@ edges <- data.frame(
 ```
 
 Plot the network
+
 ```{r}
 visNetwork(nodes, edges) %>%
     visIgraphLayout(layout="layout_with_kk")
@@ -358,7 +379,7 @@ pres_abs_plasmid <- pres_abs_plasmid[order(row.names(pres_abs_plasmid)), ]
 pres_abs_class <- pres_abs_plasmid + pres_abs_chromo
 ```
 
-Select AMR genes that have a substantial presence in the dataset (n >= 5).
+Select AMR genes that have a substantial presence in the dataset (n >= 8).
 ```{r}
 pres_abs_top <- pres_abs_general %>% filter(rowSums(.) >= 8)
 ```
@@ -368,6 +389,7 @@ Select the same AMR genes in the matrix with classifications
 pres_abs_class <- pres_abs_class[rownames(pres_abs_top),]
 ```
 
+Load phylogeny, we'll use this to order the strains
 ```{r}
 phylogeny <- ape::read.tree("../results/final_ml_tree.newick")
 phylogeny$tip.label <- paste0(phylogeny$tip.label,'.fna')
@@ -379,22 +401,18 @@ label_order <- phylogeny$tip.label
 pres_abs_class <- pres_abs_class[,label_order]
 ```
 
+Add metadata as annotation
 ```{r}
-#annotation
-ST <- MLST %>% select(strain,ST)
-label_order <- phylogeny$tip.label
-#reorder ST annotation file
-ST_reordered <- ST %>% slice(match(label_order,strain))
+metadata <- read.csv("../../rgnosis_metadata/results/Ecoli_metadata_selected.csv") %>% rename(strain=id)
+metadata_anno <- metadata %>% mutate(strain=paste0(strain,".fna"))
+metadata_anno %<>% slice(match(label_order,strain))
 ```
 
-Custom colours for the ST's
+Add custom colours for annotation of STs and phylogroups
 ```{r}
-main_STs <- data.frame(
-  ST=c("10","1193","131","38","410","648","69","88"),
-  colour=c("#f8766d","#d39200","#96ac07","#00ba38","#00c19f","#00b9e3","#619cff","#db72fb"))
-colourconverter <- data.frame(ST=setdiff(unique(ST_reordered$ST),main_STs$ST),colour="#979797")
-colourconverter %<>% rbind(main_STs) %>% mutate(colour=ifelse(ST=='-',"#ffffff",colour))
-colour_vector <- setNames(colourconverter$colour,colourconverter$ST)
+ST_colours <- setNames(c("#f8766d","#ffc107","#00ba38","#00c19f","#00b9e3","#619cff","#db72fb","#979797","#ffffff"),c("10","131","38","410","648","69","88","other","no data"))
+phylogroup_colours <- setNames(c("#12939A","#DDB27C","#88572C","#FF991F","#F15C17","#223F9A","#DA70BF","#125C77"),c("A","B1","B2","C","D","E","F","G"))
+clade_colours <- setNames(c("#5574f0","#45bd43","#f65e43"),c("A","B","C"))
 ```
 
 ```{r}
@@ -409,7 +427,19 @@ hclust_rows <- hclust(dist_rows,method = "average")
 ```
 
 ```{r}
-ST_anno =HeatmapAnnotation(ST = ST_reordered$ST,col=list(ST=colour_vector))
-Heatmap(pres_abs_class,show_column_names = FALSE,top_annotation = ST_anno, cluster_columns = as.dendrogram(phylogeny), cluster_rows = as.dendrogram(hclust_rows), row_dend_reorder = FALSE, col = colour_class, show_row_dend = TRUE)
+anno =HeatmapAnnotation(ST = metadata_anno$ST_group, phylogroup = metadata_anno$phylogroup, col = list(ST=ST_colours,phylogroup=phylogroup_colours))
+Heatmap(pres_abs_class,show_column_names = FALSE,top_annotation = anno, cluster_columns = as.dendrogram(phylogeny), cluster_rows = as.dendrogram(hclust_rows), row_dend_reorder = FALSE, col = colour_class, show_row_dend = TRUE, heatmap_legend_param = list(title="predicted contig source",labels=c("","plasmid","chromosome","both")))
+```
+We can also cluster based on plasmidome
+You'll have to import the variable plasmidome_clustering from the panaroo post processing script.
+```{r}
+#reorder based on plasmidome clustering
+label_order <- paste0(gsub("\\.","-",plasmidome_clustering$labels),".fna")
+pres_abs_class <- pres_abs_class[,label_order]
+ST_reordered <- ST %>% slice(match(label_order,strain))
 ```
 
+```{r}
+ST_anno =HeatmapAnnotation(ST = ST_reordered$ST,col=list(ST=colour_vector))
+Heatmap(pres_abs_class,show_column_names = FALSE,top_annotation = ST_anno, cluster_columns = as.dendrogram(plasmidome_clustering), cluster_rows = as.dendrogram(hclust_rows), row_dend_reorder = FALSE, col = colour_class, show_row_dend = TRUE)
+```
