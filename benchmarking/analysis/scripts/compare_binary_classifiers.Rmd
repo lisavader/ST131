@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE,fig.width = 9,fig.align = "left")
 ```
 
 ```{r, include=FALSE}
-packages <- c("readr","magrittr","dplyr","ggplot2","stringr","tidyr","knitr","ggrepel","VennDiagram","RColorBrewer","tibble","venn","flextable","patchwork")
+packages <- c("readr","magrittr","dplyr","ggplot2","stringr","tidyr","knitr","ggrepel","VennDiagram","RColorBrewer","tibble","venn","flextable")
 for (package in packages){
   if (!require(package, character.only = TRUE)) install.packages(package)
   require(package, character.only = TRUE)
@@ -216,27 +216,19 @@ Calculate metrics
 ```{r,message=FALSE}
 count_results <- final_result %>% group_by(software) %>% count(result)
 count_results %<>% spread(result,n) %>% mutate(precision=TP/(TP+FP),recall=TP/(TP+FN),f1_score=2*(precision*recall)/(precision+recall))
-count_results$software <- c("mlplasmids","PlaScope","Platon","RFPlasmid")
-binary_results <- count_results %>% select(TP,TN,FP,FN,precision,recall,f1_score) %>% flextable()
-```
-```{r}
-binary_results
-save_as_image(binary_results,"../results/figures/binary_table.png")
+count_results %>% select(TP,TN,FP,FN,precision,recall,f1_score) %>% flextable()
+      #caption = "Performance of binary classifiers (calculated per contig)")
 ```
 
 Show metrics in plot
 ```{r}
 metrics_levels <- c('recall','precision','f1_score')
-ggplot(count_results %>% select(software,precision,recall,f1_score) %>% pivot_longer(precision:f1_score, names_to = "metric", values_to = "value"),aes(y=software,x=value))+
+ggplot(count_results %>% select(software,precision,recall,f1_score) %>% pivot_longer(precision:f1_score, names_to = "metric", values_to = "value"),aes(x=software,y=value))+
   geom_point(size=3,aes(colour=factor(metric,level = metrics_levels)))+
-  labs(title="Performance of binary classifiers",y="Software",x="Score",colour="Metric")+
+  labs(title="Performance of binary classifiers",x="Software",y="Score",colour="Metric")+
   scale_colour_manual(labels=c("Recall","Precision","F1-Score"),values=c("#4c7af2","#f2924c","#f24c76"))+
-  scale_y_discrete(labels=c("mlplasmids","PlaScope","Platon","RFPlasmid"))+
+  scale_x_discrete(labels=c("Mlplasmids","PlaScope","Platon","RFPlasmid"))+
   theme(plot.title = element_text(size = 12))
-```
-
-```{r}
-ggsave("../results/figures/result_individual.svg",width = 8, height = 2.5)
 ```
 
 Plot per genome. Here we only select genomes that actually contain plasmids, otherwise precision and recall can't be established.
@@ -278,31 +270,30 @@ For PlaScope, we again categorise 'unclassified' contigs as chromosome.
 Build Venn diagrams
 ```{r}
 #Make a list of all true positives per software
-venn_TP <- list(mlplasmids = true_positives %>% filter(software=='mlplasmids') %>% pull(contig_name),Platon =true_positives %>% filter(software=='platon') %>% pull(contig_name),PlaScope=true_positives %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=true_positives %>% filter(software=='rfplasmid') %>% pull(contig_name))
+venn_TP <- list(Mlplasmids = true_positives %>% filter(software=='mlplasmids') %>% pull(contig_name),Platon =true_positives %>% filter(software=='platon') %>% pull(contig_name),PlaScope=true_positives %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=true_positives %>% filter(software=='rfplasmid') %>% pull(contig_name))
 #Convert list to venn diagram
-VennTP <- venn.diagram(venn_TP,filename = NULL,fill=brewer.pal(4, "Set3"),main = "True Positives",fontfamily = "sans",cat.fontfamily = "sans",main.fontfamily = "sans",main.cex = 1.25,main.pos = c(0.5,1))
+VennTP <- venn.diagram(venn_TP,filename = NULL,fill=brewer.pal(4, "Set3"))
 ```
 
 ```{r}
-venn_TN <- list(mlplasmids = true_negatives %>% filter(software=='mlplasmids') %>% pull(contig_name),Platon =true_negatives %>% filter(software=='platon') %>% pull(contig_name),PlaScope=true_negatives %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=true_negatives %>% filter(software=='rfplasmid') %>% pull(contig_name))
-VennTN<- venn.diagram(venn_TN,filename = NULL,fill=brewer.pal(4, "Set3"),main = "True Negatives",fontfamily = "sans",cat.fontfamily = "sans",main.fontfamily = "sans",main.cex = 1.25,main.pos = c(0.5,1))
+venn_TN <- list(Mlplasmids = true_negatives %>% filter(software=='mlplasmids') %>% pull(contig_name),Platon =true_negatives %>% filter(software=='platon') %>% pull(contig_name),PlaScope=true_negatives %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=true_negatives %>% filter(software=='rfplasmid') %>% pull(contig_name))
+VennTN<- venn.diagram(venn_TN,filename = NULL,fill=brewer.pal(4, "Set3"))
 ```
 
 ```{r}
-venn_FP <- list(mlplasmids = false_positives %>% filter(software=='mlplasmids') %>% pull(contig_name),Platon =false_positives %>% filter(software=='platon') %>% pull(contig_name),PlaScope=false_positives %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=false_positives %>% filter(software=='rfplasmid') %>% pull(contig_name))
-VennFP<- venn.diagram(venn_FP,filename = NULL,fill=brewer.pal(4, "Set3"),main = "False Positives",fontfamily = "sans",cat.fontfamily = "sans",main.fontfamily = "sans",main.cex = 1.25,main.pos = c(0.5,1))
+venn_FP <- list(Mlplasmids = false_positives %>% filter(software=='mlplasmids') %>% pull(contig_name),Platon =false_positives %>% filter(software=='platon') %>% pull(contig_name),PlaScope=false_positives %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=false_positives %>% filter(software=='rfplasmid') %>% pull(contig_name))
+VennFP<- venn.diagram(venn_FP,filename = NULL,fill=brewer.pal(4, "Set3"))
 ```
 
 ```{r}
-venn_FN <- list(mlplasmids = false_negatives %>% filter(software=='mlplasmids') %>% pull(contig_name),Platon =false_negatives %>% filter(software=='platon') %>% pull(contig_name),PlaScope=false_negatives %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=false_negatives %>% filter(software=='rfplasmid') %>% pull(contig_name))
-VennFN<- venn.diagram(venn_FN,filename = NULL,fill=brewer.pal(4, "Set3"),main = "False Negatives",fontfamily = "sans",cat.fontfamily = "sans",main.fontfamily = "sans",main.cex = 1.25,main.pos = c(0.5,1))
+venn_FN <- list(Mlplasmids = false_negatives %>% filter(software=='mlplasmids') %>% pull(contig_name),Platon =false_negatives %>% filter(software=='platon') %>% pull(contig_name),PlaScope=false_negatives %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=false_negatives %>% filter(software=='rfplasmid') %>% pull(contig_name))
+VennFN<- venn.diagram(venn_FN,filename = NULL,fill=brewer.pal(4, "Set3"))
 ```
 
-```{r}
-cowplot::plot_grid(VennTP,VennTN,VennFP,VennFN,labels = c("A","B","C","D"))
+```{r,echo=FALSE}
+cowplot::plot_grid(VennTP,VennTN,labels = c("True Positives","True Negatives"),label_x = 0.1)
+cowplot::plot_grid(VennFP,VennFN,labels = c("False Positives","False Negatives"),label_x = 0.1)
 ```
-
-
 These diagrams show that false positives and false negatives are often misclassified by only one of the softwares, while the other softwares classify them correctly. Besides, a significant portion of true positives and true negatives is correctly identified by two or three, but not all of the tools.
 
 ```{r}
@@ -364,14 +355,9 @@ venn_scores %<>% rownames_to_column("Combination")
 ```
 
 ```{r,echo=FALSE}
-ensemble_results <- venn_scores %>% flextable()
+venn_scores %>% flextable()
+#caption = "Performance of ensemble classifiers (calculated per contig)")
 ```
-
-```{r}
-ensemble_results
-save_as_image(ensemble_results,"../results/figures/ensemble_table.png")
-```
-
 Plot all metrics, for individual and ensemble classifiers:
 
 ```{r}
@@ -383,6 +369,16 @@ software_levels <- c("mlplasmids","plascope","platon","rfplasmid","Mlplasmids/Pl
 ```
 
 
+```{r}
+ggplot(metrics_plotting_data,aes(y=factor(software,level = rev(software_levels)),x=value))+
+  geom_point(size=2,aes(colour=factor(metric,level = metrics_levels)))+
+  labs(title="Performance of binary and ensemble classifiers",y="Classifier",x="Score",colour="Metric")+
+  scale_colour_manual(labels=c("Recall","Precision","F1-Score"),values=c("#4c7af2","#f2924c","#f24c76"))+
+  scale_y_discrete(labels=rev(c("mlplasmids","PlaScope","Platon","RFPlasmid","mlplasmids/PlaScope/Platon","mlplasmids/PlaScope/RFPlasmid","mlplasmids/Platon/RFPlasmid","Platon/PlaScope/RFPlasmid")))+
+  xlim(0.69,1)+
+  geom_hline(yintercept=4.5,colour="#8b8b8c")+
+  theme(plot.title = element_text(size = 12))
+```
 
 ```{r}
 ggsave("../results/figures/result_overall.svg",width = 8, height = 2.5)
@@ -492,11 +488,12 @@ Calculate metrics
 ```{r,message=FALSE}
 count_results_AMR <- final_result_AMR %>% group_by(software) %>% count(result)
 count_results_AMR %<>% spread(result,n) %>% mutate(recall=TP/(TP+FN))
-count_results_AMR$software <- c("mlplasmids","PlaScope","Platon","RFPlasmid")
-binary_results_AMR <- count_results_AMR %>% select(TP,FN,recall) %>% rename(method=software)
+count_results_AMR %>% select(TP,FN,recall) %>% flextable()
+      #caption = "Performance of binary classifiers (calculated per contig)")
 ```
+
 ```{r}
-flextable(binary_results_AMR)
+ggsave("binary_comparison.png",height = 5, width = 8)
 ```
 
 Instead of calculating the metrics for each contig, we can also assess the total number of basepairs that a software identifies as correct/incorrect.
@@ -505,7 +502,6 @@ Because longer contigs are easier to categorise, this leads to more favourable r
 ```{r,message=FALSE}
 length_result_AMR <- final_result_AMR %>% group_by(software,result) %>% summarise(total_bp = sum(contig_length))
 count_lengths_AMR <- spread(length_result_AMR,result,total_bp) %>% mutate(recall=TP/(TP+FN))
-count_results_AMR$software <- c("mlplasmids","PlaScope","Platon","RFPlasmid")
 count_lengths_AMR %>% select(TP,FN,recall) %>% flextable() #caption = "Performance of binary classifiers (calculated per basepair)")
 ```
 
@@ -542,28 +538,6 @@ VennFN_AMR<- venn.diagram(venn_FN_AMR,filename = NULL,fill=brewer.pal(4, "Set3")
 cowplot::plot_grid(VennTP_AMR,VennFN_AMR,labels = c("True Positives","False Negatives"),label_x = 0.1)
 ```
 These diagrams show that false positives and false negatives are often misclassified by only one of the softwares, while the other softwares classify them correctly. Besides, a significant portion of true positives and true negatives is correctly identified by two or three, but not all of the tools.
-
-Show diagrams only for Platon, PlaScope and RFPlasmid:
-```{r}
-#Make a list of all true positives per software
-venn_TP_AMR <- list(Platon =true_positives_AMR %>% filter(software=='platon') %>% pull(contig_name),PlaScope=true_positives_AMR %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=true_positives_AMR %>% filter(software=='rfplasmid') %>% pull(contig_name))
-#Convert list to venn diagram
-VennTP_AMR <- venn.diagram(venn_TP_AMR,filename = NULL,fill=brewer.pal(3, "Set3"))
-```
-
-```{r}
-venn_FN_AMR <- list(Platon =false_negatives_AMR %>% filter(software=='platon') %>% pull(contig_name),PlaScope=false_negatives_AMR %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=false_negatives_AMR %>% filter(software=='rfplasmid') %>% pull(contig_name))
-VennFN_AMR<- venn.diagram(venn_FN_AMR,filename = NULL,fill=brewer.pal(3, "Set3"))
-```
-
-```{r,echo=FALSE}
-cowplot::plot_grid(VennTP_AMR,VennFN_AMR,labels = c("True Positives","False Negatives"),label_x = 0.1, label_y=1.1)
-```
-
-```{r}
-ggsave("../results/figures/venn_AMR_three.svg",width = 10, height =5)
-```
-
 
 We now explore what happens when we combine three of the softwares, and assume the classification that the majority of softwares call.  
 
@@ -606,18 +580,9 @@ venn_scores_AMR %<>% rownames_to_column("Combination")
 ```
 
 ```{r,echo=FALSE}
-venn_scores_AMR %<>% rename(method=Combination)
+venn_scores_AMR %>% flextable()
+#caption = "Performance of ensemble classifiers (calculated per contig)")
 ```
-
-```{r}
-all_results_AMR <- flextable(rbind(binary_results_AMR,venn_scores_AMR))
-all_results_AMR
-```
-
-```{r}
-save_as_image(all_results_AMR,"../results/figures/all_results_AMR.png")
-```
-
 With regard to contigs, the ensemble classifiers outperform all the individual classifiers (top F1-score 85.5%). The combination Mlplasmids/Platon/PlaScope performs best with a recall of 96.8%, precision of 87.9% and F1-score of 92.1%. This combination scores the highest precision as well as the highest recall.
 
 Furthermore, we can take a look at the length of the false positive and false negative contigs that are called by the ensemble classifiers. We want to avoid large contigs being misclassified.
@@ -682,62 +647,15 @@ metrics_plotting_data_AMR <- rbind(venn_scores_AMR %>% rename(software=Combinati
 ```
 
 ```{r}
-#group classifiers by ensemble or individual, based on if software contains a '/'
-metrics_plotting_data %<>% mutate(group=ifelse(grepl('/',software),'ensemble','individual'))
-metrics_plotting_data_AMR %<>% mutate(group=ifelse(grepl('/',software),'ensemble','individual'))
-```
-
-
-```{r}
-plot_ind <- ggplot(metrics_plotting_data %>% filter(group=="individual"),aes(y=factor(software,level = rev(software_levels)),x=value))+
-  geom_point(size=3,aes(colour=factor(metric,level = metrics_levels)))+
-  labs(title="Performance of binary classifiers (full dataset)",y=NULL,x=NULL,colour="Metric")+
+ggplot(metrics_plotting_data_AMR,aes(y=factor(software,level = rev(software_levels)),x=recall))+
+  geom_point(size=3,colour="#4c7af2")+
+  labs(title="Recall of binary and ensemble classifiers for plasmids containing AMR genes",y="Classifier",x="Recall")+
   scale_colour_manual(labels=c("Recall","Precision","F1-Score"),values=c("#4c7af2","#f2924c","#f24c76"))+
-  scale_y_discrete(labels=rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")))+
+  scale_y_discrete(labels=rev(c("mlplasmids","PlaScope","Platon","RFPlasmid","mlplasmids/PlaScope/Platon","mlplasmids/PlaScope/RFPlasmid","mlplasmids/Platon/RFPlasmid","Platon/PlaScope/RFPlasmid")))+
   xlim(0.69,1)+
+  geom_hline(yintercept=4.5,colour="#8b8b8c")+
   theme(plot.title = element_text(size = 12))
 ```
-
-```{r}
-plot_ens <- ggplot(metrics_plotting_data %>% filter(group=="ensemble"),aes(y=factor(software,level = rev(software_levels)),x=value))+
-  geom_point(size=3,aes(colour=factor(metric,level = metrics_levels)))+
-  labs(title="Performance of plasmidEC (full dataset)",y=NULL,x="Score",colour="Metric")+
-  scale_colour_manual(labels=c("Recall","Precision","F1-Score"),values=c("#4c7af2","#f2924c","#f24c76"))+
-  scale_y_discrete(labels=rev(c("mlplasmids/PlaScope/Platon","mlplasmids/PlaScope/RFPlasmid","mlplasmids/Platon/RFPlasmid","Platon/PlaScope/RFPlasmid")))+
-  xlim(0.69,1)+
-  theme(plot.title = element_text(size = 12))
-```
-
-```{r}
-plot_ind_AMR <- ggplot(metrics_plotting_data_AMR %>% filter(group=="individual"),aes(y=factor(software,level = rev(software_levels)),x=recall))+
-  geom_point(size=3,colour="#4c7af2")+
-  labs(title="Performance of binary classifiers (resistance plasmids)",y= NULL,x=NULL)+
-  xlim(0.69,1)+
-  theme(plot.title = element_text(size = 12),
-        axis.text.y=element_blank(),
-        axis.ticks.y=element_blank())
-```
-
-```{r}
-plot_ens_AMR <- ggplot(metrics_plotting_data_AMR %>% filter(group=="ensemble"),aes(y=factor(software,level = rev(software_levels)),x=recall))+
-  geom_point(size=3,colour="#4c7af2")+
-  labs(title="Performance of plasmidEC (resistance plasmids)",y= NULL,x="Score")+
-  xlim(0.69,1)+
-  theme(plot.title = element_text(size = 12),
-        axis.text.y=element_blank(),
-        axis.ticks.y=element_blank())
-```
-
-```{r}
-metrics_levels <- c('recall','precision','f1_score')
-```
-
-```{r}
-plot_ind+plot_ind_AMR+plot_ens+plot_ens_AMR+
-  plot_annotation(tag_levels = 'A')+
-  plot_layout(guides = 'collect') & theme(legend.position='bottom')
-```
-
 ```{r}
 ggsave("../results/figures/result_AMR.svg",width = 8, height = 3)
 ```
