@@ -1,0 +1,33 @@
+#!/bin/bash
+
+#A. Sample download and genome assembly
+
+cd Ecoli_ncbi_download/scripts
+
+#Download short reads and completed assemblies
+bash get_reads_assemblies.sh
+#Flag replicons in completed assemblies as plasmid or chromosome
+python gather_replicon_data.py
+
+#Change names of the short reads (bactofidia requires a specific naming convention)
+bash rename_for_bactofidia.sh
+#Run bactofidia assembly
+bash run_bactofidia.sh
+#Make a list of all contig names
+bash get_all_contig_names.sh
+
+#B. Alignment of contigs to replicons
+
+cd ../../benchmarking/binary_classifiers/scripts
+
+bash map_contigs_to_replicons.sh
+
+#C. Run binary classifiers
+
+bash main.sh
+
+#D. Analysis (would recommend to do this in RStudio)
+
+cd ../../analysis/scripts
+
+RScript compare_binary_classifiers.Rmd
