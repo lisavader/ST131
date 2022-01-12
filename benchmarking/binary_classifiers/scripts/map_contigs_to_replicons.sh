@@ -5,7 +5,7 @@ source /home/dla_mm/lvader/data/miniconda3/etc/profile.d/conda.sh
 conda activate quast
 
 cd ../../../Ecoli_ncbi_download/results
-: '
+
 #make directory for storing quast scripts and results
 mkdir -p quast_output_bactofidia_contigs/ambiguity_all
 mkdir -p quast_scripts
@@ -26,7 +26,7 @@ done
 
 #wait for scripts to finish
 sleep 15m
-'
+
 ##Select true alignments
 cd quast_output_bactofidia_contigs/ambiguity_all/
 
