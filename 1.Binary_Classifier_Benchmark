@@ -30,4 +30,4 @@ bash main.sh
 
 cd ../../analysis/scripts
 
-RScript compare_binary_classifiers.Rmd
+Rscript compare_binary_classifiers.Rmd
