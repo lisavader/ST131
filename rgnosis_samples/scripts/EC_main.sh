@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #specify input directory (path from rgnosis_samples)
-path=$(echo 'results/bactofidia_output_ST131/scaffolds')
+path=$(echo 'results/bactofidia_output_all/scaffolds')
 
 #specify output name
 output_file=$(echo 'EC_output.csv')
@@ -31,4 +31,7 @@ python ../../benchmarking/plasmid_reconstruction/scripts/select_plasmid_contigs.
 }
 
 #specify which parts to run:
+run_binary_classifiers
+gather_results
+combine_results
 select_plasmid_contigs

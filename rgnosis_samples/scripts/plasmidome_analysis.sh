@@ -6,11 +6,11 @@ conda activate panaroo
 cd ../results/
 
 move_files(){
-mv bactofidia_output_ST131/scaffolds/predicted_plasmid_contigs plasmidome_ST131
+mv bactofidia_output_all/scaffolds/predicted_plasmid_contigs plasmidome_all
 }
 
 run_prokka(){
-cd plasmidome_ST131
+cd plasmidome_all
 
 mkdir -p annotations
 mkdir -p prokka_scripts
@@ -33,11 +33,13 @@ cd ..
 }
 
 run_plascope(){
-cd plasmidome_ST131
+cd plasmidome_all
 panaroo -i annotations/*/*.gff -o panaroo_output --clean-mode sensitive
 cd ..
 }
 
 #Run these:
+move_files
+run_prokka
 run_plascope
 
