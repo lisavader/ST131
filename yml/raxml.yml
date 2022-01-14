@@ -1,0 +1,13 @@
+name: raxml
+channels:
+  - bioconda/label/cf201901
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=conda_forge
+  - _openmp_mutex=4.5=1_gnu
+  - libgcc-ng=11.2.0=h1d223b6_11
+  - libgomp=11.2.0=h1d223b6_11
+  - raxml=8.2.12=h470a237_0
+prefix: /home/dla_mm/lvader/data/miniconda3/envs/raxml
