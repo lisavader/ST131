@@ -11,9 +11,11 @@ results/*predictions
 results/busco_output
 results/raw_reads
 results/*scripts
+results/strains_to_be_assembled.txt
 
 results/plasmidome_ST131/*.fasta
 results/plasmidome_ST131/annotations
+results/plasmidome_ST131/prokka_scripts
 results/plasmidome_ST131/panaroo_output/*
 !results/plasmidome_ST131/panaroo_output/gene_presence_absence.Rtab
 

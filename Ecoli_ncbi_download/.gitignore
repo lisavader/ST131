@@ -7,3 +7,5 @@ results/*
 !results/shortread_assemblies_bactofidia/
 results/shortread_assemblies_bactofidia/*
 !results/shortread_assemblies_bactofidia/*.txt
+
+scripts/gzip_scripts
