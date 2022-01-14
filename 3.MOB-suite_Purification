@@ -1,0 +1,27 @@
+#A. Unicycler assembly (bactofidia assembly is covered in main script 1, Binary Classifier Benchmark)
+
+cd Ecoli_ncbi_download/scripts
+
+bash run_unicycler.sh
+
+#B. Plasmid predictions (MOB-suite, plasmidEC)
+
+cd ../../benchmarking/plasmid_reconstruction/scripts
+
+#MOB-suite only 
+bash main.sh -d Ecoli -m mob_bac
+bash main.sh -d Ecoli -m mob_uni
+
+#Reconstruction first
+bash main.sh -d Ecoli -m mob_bac_cleaned
+bash main.sh -d Ecoli -m mob_uni_cleaned
+
+#Selection first
+bash main.sh -d Ecoli -m mob_bac_filtered
+bash main.sh -d Ecoli -m mob_uni_filtered
+
+#C. Analysis
+
+cd ../../analysis/scripts
+
+Rscript quast_processing_all.Rmd
