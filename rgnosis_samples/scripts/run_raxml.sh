@@ -16,4 +16,5 @@ cat RAxML_result.ml_tree.RUN.* > bootstrap_trees
 raxmlHPC -f b -m GTRCAT -t RAxML_bestTree.ml_tree -z bootstrap_trees -n bootstrap_tree
 }
 
+run_raxml
 draw_bootstrap_values

@@ -30,4 +30,6 @@ mv clermontyping_output ../../results
 }
 
 #Run:
+build_environment
+clone_clermontyping
 run_clermontyping

@@ -37,4 +37,6 @@ done
 }
 
 #Run:
+build_database
+blast_fimH
 gather_results

@@ -10,7 +10,7 @@ cd ../results
 ##Pre-processing
 #download mash refseq database
 mkdir -p ../databases
-#wget -P ../databases https://gembox.cbcb.umd.edu/mash/refseq.genomes.k21s1000.msh
+wget -P ../databases https://gembox.cbcb.umd.edu/mash/refseq.genomes.k21s1000.msh
 
 #run pre-processing script
 preprocessing(){
@@ -31,4 +31,6 @@ panaroo-msa -o panaroo_output_${dataset} -a core --core_threshold 0.999
 run_panaroo all
 }
 
+preprocessing all
+run_panaroo all
 align_core_genes all
