@@ -1,0 +1,38 @@
+#!/bin/bash
+
+#A. Genome assembly and basic analysis (bactofidia)
+
+cd rgnosis_samples/scripts
+
+bash bactofidia_all_reads.sh
+bash download_additional_Ecoli.sh 
+
+#B. Metadata acquisition
+
+bash blast_fimH.sh
+bash clermontyping.sh
+
+cd ../../rgnosis_metadata/scripts
+Rscript get_all_metadata.R
+
+#C Phylogenetic reconstruction (RaxML)
+
+cd ../../rgnosis_samples/scripts
+
+bash run_raxml.sh
+Rscript adjust_trees.Rmd
+
+#D. Pangenome reconstruction (panaroo)
+
+bash run_panaroo.sh
+
+#E. Plasmidome prediction
+
+bash EC_main.sh
+bash plasmidome_analysis.sh
+
+#F. Analysis
+
+Rscript ST_abundance.Rmd
+Rscript panaroo_postprocessing.Rmd
+Rscript AMR_analysis.Rmd
