@@ -52,10 +52,10 @@ done
 
 run_bactofidia(){
 #run bactofidia on raw reads
-cd ../../../bactofidia
-ln -s ../ST131_repo/rgnosis_samples/results/raw_reads/*.gz .
+cd ../../bactofidia
+ln -s rgnosis_samples/results/raw_reads/*.gz .
 sbatch --time 48:00:00 --mem 32G -c 8 bactofidia.sh ALL
-cd ../ST131_repo/rgnosis_samples/results
+cd rgnosis_samples/results
 }
 
 merge_all_assemblies(){
@@ -104,5 +104,10 @@ tail -n +2 bactofidia_output_add_Ecoli/stats/ResFinder.tsv >> bactofidia_output_
 }
 
 #Specify which functions to run:
+find_strains
+show_summary
+get_raw_reads
+run_bactofidia
+merge_all_assemblies
 merge_resfinder
 
