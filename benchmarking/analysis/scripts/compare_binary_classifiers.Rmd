@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE,fig.width = 9,fig.align = "left")
 ```
 
 ```{r, include=FALSE}
-packages <- c("readr","magrittr","dplyr","ggplot2","stringr","tidyr","knitr","ggrepel","VennDiagram","RColorBrewer","tibble","venn","flextable")
+packages <- c("readr","magrittr","dplyr","ggplot2","stringr","tidyr","knitr","ggrepel","VennDiagram","RColorBrewer","tibble","venn","flextable","patchwork")
 for (package in packages){
   if (!require(package, character.only = TRUE)) install.packages(package)
   require(package, character.only = TRUE)
@@ -22,7 +22,7 @@ theme_set(theme_bw())
 ```
 
 ### Introduction
-This script is used to test the performance of four binary classifiers (Mlplasmids,Platon,Plascope and RFPlasmid) that were developed to differentiate chromosomal contigs from plasmidal contigs. We evaluate their performance specifically for E. coli ST131 strains, using a benchmarking dataset of 50 ST131 samples that have been sequenced by short-read as well as long-read technologies, and that have their complete genomes. We have previously assembled the short reads of all samples and used the resulting contigs as input for the four binary classifiers. These contigs have also been mapped to their reference genomes by QUAST so that we know whether they belong to the chromosome or the plasmid. Now we will assess for each contig whether the prediction made by the binary classifiers matches the actual classification.
+This script is used to test the performance of four binary classifiers (Mlplasmids,Platon,Plascope and RFPlasmid) that were developed to differentiate chromosomal contigs from plasmidal contigs. We have previously assembled the short reads of all samples and used the resulting contigs as input for the four binary classifiers. These contigs have also been mapped to their reference genomes by QUAST so that we know whether they belong to the chromosome or the plasmid. Now we will assess for each contig whether the prediction made by the binary classifiers matches the actual classification.
 
 
 ### Import contig related data
@@ -146,7 +146,7 @@ ggplot(contig_type_overview %>% count(contig_type),aes(x="",y=n,fill=factor(cont
   geom_bar(width = 1,stat = "identity")+
   coord_polar("y",start=0)+
   scale_fill_manual(labels=rev(c("Correctly aligned","Ambiguously aligned to one replicon","Ambiguously aligned to multiple plasmids","Misassembled and aligned to one replicon","Misassembled and aligned to multiple plasmids","Unaligned","Alignment less than 90% of contig size","Ambiguously aligned to both plasmid and chromosome","Misassembled and aligned to both plasmid and chromosome")),values=rev(c("#ffa600","#ff6361","#bc5090","#58508d","#003f5c","#bcbcbc","#8b8b8c","#5c5d5f","#393939")))+
-  geom_label_repel(aes(label = n/sum(n)), size=3, position = position_stack(vjust = 0.5))+
+  #geom_label_repel(aes(label = n/sum(n)), size=3, position = position_stack(vjust = 0.5))+
   labs(title = "Relative frequency of contig types",x = "",y = "Count",fill="Contig type")+
   guides(fill=guide_legend(reverse = TRUE))
 
@@ -166,12 +166,6 @@ ggplot(contig_type_overview,aes(x=log(contig_length,10),fill=factor(contig_type,
 ```{r}
 ggsave('../results/figures/contiglengths.svg',width = 10,height = 5)
 ```  
-45% of all contigs could be correctly mapped to a replicon.  
-43% could not be aligned at all, most of them being smaller than 1000 bp.  
-4% of contigs were ambiguously aligned, mostly to only one replicon.   
-6% of contigs had some kind of (supposed) misassembly event going on, almost all of them within the same replicon.  
-1% of contigs were discarded because the contig had an alignment of less than 90%.  
-Ambiguously aligned contigs appear to be short, while 'misassembled' contigs are longer.  
 
 Add classifications to the replicons of selected contigs.
 ```{r}
@@ -308,10 +302,8 @@ venn_counts_TP <- as_tibble(as.list(lengths(attributes(venn(venn_TP))$intersecti
 venn_counts_FP <- as_tibble(as.list(lengths(attributes(venn(venn_FP))$intersections)))
 venn_counts_TN <- as_tibble(as.list(lengths(attributes(venn(venn_TN))$intersections)))
 venn_counts_FN <- as_tibble(as.list(lengths(attributes(venn(venn_FN))$intersections)))
-venn_counts <- merge(merge(merge(venn_counts_TP,venn_counts_TN,all=TRUE),venn_counts_FN,all=TRUE),venn_counts_FP,all=TRUE)
+venn_counts <- rbind(venn_counts_TP,venn_counts_TN,venn_counts_FP,venn_counts_FN)
 venn_counts %<>% replace(is.na(.), 0)
-rownames(venn_counts) <- c("TN","TP","FN","FP")
-venn_counts <- venn_counts[c("TP","TN","FP","FN"),]
 ```
 
 Calculate by how many tools each result is achieved.
@@ -326,7 +318,7 @@ tool_numbers <- venn_counts %>% mutate(one_tool=rowSums(venn_counts %>% select(c
 tool_numbers
 ```
 
-We calculate the number of true positive, true negative, false positive and false negative contigs for each of the four combinations of softwares. Contigs are included if they are classified by at least two out of three softwares. This means that contigs predicted by three of four softwares are always included.
+We calculate the number of true positive, true negative, false positive and false negative contigs for each of the four combinations of softwares. Contig predictions are included if they are given by at least two out of three softwares. This means that predictions by three of four softwares are always included.
 ```{r}
 for (combination in c("Mlplasmids/Platon/PlaScope","Mlplasmids/Platon/RFPlasmid","Mlplasmids/PlaScope/RFPlasmid","Platon/PlaScope/RFPlasmid")){
   #Split the input names into variables soft1/soft2/soft3
@@ -349,6 +341,7 @@ Calculate precision, recall and F1-score for the ensemble combinations.
 ```{r}
 venn_scores <- venn_counts %>% select(`Mlplasmids/PlaScope/RFPlasmid`,`Mlplasmids/Platon/PlaScope`,`Mlplasmids/Platon/RFPlasmid`,`Platon/PlaScope/RFPlasmid`)
 venn_scores <- as.data.frame(t(venn_scores))
+venn_scores %<>% rename(c(TP = V1,TN = V2,FP = V3,FN = V4))
 rownames(venn_scores) <- str_replace(row.names(venn_scores),"Total_","")
 venn_scores %<>% mutate(precision=TP/(TP+FP),recall=TP/(TP+FN),f1_score=2*(precision*recall)/(precision+recall))
 venn_scores %<>% rownames_to_column("Combination")
@@ -383,8 +376,6 @@ ggplot(metrics_plotting_data,aes(y=factor(software,level = rev(software_levels))
 ```{r}
 ggsave("../results/figures/result_overall.svg",width = 8, height = 2.5)
 ```
-
-With regard to contigs, the ensemble classifiers outperform all the individual classifiers (top F1-score 85.5%). The combination Mlplasmids/Platon/PlaScope performs best with a recall of 96.8%, precision of 87.9% and F1-score of 92.1%. This combination scores the highest precision as well as the highest recall.
 
 Furthermore, we can take a look at the length of the false positive and false negative contigs that are called by the ensemble classifiers. We want to avoid large contigs being misclassified.
 
@@ -545,13 +536,12 @@ Count the number of contigs at the intersections of the resulting venn diagrams 
 ```{r,fig.show='hide'}
 venn_counts_TP_AMR <- as_tibble(as.list(lengths(attributes(venn(venn_TP_AMR))$intersections)))
 venn_counts_FN_AMR <- as_tibble(as.list(lengths(attributes(venn(venn_FN_AMR))$intersections)))
-venn_counts_AMR <- merge(venn_counts_TP_AMR,venn_counts_FN_AMR,all=TRUE)
+venn_counts_AMR <- merge(venn_counts_TP_AMR,venn_counts_FN_AMR,all = TRUE)
 venn_counts_AMR %<>% replace(is.na(.), 0)
 rownames(venn_counts_AMR) <- c("TP","FN")
-venn_counts_AMR <- venn_counts_AMR[c("TP","FN"),]
 ```
 
-We calculate the number of true positive, true negative, false positive and false negative contigs for each of the four combinations of softwares. Contigs are included if they are classified by at least two out of three softwares. This means that contigs predicted by three of four softwares are always included.
+We calculate the number of true positive, true negative, false positive and false negative contigs for each of the four combinations of softwares. Contig predictions are included if they are given by at least two out of three softwares. This means that predictions by three of four softwares are always included.
 ```{r}
 for (combination in c("Mlplasmids/Platon/PlaScope","Mlplasmids/Platon/RFPlasmid","Mlplasmids/PlaScope/RFPlasmid","Platon/PlaScope/RFPlasmid")){
   #Split the input names into variables soft1/soft2/soft3
@@ -583,7 +573,6 @@ venn_scores_AMR %<>% rownames_to_column("Combination")
 venn_scores_AMR %>% flextable()
 #caption = "Performance of ensemble classifiers (calculated per contig)")
 ```
-With regard to contigs, the ensemble classifiers outperform all the individual classifiers (top F1-score 85.5%). The combination Mlplasmids/Platon/PlaScope performs best with a recall of 96.8%, precision of 87.9% and F1-score of 92.1%. This combination scores the highest precision as well as the highest recall.
 
 Furthermore, we can take a look at the length of the false positive and false negative contigs that are called by the ensemble classifiers. We want to avoid large contigs being misclassified.
 
@@ -656,8 +645,67 @@ ggplot(metrics_plotting_data_AMR,aes(y=factor(software,level = rev(software_leve
   geom_hline(yintercept=4.5,colour="#8b8b8c")+
   theme(plot.title = element_text(size = 12))
 ```
+
 ```{r}
-ggsave("../results/figures/result_AMR.svg",width = 8, height = 3)
+#group classifiers by ensemble or individual, based on if software contains a '/'
+metrics_plotting_data %<>% mutate(group=ifelse(grepl('/',software),'ensemble','individual'))
+metrics_plotting_data_AMR %<>% mutate(group=ifelse(grepl('/',software),'ensemble','individual'))
+```
+
+### Plot all metrics into one graph
+
+```{r}
+plot_ind <- ggplot(metrics_plotting_data %>% filter(group=="individual"),aes(y=factor(software,level = rev(software_levels)),x=value))+
+  geom_point(size=3,aes(colour=factor(metric,level = metrics_levels)))+
+  labs(title="Performance of binary classifiers (full dataset)",y=NULL,x=NULL,colour="Metric")+
+  scale_colour_manual(labels=c("Recall","Precision","F1-Score"),values=c("#4c7af2","#f2924c","#f24c76"))+
+  scale_y_discrete(labels=rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")))+
+  xlim(0.69,1)+
+  theme(plot.title = element_text(size = 12))
+```
+
+```{r}
+plot_ens <- ggplot(metrics_plotting_data %>% filter(group=="ensemble"),aes(y=factor(software,level = rev(software_levels)),x=value))+
+  geom_point(size=3,aes(colour=factor(metric,level = metrics_levels)))+
+  labs(title="Performance of plasmidEC (full dataset)",y=NULL,x="Score",colour="Metric")+
+  scale_colour_manual(labels=c("Recall","Precision","F1-Score"),values=c("#4c7af2","#f2924c","#f24c76"))+
+  scale_y_discrete(labels=rev(c("mlplasmids/PlaScope/Platon","mlplasmids/PlaScope/RFPlasmid","mlplasmids/Platon/RFPlasmid","Platon/PlaScope/RFPlasmid")))+
+  xlim(0.69,1)+
+  theme(plot.title = element_text(size = 12))
+```
+
+```{r}
+plot_ind_AMR <- ggplot(metrics_plotting_data_AMR %>% filter(group=="individual"),aes(y=factor(software,level = rev(software_levels)),x=recall))+
+  geom_point(size=3,colour="#4c7af2")+
+  labs(title="Performance of binary classifiers (resistance plasmids)",y= NULL,x=NULL)+
+  xlim(0.69,1)+
+  theme(plot.title = element_text(size = 12),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())
+```
+
+```{r}
+plot_ens_AMR <- ggplot(metrics_plotting_data_AMR %>% filter(group=="ensemble"),aes(y=factor(software,level = rev(software_levels)),x=recall))+
+  geom_point(size=3,colour="#4c7af2")+
+  labs(title="Performance of plasmidEC (resistance plasmids)",y= NULL,x="Score")+
+  xlim(0.69,1)+
+  theme(plot.title = element_text(size = 12),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())
+```
+
+```{r}
+metrics_levels <- c('recall','precision','f1_score')
+```
+
+```{r}
+plot_ind+plot_ind_AMR+plot_ens+plot_ens_AMR+
+  plot_annotation(tag_levels = 'A')+
+  plot_layout(guides = 'collect') & theme(legend.position='bottom')
+```
+
+```{r}
+ggsave("../results/figures/all_metrics.png",width = 10, height = 5)
 ```
 
 Why is there an increase in performance for AMR containing plasmids? A possible explanation would be that the contigs are larger on average, making it easier to classify them.
