@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE,fig.width = 9,fig.align = "left")
 ```
 
 ```{r, include=FALSE}
-packages <- c("readr","magrittr","dplyr","ggplot2","stringr","tidyr","knitr","ggrepel","VennDiagram","RColorBrewer","tibble","venn","flextable","patchwork")
+packages <- c("readr","magrittr","dplyr","ggplot2","stringr","tidyr","knitr","ggrepel","VennDiagram","RColorBrewer","tibble","venn","flextable","patchwork","lubridate")
 for (package in packages){
   if (!require(package, character.only = TRUE)) install.packages(package)
   require(package, character.only = TRUE)
@@ -719,3 +719,67 @@ ggplot(plasmid_length_data,aes(x=dataset,y=log(contig_length,10)))+
 
 Hmm actually the full dataset has a slightly larger median contig length, so this is not the right explanation.
 
+### Compare cpu and memory requirements
+
+Import cpu and memory data
+```{r}
+comp_data <- read_delim("../../binary_classifiers/results/cpu_memory_records.txt"," ")
+#remove whitespace in column names and data
+names(comp_data)<-gsub(" ", "",names(comp_data))
+comp_data %<>% mutate_if(is.character, str_trim)
+#add software names according to JobID
+comp_data %<>% mutate(tool=c("mlplasmids","Platon","PlaScope","RFPlasmid","mlplasmids/PlaScope/Platon","mlplasmids/Platon/RFPlasmid","mlplasmids/PlaScope/RFPlasmid","PlaScope/Platon/RFPlasmid"))
+```
+
+Move days, hours, minutes into separate columns
+```{r}
+comp_data %<>% separate(CPUTime,c("days","hms"),sep = '-',remove = FALSE,fill = 'left')
+comp_data %<>% separate(hms,c("hours","minutes","seconds"),sep = ":",remove = FALSE)
+#convert time columns from character to numeric
+comp_data %<>% mutate_at(c("days","hours","minutes","seconds"),as.numeric)
+#convert na values to zero
+comp_data[is.na(comp_data)] <- 0
+```
+
+Convert time to minutes
+```{r}
+comp_data %<>% mutate(cpu_mins=1440*days+60*hours+minutes+seconds/60)
+```
+
+Convert memory to MB
+```{r}
+#convert value to numeric
+comp_data %<>% mutate(memory_mb=as.numeric(sub("K","",MaxRSS)))
+#convert to mb
+comp_data %<>% mutate(memory_mb=memory_mb/1000)
+```
+
+Calculate avg time and memory per sample
+```{r}
+comp_data %<>% mutate(avg_time=60*cpu_mins/213) %>% mutate(avg_mem=memory_mb/213)
+```
+
+```{r}
+tool_levels<- c("mlplasmids","PlaScope","Platon","RFPlasmid","mlplasmids/PlaScope/Platon","mlplasmids/PlaScope/RFPlasmid","mlplasmids/Platon/RFPlasmid","PlaScope/Platon/RFPlasmid")
+time <- ggplot(comp_data,aes(x=avg_time,y=factor(tool,level=rev(tool_levels))))+
+  geom_bar(stat = "identity")+
+  labs(x="Average CPU time per sample (mins)",y=NULL)
+```
+
+```{r}
+tool_levels<- c("mlplasmids","PlaScope","Platon","RFPlasmid","mlplasmids/PlaScope/Platon","mlplasmids/PlaScope/RFPlasmid","mlplasmids/Platon/RFPlasmid","PlaScope/Platon/RFPlasmid")
+mem <- ggplot(comp_data,aes(x=avg_mem,y=factor(tool,level=rev(tool_levels))))+
+  geom_bar(stat = "identity")+
+  labs(x="Average memory per sample (MB)",y=NULL)+
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank())
+```
+
+```{r}
+time+mem+
+  plot_annotation(tag_levels = 'A')
+```
+
+```{r}
+ggsave("../results/figures/cpu.svg",width = 8, height = 3)
+```
