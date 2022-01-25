@@ -125,6 +125,9 @@ ggplot(gene_count_plotting,aes(y=genes,x=factor(ST131,levels = c("ST131","Other 
   stat_compare_means(method = "t.test",label.y = 1500)+
   theme(legend.position = "none")
 ```
+```{r}
+ggsave("../results/figures/acc_plas_comparison.svg",width = 10,height = 7)
+```
 
 Plot plasmidome against accessory genome
 ```{r}
@@ -147,6 +150,9 @@ ggplot(gene_counts,aes(x=accessory,y=plasmidome,colour=factor(ST131,levels = c("
   stat_regline_equation(aes(label = ..eq.label..))+
   stat_regline_equation(label.x = 2000, aes(label = ..rr.label..))+
   labs(colour="Dataset",y="Nr. of genes in plasmidome",x="Nr. of genes in accessory genome")
+```
+```{r}
+ggsave("../results/figures/regression.svg",width = 7,height = 4)
 ```
 
 ### Calculate and visualise distances
@@ -298,4 +304,11 @@ Heatmap(jaccard_matrix, heatmap_width = unit(20, "cm"), heatmap_height = unit(20
 If you just do Jaccard, you compare the accessory genome of one strain to the accessory genome of another strain.
 If you then calculate Euclidian distance on the Jaccard matrix, you compare all Jaccard distances of one 
 strain to all Jaccard distances of another strain. 
+
+```{r}
+accessory
+```
+```{r}
+
+```
 

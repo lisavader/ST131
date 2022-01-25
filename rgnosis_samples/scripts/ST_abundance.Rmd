@@ -42,3 +42,6 @@ ggplot(ST_counts,aes(y=factor(ST_group,level=rev(ST_levels)),x=count,fill=ST_gro
   labs(y=NULL,fill="ST")
 ```
 
+```{r}
+ggsave("../results/figures/STs.svg",width = 7,height = 3)
+```

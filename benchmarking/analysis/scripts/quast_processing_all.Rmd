@@ -261,11 +261,16 @@ ggplot(count_bin_types, aes(y=factor(method,level=rev(level_order_methods)),fill
   geom_bar(position = 'stack')+
   labs(x = "Number of bins",fill="Composition")+
   scale_fill_manual(values=rev(c("#75C24B","#47954D","#fc8e13","#ec6b3b","#e84141","#5c5d5f")),labels=rev(c("One plasmid","Multiple plasmids","Plasmid and chromosome","Multiple plasmids and chromosome","Chromosome","No correct alignments")),guide = guide_legend(reverse = TRUE))+
-  labs(title="Bin composition per reconstruction method")+
+  labs(title=NULL)+
   theme(axis.title.y = element_blank())+
   facet_wrap(~assembler)
   
 ```
+
+```{r}
+ggsave("../results/figures/composition.png",width = 7,height = 3)
+```
+
 ```{r}
 level_order_types <- c("one_plasmid","multiple_plasmids","plasmid_and_chromosome","multiple_plasmids_and_chromosome","chromosome","no_correct_alignments")
 ggplot(count_bin_types %>% filter(software %in% c('mob_uni','mob_uni_cleaned')), aes(y=factor(software,level=c('mob_uni_cleaned','mob_uni')),fill=factor(bin_type,level = rev(level_order_types))))+
@@ -385,10 +390,13 @@ labs(title = "Recall per reference plasmid")+
 
 Plot four plots together
 ```{r}
-bin_recall+ref_recall+bin_prec+ref_prec+
+bin_recall+bin_prec+ref_recall+
+  plot_layout(ncol = 1)+
   plot_annotation(tag_levels = 'A')
 ```
-
+```{r}
+ggsave("../results/figures/mobsuite_bins.svg",width = 10,height = 12)
+```
 
 ```{r}
 ggplot(quast_output_reference %>% filter(software %in% c('mob_uni','mob_uni_cleaned')),aes(x=software,y=recall_bp))+

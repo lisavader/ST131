@@ -77,6 +77,11 @@ ggplot(count_AMR,aes(y=count,x=factor(ST131,levels = c("ST131","Other")),fill=fa
   stat_compare_means(method = "t.test", label.y=15)+
   labs(x = NULL, y = "Nr. of ARGs")
 ```
+
+```{r}
+ggsave("../results/figures/ARGboxplot.svg",width = 7,height = 4)
+```
+
 ```{r}
 t.test(count_AMR %>% filter(ST131=="ST131") %>% select(count),count_AMR %>% filter(ST131=="Other") %>% select(count))
 ```
@@ -101,7 +106,9 @@ ggplot(count_samples_selected, aes(x=count,y=reorder(GENE,+total_count), fill=cl
   labs(fill="Predicted location")+
   scale_fill_manual(values=c("#de6909","#218f61"))
 ```
-
+```{r}
+ggsave("../results/figures/ARGbarplot.svg",width = 7,height = 5)
+```
 
 ## Co-occurrence analysis for ST131
 Are certain AMR genes more frequently found together?
@@ -428,7 +435,8 @@ hclust_rows <- hclust(dist_rows,method = "average")
 
 ```{r}
 anno =HeatmapAnnotation(ST = metadata_anno$ST_group, phylogroup = metadata_anno$phylogroup, col = list(ST=ST_colours,phylogroup=phylogroup_colours))
-Heatmap(pres_abs_class,show_column_names = FALSE,top_annotation = anno, cluster_columns = as.dendrogram(phylogeny), cluster_rows = as.dendrogram(hclust_rows), row_dend_reorder = FALSE, col = colour_class, show_row_dend = TRUE, heatmap_legend_param = list(title="predicted contig source",labels=c("","plasmid","chromosome","both")))
+heatmap = Heatmap(pres_abs_class,show_column_names = FALSE,top_annotation = anno, cluster_columns = as.dendrogram(phylogeny), cluster_rows = as.dendrogram(hclust_rows), row_dend_reorder = FALSE, col = colour_class, show_row_dend = TRUE, heatmap_legend_param = list(direction="horizontal",title="predicted contig source",labels=c("","plasmid","chromosome","both")))
+draw(heatmap, heatmap_legend_side = "bottom",annotation_legend_side = "bottom",merge_legend = TRUE)
 ```
 We can also cluster based on plasmidome
 You'll have to import the variable plasmidome_clustering from the panaroo post processing script.
