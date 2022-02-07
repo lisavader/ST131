@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE,fig.width = 9,fig.align = "left")
 ```
 
 ```{r, include=FALSE}
-packages <- c("readr","magrittr","dplyr","ggplot2","stringr","tidyr","knitr","ggrepel","VennDiagram","RColorBrewer","tibble","venn","flextable","patchwork","lubridate")
+packages <- c("readr","magrittr","dplyr","ggplot2","stringr","tidyr","knitr","ggrepel","VennDiagram","RColorBrewer","tibble","venn","flextable","patchwork","lubridate","UpSetR")
 for (package in packages){
   if (!require(package, character.only = TRUE)) install.packages(package)
   require(package, character.only = TRUE)
@@ -264,25 +264,54 @@ For PlaScope, we again categorise 'unclassified' contigs as chromosome.
 Build Venn diagrams
 ```{r}
 #Make a list of all true positives per software
-venn_TP <- list(Mlplasmids = true_positives %>% filter(software=='mlplasmids') %>% pull(contig_name),Platon =true_positives %>% filter(software=='platon') %>% pull(contig_name),PlaScope=true_positives %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=true_positives %>% filter(software=='rfplasmid') %>% pull(contig_name))
+list_TP <- list(mlplasmids = true_positives %>% filter(software=='mlplasmids') %>% pull(contig_name),Platon =true_positives %>% filter(software=='platon') %>% pull(contig_name),PlaScope=true_positives %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=true_positives %>% filter(software=='rfplasmid') %>% pull(contig_name))
 #Convert list to venn diagram
-VennTP <- venn.diagram(venn_TP,filename = NULL,fill=brewer.pal(4, "Set3"))
+VennTP <- venn.diagram(list_TP,filename = NULL,fill=brewer.pal(4, "Set3"))
 ```
 
 ```{r}
-venn_TN <- list(Mlplasmids = true_negatives %>% filter(software=='mlplasmids') %>% pull(contig_name),Platon =true_negatives %>% filter(software=='platon') %>% pull(contig_name),PlaScope=true_negatives %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=true_negatives %>% filter(software=='rfplasmid') %>% pull(contig_name))
-VennTN<- venn.diagram(venn_TN,filename = NULL,fill=brewer.pal(4, "Set3"))
+list_TN <- list(mlplasmids = true_negatives %>% filter(software=='mlplasmids') %>% pull(contig_name),Platon =true_negatives %>% filter(software=='platon') %>% pull(contig_name),PlaScope=true_negatives %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=true_negatives %>% filter(software=='rfplasmid') %>% pull(contig_name))
+VennTN<- venn.diagram(list_TN,filename = NULL,fill=brewer.pal(4, "Set3"))
 ```
 
 ```{r}
-venn_FP <- list(Mlplasmids = false_positives %>% filter(software=='mlplasmids') %>% pull(contig_name),Platon =false_positives %>% filter(software=='platon') %>% pull(contig_name),PlaScope=false_positives %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=false_positives %>% filter(software=='rfplasmid') %>% pull(contig_name))
-VennFP<- venn.diagram(venn_FP,filename = NULL,fill=brewer.pal(4, "Set3"))
+list_FP <- list(mlplasmids = false_positives %>% filter(software=='mlplasmids') %>% pull(contig_name),Platon =false_positives %>% filter(software=='platon') %>% pull(contig_name),PlaScope=false_positives %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=false_positives %>% filter(software=='rfplasmid') %>% pull(contig_name))
+VennFP<- venn.diagram(list_FP,filename = NULL,fill=brewer.pal(4, "Set3"))
 ```
 
 ```{r}
-venn_FN <- list(Mlplasmids = false_negatives %>% filter(software=='mlplasmids') %>% pull(contig_name),Platon =false_negatives %>% filter(software=='platon') %>% pull(contig_name),PlaScope=false_negatives %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=false_negatives %>% filter(software=='rfplasmid') %>% pull(contig_name))
-VennFN<- venn.diagram(venn_FN,filename = NULL,fill=brewer.pal(4, "Set3"))
+list_FN <- list(mlplasmids = false_negatives %>% filter(software=='mlplasmids') %>% pull(contig_name),Platon =false_negatives %>% filter(software=='platon') %>% pull(contig_name),PlaScope=false_negatives %>% filter(software=='plascope') %>% pull(contig_name),RFPlasmid=false_negatives %>% filter(software=='rfplasmid') %>% pull(contig_name))
+VennFN<- venn.diagram(list_FN,filename = NULL,fill=brewer.pal(4, "Set3"))
 ```
+
+Try out an upset plot instead
+
+```{r}
+#merge false positives and false negatives
+df_FP <- fromList(list_FP) %>% mutate(type="FP")
+df_FN <- fromList(list_FN) %>% mutate(type="FN")
+df_false <- rbind(df_FP,df_FN)
+```
+
+```{r}
+#pdf(file = "../results/figures/upset_false.pdf",width = 10,height = 7)
+upset(df_false,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), order.by = "freq",keep.order = TRUE, queries = list(list(query = elements, params = list("type","FN","FP"), color = "dark orange", active = T,query.name = "False Negative"),list(query = elements, params = list("type","FP"), color = "red", active = T,query.name = "False Positive")),query.legend = "top")
+#dev.off()
+```
+
+
+Show true positives
+
+```{r}
+df_TP <- fromList(list_TP) %>% mutate(type="TP")
+```
+
+```{r}
+pdf(file = "../results/figures/upset_TP.pdf",width = 10,height = 7)
+upset(df_TP,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), order.by = "freq",keep.order = TRUE, queries = list(list(query = elements, params = list("type","TP"), color = "dark green", active = T)))
+dev.off()
+```
+
 
 ```{r,echo=FALSE}
 cowplot::plot_grid(VennTP,VennTN,labels = c("True Positives","True Negatives"),label_x = 0.1)
