@@ -300,23 +300,56 @@ upset(df_false,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), orde
 ```
 
 ```{r}
-#pdf(file = "../results/figures/upset_false.pdf",width = 10,height = 7)
-upset(df_FP,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), order.by = "freq",keep.order = TRUE, queries = list(list(query = elements, params = list("type","FP"), color = "red", active = T,query.name = "False Positive"),list(query = intersects, params = list("mlplasmids","Platon","PlaScope"), color = "orange", active = T)))
-#dev.off()
+pdf(file = "../results/figures/upset2_FP.pdf",width = 10,height = 7)
+upset(df_FP,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), order.by = "freq",keep.order = TRUE, queries = list(list(query = intersects, params = list("mlplasmids","Platon","PlaScope"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids","PlaScope","RFPlasmid"), color = "orange", active = T),list(query = intersects, params = list("RFPlasmid","Platon","PlaScope"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids","RFPlasmid","Platon"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids"), color = "blue", active = T),list(query = intersects, params = list("Platon"), color = "blue", active = T),list(query = intersects, params = list("PlaScope"), color = "blue", active = T),list(query = intersects, params = list("RFPlasmid"), color = "blue", active = T)))
+dev.off()
 ```
-
+```{r}
+pdf(file = "../results/figures/upset2_FN.pdf",width = 10,height = 7)
+upset(df_FN,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), order.by = "freq",keep.order = TRUE, queries = list(list(query = intersects, params = list("mlplasmids","Platon","PlaScope"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids","PlaScope","RFPlasmid"), color = "orange", active = T),list(query = intersects, params = list("RFPlasmid","Platon","PlaScope"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids","RFPlasmid","Platon"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids"), color = "blue", active = T),list(query = intersects, params = list("Platon"), color = "blue", active = T),list(query = intersects, params = list("PlaScope"), color = "blue", active = T),list(query = intersects, params = list("RFPlasmid"), color = "blue", active = T)))
+dev.off()
+```
 Show true positives
 
 ```{r}
 df_TP <- fromList(list_TP) %>% mutate(type="TP")
+df_TN <- fromList(list_TN) %>% mutate(type="TN")
 ```
 
 ```{r}
-pdf(file = "../results/figures/upset_TP.pdf",width = 10,height = 7)
+pdf(file = "../results/figures/upset2_TP.pdf",width = 10,height = 7)
+upset(df_TP,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), order.by = "freq",keep.order = TRUE, queries = list(list(query = intersects, params = list("mlplasmids","Platon","PlaScope"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids","PlaScope","RFPlasmid"), color = "orange", active = T),list(query = intersects, params = list("RFPlasmid","Platon","PlaScope"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids","RFPlasmid","Platon"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids"), color = "blue", active = T),list(query = intersects, params = list("Platon"), color = "blue", active = T),list(query = intersects, params = list("PlaScope"), color = "blue", active = T),list(query = intersects, params = list("RFPlasmid"), color = "blue", active = T)))
+dev.off()
+```
+```{r}
+#pdf(file = "../results/figures/upset_TP.pdf",width = 10,height = 7)
 upset(df_TP,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), order.by = "freq",keep.order = TRUE, queries = list(list(query = elements, params = list("type","TP"), color = "dark green", active = T)))
+#dev.off()
+```
+
+```{r}
+pdf(file = "../results/figures/upset2_TN.pdf",width = 10,height = 7)
+upset(df_TN,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), order.by = "freq",keep.order = TRUE, queries = list(list(query = intersects, params = list("mlplasmids","Platon","PlaScope"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids","PlaScope","RFPlasmid"), color = "orange", active = T),list(query = intersects, params = list("RFPlasmid","Platon","PlaScope"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids","RFPlasmid","Platon"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids"), color = "blue", active = T),list(query = intersects, params = list("Platon"), color = "blue", active = T),list(query = intersects, params = list("PlaScope"), color = "blue", active = T),list(query = intersects, params = list("RFPlasmid"), color = "blue", active = T)))
 dev.off()
 ```
 
+Exclude the four-way intersection
+```{r}
+df_TN_excluded <- fromList(list_TN) %>% filter(rowSums(.)<4) %>% mutate(type="TN")
+```
+
+```{r}
+pdf(file = "../results/figures/upset2_TN_excl.pdf",width = 10,height = 7)
+upset(df_TN_excluded,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), order.by = "freq",keep.order = TRUE, queries = list(list(query = intersects, params = list("mlplasmids","Platon","PlaScope"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids","PlaScope","RFPlasmid"), color = "orange", active = T),list(query = intersects, params = list("RFPlasmid","Platon","PlaScope"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids","RFPlasmid","Platon"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids"), color = "blue", active = T),list(query = intersects, params = list("Platon"), color = "blue", active = T),list(query = intersects, params = list("PlaScope"), color = "blue", active = T),list(query = intersects, params = list("RFPlasmid"), color = "blue", active = T)))
+dev.off()
+```
+Use log scale
+
+```{r}
+pdf(file = "../results/figures/upset2_TN_log.pdf",width = 10,height = 7)
+upset(df_TN,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), scale.intersections = "log10", scale.sets = "log10", order.by = "freq",keep.order = TRUE)
+dev.off()
+```
 
 ```{r,echo=FALSE}
 cowplot::plot_grid(VennTP,VennTN,labels = c("True Positives","True Negatives"),label_x = 0.1)
