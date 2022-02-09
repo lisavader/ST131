@@ -299,6 +299,11 @@ upset(df_false,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), orde
 #dev.off()
 ```
 
+```{r}
+#pdf(file = "../results/figures/upset_false.pdf",width = 10,height = 7)
+upset(df_FP,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), order.by = "freq",keep.order = TRUE, queries = list(list(query = elements, params = list("type","FP"), color = "red", active = T,query.name = "False Positive"),list(query = intersects, params = list("mlplasmids","Platon","PlaScope"), color = "orange", active = T)))
+#dev.off()
+```
 
 Show true positives
 
