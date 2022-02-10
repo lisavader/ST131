@@ -300,12 +300,12 @@ upset(df_false,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), orde
 ```
 
 ```{r}
-pdf(file = "../results/figures/upset2_FP.pdf",width = 10,height = 7)
+png(file = "../results/figures/upset2_FP.png",width = 20,height = 14,units = "cm",res = 200)
 upset(df_FP,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), order.by = "freq",keep.order = TRUE, queries = list(list(query = intersects, params = list("mlplasmids","Platon","PlaScope"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids","PlaScope","RFPlasmid"), color = "orange", active = T),list(query = intersects, params = list("RFPlasmid","Platon","PlaScope"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids","RFPlasmid","Platon"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids"), color = "blue", active = T),list(query = intersects, params = list("Platon"), color = "blue", active = T),list(query = intersects, params = list("PlaScope"), color = "blue", active = T),list(query = intersects, params = list("RFPlasmid"), color = "blue", active = T)))
 dev.off()
 ```
 ```{r}
-pdf(file = "../results/figures/upset2_FN.pdf",width = 10,height = 7)
+png(file = "../results/figures/upset2_FN.png",width = 20,height = 14,units = "cm",res = 200)
 upset(df_FN,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), order.by = "freq",keep.order = TRUE, queries = list(list(query = intersects, params = list("mlplasmids","Platon","PlaScope"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids","PlaScope","RFPlasmid"), color = "orange", active = T),list(query = intersects, params = list("RFPlasmid","Platon","PlaScope"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids","RFPlasmid","Platon"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids"), color = "blue", active = T),list(query = intersects, params = list("Platon"), color = "blue", active = T),list(query = intersects, params = list("PlaScope"), color = "blue", active = T),list(query = intersects, params = list("RFPlasmid"), color = "blue", active = T)))
 dev.off()
 ```
@@ -317,7 +317,7 @@ df_TN <- fromList(list_TN) %>% mutate(type="TN")
 ```
 
 ```{r}
-pdf(file = "../results/figures/upset2_TP.pdf",width = 10,height = 7)
+png(file = "../results/figures/upset2_TP.png",width = 20,height = 14,units = "cm",res = 200)
 upset(df_TP,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), order.by = "freq",keep.order = TRUE, queries = list(list(query = intersects, params = list("mlplasmids","Platon","PlaScope"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids","PlaScope","RFPlasmid"), color = "orange", active = T),list(query = intersects, params = list("RFPlasmid","Platon","PlaScope"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids","RFPlasmid","Platon"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids"), color = "blue", active = T),list(query = intersects, params = list("Platon"), color = "blue", active = T),list(query = intersects, params = list("PlaScope"), color = "blue", active = T),list(query = intersects, params = list("RFPlasmid"), color = "blue", active = T)))
 dev.off()
 ```
@@ -328,7 +328,7 @@ upset(df_TP,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), order.b
 ```
 
 ```{r}
-pdf(file = "../results/figures/upset2_TN.pdf",width = 10,height = 7)
+png(file = "../results/figures/upset2_TN.png",width = 20,height = 14,units = "cm",res = 200)
 upset(df_TN,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), order.by = "freq",keep.order = TRUE, queries = list(list(query = intersects, params = list("mlplasmids","Platon","PlaScope"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids","PlaScope","RFPlasmid"), color = "orange", active = T),list(query = intersects, params = list("RFPlasmid","Platon","PlaScope"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids","RFPlasmid","Platon"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids"), color = "blue", active = T),list(query = intersects, params = list("Platon"), color = "blue", active = T),list(query = intersects, params = list("PlaScope"), color = "blue", active = T),list(query = intersects, params = list("RFPlasmid"), color = "blue", active = T)))
 dev.off()
 ```
