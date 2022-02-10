@@ -772,7 +772,7 @@ plot_ind+plot_ind_AMR+plot_ens+plot_ens_AMR+
 ```
 
 ```{r}
-ggsave("../results/figures/all_metrics.png",width = 10, height = 5)
+ggsave("../results/figures/all_metrics.png",width = 12, height = 7)
 ```
 
 Why is there an increase in performance for AMR containing plasmids? A possible explanation would be that the contigs are larger on average, making it easier to classify them.
