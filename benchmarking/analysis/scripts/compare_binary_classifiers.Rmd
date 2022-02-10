@@ -725,7 +725,7 @@ metrics_plotting_data_AMR %<>% mutate(group=ifelse(grepl('/',software),'ensemble
 plot_ind <- ggplot(metrics_plotting_data %>% filter(group=="individual"),aes(y=factor(software,level = rev(software_levels)),x=value))+
   geom_point(size=3,aes(colour=factor(metric,level = metrics_levels)))+
   labs(title="Performance of binary classifiers (full dataset)",y=NULL,x=NULL,colour="Metric")+
-  scale_colour_manual(labels=c("Recall","Precision","F1-Score"),values=c("#4c7af2","#f2924c","#f24c76"))+
+  scale_colour_manual(labels=c("Recall(contig)","Precision(contig)","F1-Score(contig)"),values=c("#4c7af2","#f2924c","#f24c76"))+
   scale_y_discrete(labels=rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")))+
   xlim(0.69,1)+
   theme(plot.title = element_text(size = 12))
@@ -735,7 +735,7 @@ plot_ind <- ggplot(metrics_plotting_data %>% filter(group=="individual"),aes(y=f
 plot_ens <- ggplot(metrics_plotting_data %>% filter(group=="ensemble"),aes(y=factor(software,level = rev(software_levels)),x=value))+
   geom_point(size=3,aes(colour=factor(metric,level = metrics_levels)))+
   labs(title="Performance of plasmidEC (full dataset)",y=NULL,x="Score",colour="Metric")+
-  scale_colour_manual(labels=c("Recall","Precision","F1-Score"),values=c("#4c7af2","#f2924c","#f24c76"))+
+  scale_colour_manual(labels=c("Recall(contig)","Precision(contig)","F1-Score(contig)"),values=c("#4c7af2","#f2924c","#f24c76"))+
   scale_y_discrete(labels=rev(c("mlplasmids/PlaScope/Platon","mlplasmids/PlaScope/RFPlasmid","mlplasmids/Platon/RFPlasmid","Platon/PlaScope/RFPlasmid")))+
   xlim(0.69,1)+
   theme(plot.title = element_text(size = 12))
