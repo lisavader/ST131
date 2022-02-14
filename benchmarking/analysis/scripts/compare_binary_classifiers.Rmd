@@ -161,10 +161,11 @@ contig_type_overview %<>% mutate(contig_length=as.numeric(sub(".*?length_(.*?)_.
 ggplot(contig_type_overview,aes(x=log(contig_length,10),fill=factor(contig_type,level = level_order_contigs)))+
   geom_histogram(binwidth = 0.2, boundary=0)+
   scale_fill_manual(labels=c("Correctly aligned","Ambiguously aligned to one replicon","Ambiguously aligned to multiple plasmids","Misassembled and aligned to one replicon","Misassembled and aligned to multiple plasmids","Unaligned","Alignment less than 90% of contig size","Ambiguously aligned to both plasmid and chromosome","Misassembled and aligned to both plasmid and chromosome"),values=c("#ffa600","#ff6361","#bc5090","#58508d","#003f5c","#bcbcbc","#8b8b8c","#5c5d5f","#393939"))+
-  labs(title = "Overview of contigs in the dataset",x="Contig length (log10 bp)",y = "Count",fill="Alignment type")
+  labs(title = NULL,x="Log10(Contig length)",y = "Nr. of contigs",fill="Alignment type")+
+  theme(axis.text.y=element_text(size=9),axis.text.x=element_text(size=9),axis.title.y=element_text(size=13),axis.title.x=element_text(size=13),legend.text = element_text(size=11),legend.title = element_text(size=13))
 ```
 ```{r}
-ggsave('../results/figures/contiglengths.svg',width = 10,height = 5)
+ggsave('../results/figures/contiglengths.png',width = 10,height = 5)
 ```  
 
 Add classifications to the replicons of selected contigs.
@@ -724,29 +725,29 @@ metrics_plotting_data_AMR %<>% mutate(group=ifelse(grepl('/',software),'ensemble
 ```{r}
 plot_ind <- ggplot(metrics_plotting_data %>% filter(group=="individual"),aes(y=factor(software,level = rev(software_levels)),x=value))+
   geom_point(size=3,aes(colour=factor(metric,level = metrics_levels)))+
-  labs(title="Performance of binary classifiers (full dataset)",y=NULL,x=NULL,colour="Metric")+
+  labs(y=NULL,x=NULL,colour="Metric:")+
   scale_colour_manual(labels=c("Recall(contig)","Precision(contig)","F1-Score(contig)"),values=c("#4c7af2","#f2924c","#f24c76"))+
   scale_y_discrete(labels=rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")))+
   xlim(0.69,1)+
-  theme(plot.title = element_text(size = 12))
+  theme(axis.text.y=element_text(size=12),axis.text.x=element_text(size=10),legend.text = element_text(size=13),legend.title = element_text(size=13))
 ```
 
 ```{r}
 plot_ens <- ggplot(metrics_plotting_data %>% filter(group=="ensemble"),aes(y=factor(software,level = rev(software_levels)),x=value))+
   geom_point(size=3,aes(colour=factor(metric,level = metrics_levels)))+
-  labs(title="Performance of plasmidEC (full dataset)",y=NULL,x="Score",colour="Metric")+
+  labs(y=NULL,x="Score",colour="Metric:")+
   scale_colour_manual(labels=c("Recall(contig)","Precision(contig)","F1-Score(contig)"),values=c("#4c7af2","#f2924c","#f24c76"))+
   scale_y_discrete(labels=rev(c("mlplasmids/PlaScope/Platon","mlplasmids/PlaScope/RFPlasmid","mlplasmids/Platon/RFPlasmid","Platon/PlaScope/RFPlasmid")))+
   xlim(0.69,1)+
-  theme(plot.title = element_text(size = 12))
+  theme(axis.text.y=element_text(size=12),axis.text.x=element_text(size=10),legend.text = element_text(size=13),legend.title = element_text(size=13))
 ```
 
 ```{r}
 plot_ind_AMR <- ggplot(metrics_plotting_data_AMR %>% filter(group=="individual"),aes(y=factor(software,level = rev(software_levels)),x=recall))+
   geom_point(size=3,colour="#4c7af2")+
-  labs(title="Performance of binary classifiers (resistance plasmids)",y= NULL,x=NULL)+
+  labs(y= NULL,x=NULL)+
   xlim(0.69,1)+
-  theme(plot.title = element_text(size = 12),
+  theme(axis.text.x=element_text(size=10),
         axis.text.y=element_blank(),
         axis.ticks.y=element_blank())
 ```
@@ -754,9 +755,9 @@ plot_ind_AMR <- ggplot(metrics_plotting_data_AMR %>% filter(group=="individual")
 ```{r}
 plot_ens_AMR <- ggplot(metrics_plotting_data_AMR %>% filter(group=="ensemble"),aes(y=factor(software,level = rev(software_levels)),x=recall))+
   geom_point(size=3,colour="#4c7af2")+
-  labs(title="Performance of plasmidEC (resistance plasmids)",y= NULL,x="Score")+
+  labs(y= NULL,x="Score")+
   xlim(0.69,1)+
-  theme(plot.title = element_text(size = 12),
+  theme(axis.text.x=element_text(size=10),
         axis.text.y=element_blank(),
         axis.ticks.y=element_blank())
 ```
@@ -767,12 +768,12 @@ metrics_levels <- c('recall','precision','f1_score')
 
 ```{r}
 plot_ind+plot_ind_AMR+plot_ens+plot_ens_AMR+
-  plot_annotation(tag_levels = 'A')+
+  #plot_annotation(tag_levels = 'A')+
   plot_layout(guides = 'collect') & theme(legend.position='bottom')
 ```
 
 ```{r}
-ggsave("../results/figures/all_metrics.png",width = 12, height = 7)
+ggsave("../results/figures/all_metrics.png",width = 12, height = 5)
 ```
 
 Why is there an increase in performance for AMR containing plasmids? A possible explanation would be that the contigs are larger on average, making it easier to classify them.
@@ -830,23 +831,23 @@ comp_data %<>% mutate(avg_time=60*cpu_mins/213) %>% mutate(avg_mem=memory_mb/213
 tool_levels<- c("mlplasmids","PlaScope","Platon","RFPlasmid","mlplasmids/PlaScope/Platon","mlplasmids/PlaScope/RFPlasmid","mlplasmids/Platon/RFPlasmid","PlaScope/Platon/RFPlasmid")
 time <- ggplot(comp_data,aes(x=avg_time,y=factor(tool,level=rev(tool_levels))))+
   geom_bar(stat = "identity")+
-  labs(x="Average CPU time per sample (mins)",y=NULL)
+  labs(x="Average CPU time per sample (mins)",y=NULL)+
+  theme(axis.text.y = element_text(size = 12))
 ```
 
 ```{r}
-tool_levels<- c("mlplasmids","PlaScope","Platon","RFPlasmid","mlplasmids/PlaScope/Platon","mlplasmids/PlaScope/RFPlasmid","mlplasmids/Platon/RFPlasmid","PlaScope/Platon/RFPlasmid")
 mem <- ggplot(comp_data,aes(x=avg_mem,y=factor(tool,level=rev(tool_levels))))+
   geom_bar(stat = "identity")+
   labs(x="Average memory per sample (MB)",y=NULL)+
-  theme(axis.text.y = element_blank(),
-        axis.ticks.y = element_blank())
+  theme(axis.text.y = element_text(size = 12))
+  #theme(axis.text.y = element_blank(),
+  #      axis.ticks.y = element_blank())
 ```
 
 ```{r}
-time+mem+
-  plot_annotation(tag_levels = 'A')
+time+mem+plot_layout(ncol = 1)
 ```
 
 ```{r}
-ggsave("../results/figures/cpu.svg",width = 8, height = 3)
+ggsave("../results/figures/cpu.png",width = 10, height = 5)
 ```
