@@ -296,18 +296,38 @@ df_false <- rbind(df_FP,df_FN)
 
 ```{r}
 #pdf(file = "../results/figures/upset_false.pdf",width = 10,height = 7)
-upset(df_false,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), order.by = "freq",keep.order = TRUE, queries = list(list(query = elements, params = list("type","FN","FP"), color = "dark orange", active = T,query.name = "False Negative"),list(query = elements, params = list("type","FP"), color = "red", active = T,query.name = "False Positive")),query.legend = "top")
+upset(df_false,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), order.by = "freq",keep.order = TRUE, queries = list(list(query = elements, params = list("type","FN","FP"), color = "dark #59DCBC", active = T,query.name = "False Negative"),list(query = elements, params = list("type","FP"), color = "red", active = T,query.name = "False Positive")),query.legend = "top")
 #dev.off()
 ```
 
 ```{r}
 png(file = "../results/figures/upset2_FP.png",width=7*2,height=2.75*2,units = "in",res = 150)
-upset(df_FP,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), order.by = "freq",keep.order = TRUE,mainbar.y.label ="Nr. of contigs", sets.x.label = "Total contigs per tool", text.scale = c(1.8,1.6,1.8,1.6,1.9,2), point.size = 3, line.size = 1, queries = list(list(query = intersects, params = list("mlplasmids","Platon","PlaScope"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids","PlaScope","RFPlasmid"), color = "orange", active = T),list(query = intersects, params = list("RFPlasmid","Platon","PlaScope"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids","RFPlasmid","Platon"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids"), color = "blue", active = T),list(query = intersects, params = list("Platon"), color = "blue", active = T),list(query = intersects, params = list("PlaScope"), color = "blue", active = T),list(query = intersects, params = list("RFPlasmid"), color = "blue", active = T)))
+upset(df_FP,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), order.by = "freq",keep.order = TRUE,mainbar.y.label ="Nr. of contigs", sets.x.label = "Total contigs per tool", text.scale = c(1.8,1.6,1.8,1.6,1.9,2), point.size = 4, line.size = 1, 
+#colour tools:
+queries = list(
+  #4-way
+  list(query = intersects, params = list("mlplasmids","Platon","PlaScope","RFPlasmid"), color = "#2A47A9", active = T),
+  #3-way
+  list(query = intersects, params = list("mlplasmids","Platon","PlaScope"), color = "#59DCBC", active = T),list(query = intersects, params = list("mlplasmids","PlaScope","RFPlasmid"), color = "#59DCBC", active = T),list(query = intersects, params = list("RFPlasmid","Platon","PlaScope"), color = "#59DCBC", active = T),list(query = intersects, params = list("mlplasmids","RFPlasmid","Platon"), color = "#59DCBC", active = T),
+  #2-way
+  list(query = intersects, params = list("mlplasmids","Platon"), color = "#F5CA26", active = T),list(query = intersects, params = list("mlplasmids","PlaScope"), color = "#F5CA26", active = T),list(query = intersects, params = list("RFPlasmid","Platon"), color = "#F5CA26", active = T),list(query = intersects, params = list("mlplasmids","RFPlasmid"), color = "#F5CA26", active = T),list(query = intersects, params = list("PlaScope","Platon"), color = "#F5CA26", active = T),list(query = intersects, params = list("PlaScope","RFPlasmid"), color = "#F5CA26", active = T),
+  #singular
+  list(query = intersects, params = list("mlplasmids"), color = "#EC6545", active = T),list(query = intersects, params = list("Platon"), color = "#EC6545", active = T),list(query = intersects, params = list("PlaScope"), color = "#EC6545", active = T),list(query = intersects, params = list("RFPlasmid"), color = "#EC6545", active = T)))
 dev.off()
 ```
 ```{r}
 png(file = "../results/figures/upset2_FN.png",width=7*2,height=2.75*2,units = "in",res = 150)
-upset(df_FN,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), order.by = "freq",keep.order = TRUE,mainbar.y.label ="Nr. of contigs", sets.x.label = "Total contigs per tool", text.scale = c(1.8,1.6,1.8,1.6,1.9,2), point.size = 3, line.size = 1, queries = list(list(query = intersects, params = list("mlplasmids","Platon","PlaScope"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids","PlaScope","RFPlasmid"), color = "orange", active = T),list(query = intersects, params = list("RFPlasmid","Platon","PlaScope"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids","RFPlasmid","Platon"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids"), color = "blue", active = T),list(query = intersects, params = list("Platon"), color = "blue", active = T),list(query = intersects, params = list("PlaScope"), color = "blue", active = T),list(query = intersects, params = list("RFPlasmid"), color = "blue", active = T)))
+upset(df_FN,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), order.by = "freq",keep.order = TRUE,mainbar.y.label ="Nr. of contigs", sets.x.label = "Total contigs per tool", text.scale = c(1.8,1.6,1.8,1.6,1.9,2), point.size = 4, line.size = 1, 
+#colour tools:
+queries = list(
+  #4-way
+  list(query = intersects, params = list("mlplasmids","Platon","PlaScope","RFPlasmid"), color = "#2A47A9", active = T),
+  #3-way
+  list(query = intersects, params = list("mlplasmids","Platon","PlaScope"), color = "#59DCBC", active = T),list(query = intersects, params = list("mlplasmids","PlaScope","RFPlasmid"), color = "#59DCBC", active = T),list(query = intersects, params = list("RFPlasmid","Platon","PlaScope"), color = "#59DCBC", active = T),list(query = intersects, params = list("mlplasmids","RFPlasmid","Platon"), color = "#59DCBC", active = T),
+  #2-way
+  list(query = intersects, params = list("mlplasmids","Platon"), color = "#F5CA26", active = T),list(query = intersects, params = list("mlplasmids","PlaScope"), color = "#F5CA26", active = T),list(query = intersects, params = list("RFPlasmid","Platon"), color = "#F5CA26", active = T),list(query = intersects, params = list("mlplasmids","RFPlasmid"), color = "#F5CA26", active = T),list(query = intersects, params = list("PlaScope","Platon"), color = "#F5CA26", active = T),list(query = intersects, params = list("PlaScope","RFPlasmid"), color = "#F5CA26", active = T),
+  #singular
+  list(query = intersects, params = list("mlplasmids"), color = "#EC6545", active = T),list(query = intersects, params = list("Platon"), color = "#EC6545", active = T),list(query = intersects, params = list("PlaScope"), color = "#EC6545", active = T),list(query = intersects, params = list("RFPlasmid"), color = "#EC6545", active = T)))
 dev.off()
 ```
 Show true positives
@@ -319,7 +339,17 @@ df_TN <- fromList(list_TN) %>% mutate(type="TN")
 
 ```{r}
 png(file = "../results/figures/upset2_TP.png",width=7*2,height=2.75*2,units = "in",res = 150)
-upset(df_TP,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), order.by = "freq",keep.order = TRUE,mainbar.y.label ="Nr. of contigs", sets.x.label = "Total contigs per tool", text.scale = c(1.8,1.6,1.8,1.6,1.9,2), point.size = 3, line.size = 1, queries = list(list(query = intersects, params = list("mlplasmids","Platon","PlaScope"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids","PlaScope","RFPlasmid"), color = "orange", active = T),list(query = intersects, params = list("RFPlasmid","Platon","PlaScope"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids","RFPlasmid","Platon"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids"), color = "blue", active = T),list(query = intersects, params = list("Platon"), color = "blue", active = T),list(query = intersects, params = list("PlaScope"), color = "blue", active = T),list(query = intersects, params = list("RFPlasmid"), color = "blue", active = T)))
+upset(df_TP,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), order.by = "freq",keep.order = TRUE,mainbar.y.label ="Nr. of contigs", sets.x.label = "Total contigs per tool", text.scale = c(1.8,1.6,1.8,1.6,1.9,2), point.size = 4, line.size = 1, 
+#colour tools:
+queries = list(
+  #4-way
+  list(query = intersects, params = list("mlplasmids","Platon","PlaScope","RFPlasmid"), color = "#2A47A9", active = T),
+  #3-way
+  list(query = intersects, params = list("mlplasmids","Platon","PlaScope"), color = "#59DCBC", active = T),list(query = intersects, params = list("mlplasmids","PlaScope","RFPlasmid"), color = "#59DCBC", active = T),list(query = intersects, params = list("RFPlasmid","Platon","PlaScope"), color = "#59DCBC", active = T),list(query = intersects, params = list("mlplasmids","RFPlasmid","Platon"), color = "#59DCBC", active = T),
+  #2-way
+  list(query = intersects, params = list("mlplasmids","Platon"), color = "#F5CA26", active = T),list(query = intersects, params = list("mlplasmids","PlaScope"), color = "#F5CA26", active = T),list(query = intersects, params = list("RFPlasmid","Platon"), color = "#F5CA26", active = T),list(query = intersects, params = list("mlplasmids","RFPlasmid"), color = "#F5CA26", active = T),list(query = intersects, params = list("PlaScope","Platon"), color = "#F5CA26", active = T),list(query = intersects, params = list("PlaScope","RFPlasmid"), color = "#F5CA26", active = T),
+  #singular
+  list(query = intersects, params = list("mlplasmids"), color = "#EC6545", active = T),list(query = intersects, params = list("Platon"), color = "#EC6545", active = T),list(query = intersects, params = list("PlaScope"), color = "#EC6545", active = T),list(query = intersects, params = list("RFPlasmid"), color = "#EC6545", active = T)))
 dev.off()
 ```
 ```{r}
@@ -330,7 +360,17 @@ upset(df_TP,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), order.b
 
 ```{r}
 png(file = "../results/figures/upset2_TN.png",width=7*2,height=2.75*2,units = "in",res = 150)
-upset(df_TN,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), order.by = "freq",keep.order = TRUE,mainbar.y.label ="Nr. of contigs", sets.x.label = "Total contigs per tool", text.scale = c(1.8,1.6,1.8,1.6,1.9,2), point.size = 3, line.size = 1, queries = list(list(query = intersects, params = list("mlplasmids","Platon","PlaScope"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids","PlaScope","RFPlasmid"), color = "orange", active = T),list(query = intersects, params = list("RFPlasmid","Platon","PlaScope"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids","RFPlasmid","Platon"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids"), color = "blue", active = T),list(query = intersects, params = list("Platon"), color = "blue", active = T),list(query = intersects, params = list("PlaScope"), color = "blue", active = T),list(query = intersects, params = list("RFPlasmid"), color = "blue", active = T)))
+upset(df_TN,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), order.by = "freq",keep.order = TRUE,mainbar.y.label ="Nr. of contigs", sets.x.label = "Total contigs per tool", text.scale = c(1.8,1.6,1.8,1.6,1.9,2), point.size = 4, line.size = 1, 
+#colour tools:
+queries = list(
+  #4-way
+  list(query = intersects, params = list("mlplasmids","Platon","PlaScope","RFPlasmid"), color = "#2A47A9", active = T),
+  #3-way
+  list(query = intersects, params = list("mlplasmids","Platon","PlaScope"), color = "#59DCBC", active = T),list(query = intersects, params = list("mlplasmids","PlaScope","RFPlasmid"), color = "#59DCBC", active = T),list(query = intersects, params = list("RFPlasmid","Platon","PlaScope"), color = "#59DCBC", active = T),list(query = intersects, params = list("mlplasmids","RFPlasmid","Platon"), color = "#59DCBC", active = T),
+  #2-way
+  list(query = intersects, params = list("mlplasmids","Platon"), color = "#F5CA26", active = T),list(query = intersects, params = list("mlplasmids","PlaScope"), color = "#F5CA26", active = T),list(query = intersects, params = list("RFPlasmid","Platon"), color = "#F5CA26", active = T),list(query = intersects, params = list("mlplasmids","RFPlasmid"), color = "#F5CA26", active = T),list(query = intersects, params = list("PlaScope","Platon"), color = "#F5CA26", active = T),list(query = intersects, params = list("PlaScope","RFPlasmid"), color = "#F5CA26", active = T),
+  #singular
+  list(query = intersects, params = list("mlplasmids"), color = "#EC6545", active = T),list(query = intersects, params = list("Platon"), color = "#EC6545", active = T),list(query = intersects, params = list("PlaScope"), color = "#EC6545", active = T),list(query = intersects, params = list("RFPlasmid"), color = "#EC6545", active = T)))
 dev.off()
 ```
 
@@ -341,7 +381,7 @@ df_TN_excluded <- fromList(list_TN) %>% filter(rowSums(.)<4) %>% mutate(type="TN
 
 ```{r}
 pdf(file = "../results/figures/upset2_TN_excl.pdf",width = 10,height = 7)
-upset(df_TN_excluded,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), order.by = "freq",keep.order = TRUE, queries = list(list(query = intersects, params = list("mlplasmids","Platon","PlaScope"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids","PlaScope","RFPlasmid"), color = "orange", active = T),list(query = intersects, params = list("RFPlasmid","Platon","PlaScope"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids","RFPlasmid","Platon"), color = "orange", active = T),list(query = intersects, params = list("mlplasmids"), color = "blue", active = T),list(query = intersects, params = list("Platon"), color = "blue", active = T),list(query = intersects, params = list("PlaScope"), color = "blue", active = T),list(query = intersects, params = list("RFPlasmid"), color = "blue", active = T)))
+upset(df_TN_excluded,sets = rev(c("mlplasmids","PlaScope","Platon","RFPlasmid")), order.by = "freq",keep.order = TRUE, queries = list(list(query = intersects, params = list("mlplasmids","Platon","PlaScope"), color = "#59DCBC", active = T),list(query = intersects, params = list("mlplasmids","PlaScope","RFPlasmid"), color = "#59DCBC", active = T),list(query = intersects, params = list("RFPlasmid","Platon","PlaScope"), color = "#59DCBC", active = T),list(query = intersects, params = list("mlplasmids","RFPlasmid","Platon"), color = "#59DCBC", active = T),list(query = intersects, params = list("mlplasmids"), color = "#EC6545", active = T),list(query = intersects, params = list("Platon"), color = "#EC6545", active = T),list(query = intersects, params = list("PlaScope"), color = "#EC6545", active = T),list(query = intersects, params = list("RFPlasmid"), color = "#EC6545", active = T)))
 dev.off()
 ```
 Use log scale
